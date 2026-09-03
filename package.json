@@ -1,0 +1,13 @@
+{
+  "name": "blog-frontend-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@11.25.0",
+  "scripts": {
+    "dev": "pnpm -r --parallel run dev",
+    "dev:blog": "pnpm --filter @repo/blog dev",
+    "dev:admin": "pnpm --filter @repo/admin dev",
+    "build": "pnpm -r run build",
+    "typecheck": "pnpm -r run typecheck"
+  }
+}
