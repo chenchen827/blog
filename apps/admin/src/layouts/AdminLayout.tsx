@@ -132,11 +132,11 @@ export default function AdminLayout() {
         </button>
       </header>
       <div className="flex flex-1 items-stretch">
-        <aside className="sticky top-[68px] hidden h-[calc(100vh-68px)] w-60 shrink-0 overflow-y-auto border-r border-hairline bg-primary xl:block">
+        <aside className="sticky top-17 hidden h-[calc(100vh-68px)] w-60 shrink-0 overflow-y-auto border-r border-hairline bg-primary xl:block">
           <NavList />
         </aside>
         <main className="min-w-0 flex-1">
-          <div className="mx-auto w-full max-w-[2000px] px-4 py-8 md:px-8">
+          <div className="mx-auto w-full max-w-[2000px] h-full py-8 md:px-8 bg-[url('//chenchen-827.oss-cn-chengdu.aliyuncs.com/image/admin-bg.jpg')] bg-cover bg-center bg-no-repeat">
             <Outlet />
           </div>
         </main>

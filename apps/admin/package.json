@@ -12,6 +12,8 @@
   "dependencies": {
     "@ant-design/icons": "^6.3.4",
     "@repo/shared": "workspace:*",
+    "@tiptap/react": "^3.16.0",
+    "@tiptap/starter-kit": "^3.16.0",
     "antd": "^6.6.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

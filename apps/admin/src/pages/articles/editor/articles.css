@@ -1,0 +1,85 @@
+/* 富文本编辑器正文排版：与 design.md 的深色杂志化风格保持一致 */
+.article-editor-content {
+  min-height: 320px;
+  padding: 16px 20px;
+  color: #f5f5f5;
+  font-size: 16px;
+  line-height: 1.7;
+  outline: none;
+}
+
+.article-editor-content:focus {
+  outline: none;
+}
+
+.article-editor-content > *:first-child {
+  margin-top: 0;
+}
+
+.article-editor-content h1,
+.article-editor-content h2,
+.article-editor-content h3 {
+  color: #f5f5f5;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+
+.article-editor-content h1 {
+  font-size: 42px;
+  line-height: 1.1;
+}
+
+.article-editor-content h2 {
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+.article-editor-content h3 {
+  font-size: 22px;
+  line-height: 1.3;
+}
+
+.article-editor-content p {
+  margin: 0 0 12px;
+}
+
+.article-editor-content ul,
+.article-editor-content ol {
+  padding-left: 24px;
+  margin: 0 0 12px;
+}
+
+.article-editor-content blockquote {
+  margin: 0 0 12px;
+  padding-left: 16px;
+  border-left: 2px solid #d9ff00;
+  color: #8a8a8a;
+}
+
+.article-editor-content code {
+  background: #181818;
+  color: #d9ff00;
+  padding: 2px 6px;
+  border-radius: 0;
+}
+
+.article-editor-content pre {
+  background: #0a0a0a;
+  border: 1px solid #292929;
+  padding: 12px 16px;
+  margin: 0 0 12px;
+  overflow-x: auto;
+}
+
+.article-editor-content pre code {
+  background: transparent;
+  color: #f5f5f5;
+  padding: 0;
+}
+
+.article-editor-content hr {
+  border: 0;
+  border-top: 1px solid #292929;
+  margin: 24px 0;
+}
