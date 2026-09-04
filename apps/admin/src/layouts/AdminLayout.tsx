@@ -9,7 +9,7 @@ function cx(...parts: Array<string | false | null | undefined>): string {
   return parts.filter(Boolean).join(" ");
 }
 
-const rowClasses = "flex min-h-11 w-full items-center gap-2 rounded-3xl px-3  hover:bg-white/10! hover:text-accent! transition-all duration-300 origin-left";
+const rowClasses = "flex min-h-11 w-full items-center gap-2 rounded-lg px-3 hover:bg-white/10! hover:text-accent! transition-all duration-300 origin-left";
 const rowIdle = "text-white!";
 const rowActive = "text-accent! bg-white/10! transition-all duration-300 origin-left";
 
@@ -115,7 +115,7 @@ export default function AdminLayout() {
 
   return (
     <div className="flex min-h-screen flex-col bg-canvas text-text-primary">
-      <header className="sticky top-0 z-30 flex h-[68px] items-center gap-3 border-b border-hairline bg-canvas px-4 md:gap-4 md:px-6">
+      <header className="sticky top-0 z-30 flex h-17 items-center gap-3 border-b border-hairline bg-canvas px-4 md:gap-4 md:px-6">
         <button
           type="button"
           aria-label="打开菜单"

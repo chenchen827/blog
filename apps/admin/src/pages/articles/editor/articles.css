@@ -1,11 +1,32 @@
 /* 富文本编辑器正文排版：与 design.md 的深色杂志化风格保持一致 */
 .article-editor-content {
-  min-height: 320px;
+  height: 460px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 16px 20px;
   color: #f5f5f5;
   font-size: 16px;
   line-height: 1.7;
   outline: none;
+  scrollbar-width: thin;
+  scrollbar-color: #292929 transparent;
+}
+
+.article-editor-content::-webkit-scrollbar {
+  width: 10px;
+}
+
+.article-editor-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.article-editor-content::-webkit-scrollbar-thumb {
+  background: #292929;
+  border: 2px solid #0a0a0a;
+}
+
+.article-editor-content::-webkit-scrollbar-thumb:hover {
+  background: #8a8a8a;
 }
 
 .article-editor-content:focus {
