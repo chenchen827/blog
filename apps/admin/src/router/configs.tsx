@@ -15,6 +15,7 @@ import SettingsPage from "../pages/settings";
 import ArticleListPage from "../pages/articles/list";
 import ArticleNewPage from "../pages/articles/new";
 import ArticleTrashPage from "../pages/articles/trash";
+import AttachmentListPage from "../pages/attachments/list";
 import UserListPage from "../pages/users/list";
 
 export const configs: AppRouteObject[] = [
@@ -66,6 +67,15 @@ export const configs: AppRouteObject[] = [
     children: [
       { index: true, element: <Navigate to="list" replace /> },
       { path: "list", element: <CategoryListPage />, meta: { label: "分类列表" } },
+    ],
+  },
+  {
+    path: "attachments",
+    element: <ModuleLayout />,
+    meta: { label: "附件管理" },
+    children: [
+      { index: true, element: <Navigate to="list" replace /> },
+      { path: "list", element: <AttachmentListPage />, meta: { label: "附件列表" } },
     ],
   },
   { path: "settings", element: <SettingsPage />, meta: { label: "系统设置" } },

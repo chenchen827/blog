@@ -52,3 +52,36 @@ export interface ArticlePayload {
   title: string
   content: string
 }
+
+/** 附件实体 */
+export interface Attachment {
+  id: number
+  userId?: number
+  originalname: string
+  filename: string
+  mimetype?: string
+  size?: string | number
+  path?: string
+  fullpath?: string
+  url: string
+  createdAt?: string
+  updatedAt?: string
+  user?: {
+    id: number
+    username?: string
+    avatar?: string | null
+  }
+}
+
+/** 附件列表分页信息 */
+export interface AttachmentPagination {
+  total: number
+  currentPage: number
+  pageSize: number
+}
+
+/** 附件列表响应中的 data 结构 */
+export interface AttachmentListData {
+  attachments: Attachment[]
+  pagination: AttachmentPagination
+}
