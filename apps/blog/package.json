@@ -10,7 +10,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@ant-design/icons": "^6.3.4",
     "@repo/shared": "workspace:*",
+    "antd": "^6.6.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router": "^7.6.0"
