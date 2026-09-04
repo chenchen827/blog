@@ -5,6 +5,7 @@ export type ApiStatus = boolean | number
 export interface ApiResponse<T> {
   status: ApiStatus
   message?: string
+  errors?: string[]
   data: T
 }
 

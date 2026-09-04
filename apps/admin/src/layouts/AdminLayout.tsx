@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link, NavLink, Outlet, useLocation } from "react-router";
+import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from "react-router";
 
 import { navItems } from "../router/nav";
 import type { NavItem } from "../types/nav";
+import { clearToken, getToken } from "../utils/auth";
 
 function cx(...parts: Array<string | false | null | undefined>): string {
   return parts.filter(Boolean).join(" ");
@@ -100,7 +101,17 @@ function NavList({ onNavigate }: NavListProps) {
 
 export default function AdminLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
   const closeMenu = () => setMenuOpen(false);
+
+  if (!getToken()) {
+    return <Navigate to="/login" replace />;
+  }
+
+  function handleLogout() {
+    clearToken();
+    navigate("/login", { replace: true });
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-canvas text-text-primary">
@@ -126,6 +137,7 @@ export default function AdminLayout() {
         </Link>
         <button
           type="button"
+          onClick={handleLogout}
           className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-none bg-surface-soft px-5 text-base font-black uppercase tracking-wide text-text-primary transition-colors hover:bg-surface"
         >
           登出

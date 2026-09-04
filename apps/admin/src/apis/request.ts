@@ -1,10 +1,8 @@
 import type { ApiResponse, ApiStatus } from "./types";
+import { getToken } from "../utils/auth";
 
 /** 接口基址：通过 Vite 环境变量配置，未配置时回退到同源相对路径 */
 const API_BASE: string = import.meta.env.VITE_API_BASE_URL ?? "";
-
-/** 登录接入前的临时鉴权 Token */
-const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4ODUxNjI5OCwiZXhwIjoxNzkxMTA4Mjk4fQ.pIUvw2vECuZXSiT1Kz1M7GRnQrE249OuR6FQzRFVdYk";
 
 /** 判定业务状态是否成功：兼容 boolean 与数字 200 两种返回 */
 export function isSuccess(status: ApiStatus): boolean {
@@ -24,17 +22,24 @@ export function toForm(body: Record<string, string | string[]>): URLSearchParams
   return params;
 }
 
+/** 优先展示后端返回的具体错误信息 */
+function getErrorMessage(body: ApiResponse<unknown>): string {
+  return body.errors?.[0] || body.message || "请求失败";
+}
+
 /**
  * 统一请求封装：
- * - 自动附加 token / x-token 请求头
+ * - 自动从本地缓存读取 token 并附加 token 请求头
  * - 解析 JSON、空响应与纯文本响应
  * - 对 HTTP 错误和业务失败统一抛错，调用方只需 catch 展示 message
  */
 export async function request<T>(path: string, init?: RequestInit): Promise<ApiResponse<T>> {
+  const token = getToken();
+
   const response = await fetch(`${API_BASE}${path}`, {
     ...init,
     headers: {
-      token: TOKEN,
+      ...(token ? { token } : {}),
       ...(init?.headers as Record<string, string> | undefined),
     },
   });
@@ -52,11 +57,11 @@ export async function request<T>(path: string, init?: RequestInit): Promise<ApiR
   }
 
   if (!response.ok) {
-    throw new Error(body.message || `请求失败（HTTP ${response.status}）`);
+    throw new Error(getErrorMessage(body as ApiResponse<unknown>));
   }
 
   if (!isSuccess(body.status)) {
-    throw new Error(body.message || "操作失败");
+    throw new Error(getErrorMessage(body as ApiResponse<unknown>));
   }
 
   return body;
