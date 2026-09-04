@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Navigate, useNavigate } from "react-router";
+import { Link, Navigate, useNavigate } from "react-router";
 import { App, Form, Input } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 
@@ -104,7 +104,7 @@ export default function LoginPage() {
 
           <p className="pt-4 text-center text-sm leading-relaxed text-text-secondary">
             还没有账号？
-            <span className="ml-1 font-bold text-accent">注册</span>
+            <Link to="/register" className="ml-1 font-bold text-accent transition-colors hover:text-accent-yellow">注册</Link>
           </p>
         </div>
 

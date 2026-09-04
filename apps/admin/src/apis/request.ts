@@ -29,13 +29,15 @@ function getErrorMessage(body: ApiResponse<unknown>): string {
 
 /**
  * 统一请求封装：
- * - 自动从本地缓存读取 token 并附加 token 请求头
+ * - 可显式传入 token；未传时自动从本地缓存读取管理员 token
  * - 解析 JSON、空响应与纯文本响应
  * - 对 HTTP 错误和业务失败统一抛错，调用方只需 catch 展示 message
  */
-export async function request<T>(path: string, init?: RequestInit): Promise<ApiResponse<T>> {
-  const token = getToken();
-
+export async function requestWithToken<T>(
+  path: string,
+  init: RequestInit | undefined,
+  token: string | null,
+): Promise<ApiResponse<T>> {
   const response = await fetch(`${API_BASE}${path}`, {
     ...init,
     headers: {
@@ -65,4 +67,9 @@ export async function request<T>(path: string, init?: RequestInit): Promise<ApiR
   }
 
   return body;
+}
+
+/** 自动从本地缓存读取 token 的请求封装 */
+export function request<T>(path: string, init?: RequestInit): Promise<ApiResponse<T>> {
+  return requestWithToken<T>(path, init, getToken());
 }
