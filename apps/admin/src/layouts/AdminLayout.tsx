@@ -9,9 +9,9 @@ function cx(...parts: Array<string | false | null | undefined>): string {
 }
 
 const rowClasses =
-  'flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-sm transition-colors'
-const rowIdle = 'text-on-primary hover:bg-white/10'
-const rowActive = 'text-accent-cyan'
+  'flex min-h-11 w-full items-center gap-2 rounded-none px-3 text-sm transition-colors'
+const rowIdle = 'text-text-secondary hover:bg-white/10 hover:text-text-primary'
+const rowActive = 'text-accent'
 
 function getGroupBase(item: NavItem): string | undefined {
   const first = item.children?.[0]
@@ -76,7 +76,10 @@ function NavList({ onNavigate }: NavListProps) {
                 type="button"
                 aria-expanded={open}
                 onClick={() => toggleGroup(base)}
-                className={cx(rowClasses, 'justify-between text-on-primary hover:bg-white/10')}
+                className={cx(
+                  rowClasses,
+                  'justify-between text-text-secondary hover:bg-white/10 hover:text-text-primary',
+                )}
               >
                 <span>{item.label}</span>
                 <span
@@ -119,13 +122,13 @@ export default function AdminLayout() {
   const closeMenu = () => setMenuOpen(false)
 
   return (
-    <div className="flex min-h-screen flex-col bg-canvas text-on-primary">
+    <div className="flex min-h-screen flex-col bg-canvas text-text-primary">
       <header className="sticky top-0 z-30 flex h-[68px] items-center gap-3 border-b border-hairline bg-canvas px-4 md:gap-4 md:px-6">
         <button
           type="button"
           aria-label="打开菜单"
           onClick={() => setMenuOpen(true)}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface-soft text-on-primary transition-colors hover:bg-white/20 xl:hidden"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-none bg-surface-soft text-text-primary transition-colors hover:bg-white/20 xl:hidden"
         >
           <span aria-hidden="true" className="text-base leading-none">
             ☰
@@ -133,19 +136,19 @@ export default function AdminLayout() {
         </button>
         <Link
           to="/"
-          className="hidden shrink-0 text-lg font-semibold tracking-tight text-on-primary md:inline"
+          className="hidden shrink-0 text-lg font-black uppercase tracking-wide text-text-primary md:inline"
         >
-          BLOG ADMIN
+          Blog Admin
         </Link>
         <Link
           to="/login"
-          className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full bg-surface-soft px-5 text-base font-semibold text-on-primary transition-[filter] hover:brightness-125"
+          className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-none bg-accent px-6 text-base font-black uppercase tracking-wide text-ink transition-[filter] hover:brightness-90"
         >
           登录
         </Link>
         <button
           type="button"
-          className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full px-4 text-base font-semibold text-on-primary transition-colors hover:bg-white/10"
+          className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-none bg-surface-soft px-5 text-base font-black uppercase tracking-wide text-text-primary transition-colors hover:bg-surface"
         >
           登出
         </button>
@@ -170,12 +173,12 @@ export default function AdminLayout() {
           />
           <aside className="absolute inset-y-0 left-0 flex w-60 flex-col overflow-y-auto border-r border-hairline bg-primary">
             <div className="flex items-center justify-between border-b border-hairline px-4 py-3">
-              <span className="text-base font-semibold">BLOG ADMIN</span>
+              <span className="text-base font-black uppercase tracking-wide">Blog Admin</span>
               <button
                 type="button"
                 aria-label="关闭菜单"
                 onClick={closeMenu}
-                className="flex h-11 w-11 items-center justify-center rounded-full bg-surface-soft text-on-primary transition-colors hover:bg-white/20"
+                className="flex h-11 w-11 items-center justify-center rounded-none bg-surface-soft text-text-primary transition-colors hover:bg-white/20"
               >
                 ✕
               </button>
@@ -187,4 +190,3 @@ export default function AdminLayout() {
     </div>
   )
 }
-

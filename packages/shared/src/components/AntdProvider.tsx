@@ -9,7 +9,7 @@ export interface AntdProviderProps {
 /**
  * 全局 antd 配置：
  * - 中文语言包
- * - 深色主题，主色 / 表面色 / 边框色 / 圆角对齐根目录 design.md
+ * - 深色主题，主色 / 表面色 / 边框色 / 圆角对齐根目录 design.md（黑色杂志化 + 荧光黄）
  */
 export function AntdProvider({ children }: AntdProviderProps) {
   return (
@@ -18,31 +18,33 @@ export function AntdProvider({ children }: AntdProviderProps) {
       theme={{
         algorithm: theme.darkAlgorithm,
         token: {
-          colorPrimary: '#00e5ff',
-          colorInfo: '#00e5ff',
-          colorBgBase: '#0d0d0d',
+          colorPrimary: '#d9ff00',
+          colorInfo: '#d9ff00',
+          colorLink: '#d9ff00',
+          colorError: '#ff3b30',
+          colorWarning: '#ff8a00',
+          colorBgBase: '#050505',
           colorTextBase: '#f5f5f5',
-          colorBgContainer: '#242424',
-          colorBgElevated: '#1a1a1a',
-          colorBorder: '#333333',
-          colorBorderSecondary: '#2a2a2a',
-          colorLink: '#00e5ff',
-          borderRadius: 12,
+          colorBgContainer: '#111111',
+          colorBgElevated: '#0a0a0a',
+          colorBorder: '#292929',
+          colorBorderSecondary: '#292929',
+          borderRadius: 8,
           controlHeight: 44,
           fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
         },
         components: {
           Button: {
-            borderRadius: 50,
-            primaryColor: '#1a1a1a',
-            fontWeight: 600,
+            borderRadius: 0,
+            primaryColor: '#050505',
+            fontWeight: 900,
             contentFontSize: 18,
-            defaultBg: '#242424',
+            defaultBg: '#181818',
             defaultColor: '#f5f5f5',
-            defaultBorderColor: '#333333',
-            defaultHoverBg: '#2e2e2e',
+            defaultBorderColor: '#222222',
+            defaultHoverBg: '#111111',
             defaultHoverColor: '#f5f5f5',
-            defaultHoverBorderColor: '#00e5ff',
+            defaultHoverBorderColor: '#d9ff00',
           },
         },
       }}

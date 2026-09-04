@@ -1,0 +1,25 @@
+/*
+ * Zenless-Design-System (rev) — Tailwind v4 design tokens
+ * 单一事实来源：与仓库根目录 design.md 保持一致。
+ * 视觉方向：黑色杂志化 / 工业档案 / 荧光黄。
+ */
+
+@theme {
+  --color-canvas: #050505;
+  --color-primary: #0a0a0a;
+  --color-surface: #111111;
+  --color-surface-soft: #181818;
+  --color-ink: #050505;
+  --color-text-primary: #f5f5f5;
+  --color-text-secondary: #8a8a8a;
+  --color-hairline: #292929;
+  --color-card-border: #222222;
+
+  --color-accent: #d9ff00;
+  --color-accent-yellow: #e8ff00;
+  --color-accent-white: #ffffff;
+  --color-accent-red: #ff3b30;
+  --color-accent-orange: #ff8a00;
+
+  --color-overlay-scrim: #000000;
+}

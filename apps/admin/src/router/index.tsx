@@ -1,28 +1,22 @@
 import { createBrowserRouter, Navigate } from 'react-router'
 
 import AdminLayout from '../layouts/AdminLayout'
+import ModuleLayout from '../layouts/ModuleLayout'
 import NotFound from '../pages/NotFound'
-import CategoriesLayout from '../pages/categories/layout'
 import CategoryListPage from '../pages/categories/list'
-import ChaptersLayout from '../pages/chapters/layout'
 import ChapterListPage from '../pages/chapters/list'
-import CoursesLayout from '../pages/courses/layout'
 import CourseListPage from '../pages/courses/list'
 import ErrorLogDetailPage from '../pages/error-logs/detail'
-import ErrorLogsLayout from '../pages/error-logs/layout'
 import ErrorLogListPage from '../pages/error-logs/list'
 import HomePage from '../pages/home'
 import LoginPage from '../pages/login'
 import MemberDetailPage from '../pages/members/detail'
-import MembersLayout from '../pages/members/layout'
 import MemberListPage from '../pages/members/list'
 import SettingsPage from '../pages/settings'
 import ArticleListPage from '../pages/articles/list'
 import ArticleNewPage from '../pages/articles/new'
-import ArticlesLayout from '../pages/articles/layout'
 import ArticleTrashPage from '../pages/articles/trash'
 import UserListPage from '../pages/users/list'
-import UsersLayout from '../pages/users/layout'
 
 export const router = createBrowserRouter([
   {
@@ -35,7 +29,7 @@ export const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       {
         path: 'articles',
-        element: <ArticlesLayout />,
+        element: <ModuleLayout />,
         children: [
           { index: true, element: <Navigate to="list" replace /> },
           { path: 'list', element: <ArticleListPage /> },
@@ -45,7 +39,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'users',
-        element: <UsersLayout />,
+        element: <ModuleLayout />,
         children: [
           { index: true, element: <Navigate to="list" replace /> },
           { path: 'list', element: <UserListPage /> },
@@ -53,7 +47,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'courses',
-        element: <CoursesLayout />,
+        element: <ModuleLayout />,
         children: [
           { index: true, element: <Navigate to="list" replace /> },
           { path: 'list', element: <CourseListPage /> },
@@ -61,7 +55,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'chapters',
-        element: <ChaptersLayout />,
+        element: <ModuleLayout />,
         children: [
           { index: true, element: <Navigate to="list" replace /> },
           { path: 'list', element: <ChapterListPage /> },
@@ -69,7 +63,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'categories',
-        element: <CategoriesLayout />,
+        element: <ModuleLayout />,
         children: [
           { index: true, element: <Navigate to="list" replace /> },
           { path: 'list', element: <CategoryListPage /> },
@@ -78,7 +72,7 @@ export const router = createBrowserRouter([
       { path: 'settings', element: <SettingsPage /> },
       {
         path: 'error-logs',
-        element: <ErrorLogsLayout />,
+        element: <ModuleLayout />,
         children: [
           { index: true, element: <Navigate to="list" replace /> },
           { path: 'list', element: <ErrorLogListPage /> },
@@ -87,7 +81,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'members',
-        element: <MembersLayout />,
+        element: <ModuleLayout />,
         children: [
           { index: true, element: <Navigate to="list" replace /> },
           { path: 'list', element: <MemberListPage /> },
