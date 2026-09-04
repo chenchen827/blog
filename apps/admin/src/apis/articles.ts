@@ -1,6 +1,7 @@
 import type {
   ApiResponse,
   Article,
+  ArticleDetailData,
   ArticleListData,
   ArticlePayload,
   ListArticlesParams,
@@ -18,8 +19,8 @@ export function listArticles(params: ListArticlesParams): Promise<ApiResponse<Ar
 }
 
 /** 查询文章详情 */
-export function getArticle(id: string | number): Promise<ApiResponse<Article>> {
-  return request<Article>(`/admin/articles/${id}`)
+export function getArticle(id: string | number): Promise<ApiResponse<ArticleDetailData>> {
+  return request<ArticleDetailData>(`/admin/articles/${id}`)
 }
 
 /** 创建文章 */

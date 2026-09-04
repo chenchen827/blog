@@ -26,6 +26,11 @@ export interface ArticlePagination {
   pageSize: number
 }
 
+/** 文章详情响应中的 data 结构 */
+export interface ArticleDetailData {
+  article: Article
+}
+
 /** 文章列表响应中的 data 结构 */
 export interface ArticleListData {
   articles: Article[]

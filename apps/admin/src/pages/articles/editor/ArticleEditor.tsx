@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { EditorContent, useEditor } from '@tiptap/react'
+import type { Editor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+import Image from '@tiptap/extension-image'
+import FileHandler from '@tiptap/extension-file-handler'
+import { App } from 'antd'
+import { uploadImageToAliyun } from '../../../apis/upload'
 import './articles.css'
 
 /** 受控富文本编辑器，可被 antd Form.Item 直接注入 value / onChange */
@@ -39,8 +44,46 @@ function ToolbarButton({ label, active = false, disabled = false, onClick, child
 }
 
 export default function ArticleEditor({ value = '', onChange }: ArticleEditorProps) {
+  const { message } = App.useApp()
+
+  /** 将粘贴 / 拖入的图片文件上传到阿里云，并插入到当前光标位置 */
+  const uploadAndInsertImages = async (editor: Editor, files: File[]) => {
+    console.log('[ArticleEditor] upload files', files.length, files.map((file) => file.type))
+    const images = files.filter((file) => !file.type || file.type.startsWith('image/'))
+    if (images.length === 0) return
+
+    const key = `image-upload-${Date.now()}`
+    message.open({ type: 'loading', content: '图片上传中…', key, duration: 0 })
+
+    try {
+      for (const file of images) {
+        const url = await uploadImageToAliyun(file)
+        editor.chain().focus().setImage({ src: url }).run()
+      }
+      message.open({ type: 'success', content: '图片上传成功', key })
+    } catch (err) {
+      message.open({
+        type: 'error',
+        content: err instanceof Error ? err.message : '图片上传失败',
+        key,
+      })
+    }
+  }
+
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: [
+      StarterKit,
+      Image,
+      FileHandler.configure({
+        consumePasteEvent: true,
+        onPaste: (editor, files) => {
+          void uploadAndInsertImages(editor, files)
+        },
+        onDrop: (editor, files) => {
+          void uploadAndInsertImages(editor, files)
+        },
+      }),
+    ],
     content: value,
     editorProps: {
       attributes: {
