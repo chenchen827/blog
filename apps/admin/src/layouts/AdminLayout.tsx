@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router";
 
-import { navItems } from "../nav";
+import { navItems } from "../router/nav";
 import type { NavItem } from "../types/nav";
 
 function cx(...parts: Array<string | false | null | undefined>): string {
