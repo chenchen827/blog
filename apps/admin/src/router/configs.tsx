@@ -9,14 +9,16 @@ import CourseListPage from "../pages/courses/list";
 import ErrorLogDetailPage from "../pages/error-logs/detail";
 import ErrorLogListPage from "../pages/error-logs/list";
 import HomePage from "../pages/home";
-import MemberDetailPage from "../pages/members/detail";
-import MemberListPage from "../pages/members/list";
+// import MemberDetailPage from "../pages/members/detail";
+// import MemberListPage from "../pages/members/list";
 import SettingsPage from "../pages/settings";
 import ArticleListPage from "../pages/articles/list";
 import ArticleNewPage from "../pages/articles/new";
 import ArticleTrashPage from "../pages/articles/trash";
 import AttachmentListPage from "../pages/attachments/list";
 import UserListPage from "../pages/users/list";
+import UserMemberPage from "../pages/users/member";
+import MembershipListPage from "../pages/memberships/list";
 
 export const configs: AppRouteObject[] = [
   { index: true, element: <HomePage />, meta: { label: "Home" } },
@@ -38,8 +40,17 @@ export const configs: AppRouteObject[] = [
     children: [
       { index: true, element: <Navigate to="list" replace /> },
       { path: "list", element: <UserListPage />, meta: { label: "用户列表" } },
-      { path: "members", element: <MemberListPage />, meta: { label: "会员列表" } },
-      { path: "detail", element: <MemberDetailPage />, meta: { label: "会员详情" } },
+      { path: "member", element: <UserMemberPage />, meta: { label: "会员列表" } },
+    ],
+  },
+
+  {
+    path: "memberships",
+    element: <ModuleLayout />,
+    meta: { label: "会员商品" },
+    children: [
+      { index: true, element: <Navigate to="list" replace /> },
+      { path: "list", element: <MembershipListPage />, meta: { label: "商品列表" } },
     ],
   },
   {
