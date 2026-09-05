@@ -13,10 +13,10 @@ function resolveTo(route: AppRouteObject, base: string): string | undefined {
 }
 
 function toNavChild(route: AppRouteObject, base: string): NavChild | null {
-  const label = route.meta?.label;
+  const meta = route.meta;
   const to = resolveTo(route, base);
-  if (!label || !to) return null;
-  return { label, to };
+  if (!meta?.label || meta.visible === false || !to) return null;
+  return { label: meta.label, to };
 }
 
 function toNavItems(routes: AppRouteObject[], base = ""): NavItem[] {
@@ -24,7 +24,7 @@ function toNavItems(routes: AppRouteObject[], base = ""): NavItem[] {
 
   for (const route of routes) {
     const label = route.meta?.label;
-    if (!label) continue;
+    if (!label || route.meta?.visible === false) continue;
 
     const to = resolveTo(route, base);
 

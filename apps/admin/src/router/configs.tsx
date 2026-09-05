@@ -97,7 +97,7 @@ export const configs: AppRouteObject[] = [
     children: [
       { index: true, element: <Navigate to="list" replace /> },
       { path: "list", element: <ErrorLogListPage />, meta: { label: "日志列表" } },
-      { path: "detail", element: <ErrorLogDetailPage />, meta: { label: "日志详情" } },
+      { path: "detail", element: <ErrorLogDetailPage />, meta: { label: "日志详情", visible: false } },
     ],
   },
   { path: "*", element: <NotFound /> },
