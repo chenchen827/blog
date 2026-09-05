@@ -5,7 +5,7 @@ import { LockOutlined, UserOutlined } from "@ant-design/icons";
 
 import { loginAdmin } from "../../apis/auth";
 import type { LoginPayload } from "../../apis/auth";
-import { getToken, saveToken } from "../../utils/auth";
+import { clearRole, getToken, saveToken } from "../../utils/auth";
 
 const LOGIN_BG = "https://chenchen-827.oss-cn-chengdu.aliyuncs.com/uploads/3084e7e34121342b435ca62ea576a9d9.jpg";
 
@@ -28,6 +28,7 @@ export default function LoginPage() {
         password: values.password,
       });
       saveToken(res.data.token);
+      clearRole();
       message.success(res.message || "登录成功");
       navigate("/", { replace: true });
     } catch (error) {

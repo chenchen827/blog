@@ -19,6 +19,8 @@ import AttachmentListPage from "../pages/attachments/list";
 import UserListPage from "../pages/users/list";
 import UserMemberPage from "../pages/users/member";
 import MembershipListPage from "../pages/memberships/list";
+import AlbumListPage from "../pages/albums/list";
+import PhotoListPage from "../pages/photos/list";
 
 export const configs: AppRouteObject[] = [
   { index: true, element: <HomePage />, meta: { label: "Home" } },
@@ -51,6 +53,25 @@ export const configs: AppRouteObject[] = [
     children: [
       { index: true, element: <Navigate to="list" replace /> },
       { path: "list", element: <MembershipListPage />, meta: { label: "商品列表" } },
+    ],
+  },
+
+  {
+    path: "albums",
+    element: <ModuleLayout />,
+    meta: { label: "相集管理" },
+    children: [
+      { index: true, element: <Navigate to="list" replace /> },
+      { path: "list", element: <AlbumListPage />, meta: { label: "相集列表" } },
+    ],
+  },
+  {
+    path: "photos",
+    element: <ModuleLayout />,
+    meta: { label: "相片管理" },
+    children: [
+      { index: true, element: <Navigate to="list" replace /> },
+      { path: "list", element: <PhotoListPage />, meta: { label: "相片列表" } },
     ],
   },
   {

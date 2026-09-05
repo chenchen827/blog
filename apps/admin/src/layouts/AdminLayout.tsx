@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from "react-router";
+import { Alert, Button, Spin } from "antd";
 
 import { navItems } from "../router/nav";
 import type { NavItem } from "../types/nav";
-import { clearToken, getToken } from "../utils/auth";
+import { clearToken, getCachedRole, getToken, saveRole } from "../utils/auth";
+import { getCurrentUser } from "../apis/users";
+import { ADMIN_ONLY_MENU_LABELS, isAdminOnlyPath, isAdminRole } from "../constants/permissions";
 
 function cx(...parts: Array<string | false | null | undefined>): string {
   return parts.filter(Boolean).join(" ");
@@ -39,9 +42,10 @@ function LeafLink({ to, label, onNavigate }: LeafLinkProps) {
 
 interface NavListProps {
   onNavigate?: () => void;
+  isAdmin: boolean;
 }
 
-function NavList({ onNavigate }: NavListProps) {
+function NavList({ onNavigate, isAdmin }: NavListProps) {
   const { pathname } = useLocation();
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [hoverGroup, setHoverGroup] = useState<string | null>(null);
@@ -55,9 +59,11 @@ function NavList({ onNavigate }: NavListProps) {
     setOpenGroup((prev) => (prev === base ? null : base));
   }
 
+  const visibleItems = navItems.filter((item) => isAdmin || !ADMIN_ONLY_MENU_LABELS.has(item.label));
+
   return (
     <nav aria-label="主导航" className="space-y-1 px-2 py-4">
-      {navItems.map((item) => {
+      {visibleItems.map((item) => {
         const children = item.children ?? [];
         if (children.length > 0) {
           const base = getGroupBase(item)!;
@@ -98,17 +104,70 @@ function NavList({ onNavigate }: NavListProps) {
 }
 
 export default function AdminLayout() {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const { pathname } = useLocation();
   const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
   const closeMenu = () => setMenuOpen(false);
 
-  if (!getToken()) {
+  const token = getToken();
+  const [role, setRole] = useState<number | null>(() => getCachedRole());
+  const [roleLoading, setRoleLoading] = useState(() => Boolean(token) && getCachedRole() === null);
+  const [authError, setAuthError] = useState("");
+  const isAdmin = isAdminRole(role);
+
+  useEffect(() => {
+    if (!token || role !== null) return;
+    let active = true;
+    setRoleLoading(true);
+    setAuthError("");
+    getCurrentUser()
+      .then((res) => {
+        if (!active) return;
+        const userRole = Number(res.data.user.role);
+        setRole(userRole);
+        saveRole(userRole);
+      })
+      .catch((err) => {
+        if (active) {
+          setAuthError(err instanceof Error ? err.message : "获取当前用户信息失败");
+        }
+      })
+      .finally(() => {
+        if (active) setRoleLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [token, role]);
+
+  if (!token) {
     return <Navigate to="/login" replace />;
   }
 
   function handleLogout() {
     clearToken();
     navigate("/login", { replace: true });
+  }
+
+  if (roleLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-canvas">
+        <Spin />
+      </div>
+    );
+  }
+
+  if (authError) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-canvas px-6">
+        <Alert type="error" showIcon message="权限信息加载失败" description={authError} />
+        <Button onClick={handleLogout}>返回登录</Button>
+      </div>
+    );
+  }
+
+  if (!isAdmin && isAdminOnlyPath(pathname)) {
+    return <Navigate to="/" replace />;
   }
 
   return (
@@ -143,7 +202,7 @@ export default function AdminLayout() {
       </header>
       <div className="flex flex-1 items-stretch">
         <aside className="sticky top-17 hidden h-[calc(100vh-68px)] w-60 shrink-0 overflow-y-auto border-r border-hairline bg-primary xl:block">
-          <NavList />
+          <NavList isAdmin={isAdmin} />
         </aside>
         <main className="min-w-0 flex-1">
           <div className="mx-auto w-full max-w-[2000px] h-full py-8 md:px-8 bg-[url('//chenchen-827.oss-cn-chengdu.aliyuncs.com/image/admin-bg.jpg')] bg-cover bg-center bg-no-repeat">
@@ -161,12 +220,12 @@ export default function AdminLayout() {
                 type="button"
                 aria-label="关闭菜单"
                 onClick={closeMenu}
-                className="flex h-11 w-11 items-center justify-center rounded-none bg-surface-soft text-text-primary transition-colors hover:bg-white/20"
+                className="flex h-11 w-11 items-center justify-center rounded-none bg-surface-soft text-text-primary transition-colors hover:bg-surface"
               >
                 ✕
               </button>
             </div>
-            <NavList onNavigate={closeMenu} />
+            <NavList isAdmin={isAdmin} onNavigate={closeMenu} />
           </aside>
         </div>
       )}

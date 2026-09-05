@@ -52,6 +52,12 @@ export interface AdminUserUpdatePayload {
   avatar?: string
 }
 
+
+/** 查询当前登录管理员 */
+export function getCurrentUser(): Promise<ApiResponse<{ user: AdminUser }>> {
+  return request<{ user: AdminUser }>('/admin/users/me')
+}
+
 /** 查询全部用户 */
 export function listUsers(params: ListAdminUsersParams): Promise<ApiResponse<AdminUserListData>> {
   const search = new URLSearchParams()
