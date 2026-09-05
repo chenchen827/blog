@@ -89,7 +89,12 @@ export const configs: AppRouteObject[] = [
       { path: "list", element: <AttachmentListPage />, meta: { label: "附件列表" } },
     ],
   },
-  { path: "settings", element: <SettingsPage />, meta: { label: "系统设置" } },
+  {
+    path: "settings",
+    element: <ModuleLayout />,
+    meta: { label: "系统设置" },
+    children: [{ index: true, element: <SettingsPage />, meta: { label: "系统设置" } }],
+  },
   {
     path: "error-logs",
     element: <ModuleLayout />,

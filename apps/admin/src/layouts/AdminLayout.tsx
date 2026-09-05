@@ -59,7 +59,7 @@ function NavList({ onNavigate }: NavListProps) {
     <nav aria-label="主导航" className="space-y-1 px-2 py-4">
       {navItems.map((item) => {
         const children = item.children ?? [];
-        if (children.length > 1) {
+        if (children.length > 0) {
           const base = getGroupBase(item)!;
           const active = isGroupActive(item, pathname);
           const open = active || openGroup === base || hoverGroup === base;
@@ -90,9 +90,7 @@ function NavList({ onNavigate }: NavListProps) {
             </div>
           );
         }
-        if (children.length === 1) {
-          return <LeafLink key={item.label} to={children[0].to} label={item.label} onNavigate={onNavigate} />;
-        }
+
         return <LeafLink key={item.label} to={item.to!} label={item.label} onNavigate={onNavigate} />;
       })}
     </nav>
