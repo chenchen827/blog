@@ -1,0 +1,182 @@
+/* 相片管理：复古相集档案 + 瀑布流 */
+.photo-wall {
+  column-gap: 18px;
+}
+
+.photo-item {
+  break-inside: avoid;
+  margin-bottom: 24px;
+  transform: rotate(var(--tilt, 0deg));
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
+}
+
+.photo-item:nth-child(3n + 1) {
+  --tilt: 0.8deg;
+}
+
+.photo-item:nth-child(3n + 2) {
+  --tilt: -0.7deg;
+}
+
+.photo-item:nth-child(3n + 3) {
+  --tilt: 0.4deg;
+}
+
+.photo-item:hover {
+  z-index: 2;
+  transform: rotate(var(--tilt, 0deg)) translateY(-8px) scale(1.02);
+}
+
+/* 相纸主体 */
+.photo-polaroid {
+  position: relative;
+  padding: 10px 10px 12px;
+  background: linear-gradient(180deg, #141414, #0c0c0c);
+  border: 1px solid var(--color-hairline);
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.65);
+}
+
+/* 相框与图片 */
+.photo-frame {
+  position: relative;
+  overflow: hidden;
+  background: #0a0a0a;
+  border: 1px solid #222222;
+}
+
+.photo-frame img {
+  display: block;
+  width: 100%;
+  filter: saturate(0.92);
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
+}
+
+.photo-item:hover .photo-frame img {
+  transform: scale(1.05);
+  filter: saturate(1.06);
+}
+
+/* 荧光画框角 */
+.photo-frame::before,
+.photo-frame::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-color: rgba(217, 255, 0, 0.7);
+  border-style: solid;
+  z-index: 1;
+  transition: transform 0.3s ease;
+}
+
+.photo-frame::before {
+  top: 8px;
+  left: 8px;
+  border-width: 2px 0 0 2px;
+}
+
+.photo-frame::after {
+  bottom: 8px;
+  right: 8px;
+  border-width: 0 2px 2px 0;
+}
+
+.photo-item:hover .photo-frame::before {
+  transform: translate(-2px, -2px);
+}
+
+.photo-item:hover .photo-frame::after {
+  transform: translate(2px, 2px);
+}
+
+/* 顶部胶带 */
+.photo-tape {
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  width: 68px;
+  height: 20px;
+  transform: translateX(-50%) rotate(-2deg);
+  background: linear-gradient(180deg, rgba(217, 255, 0, 0.16), rgba(217, 255, 0, 0.05));
+  border: 1px solid rgba(217, 255, 0, 0.28);
+  opacity: 0.9;
+  z-index: 2;
+}
+
+/* 底部信息 */
+.photo-caption {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.photo-no {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.28em;
+  color: var(--color-accent);
+}
+
+.photo-desc {
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+  text-align: right;
+}
+
+/* 相片描述悬浮 */
+.photo-hover-desc {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  padding: 26px 12px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+  background: linear-gradient(180deg, transparent, rgba(5, 5, 5, 0.92));
+  transform: translateY(100%);
+  opacity: 0;
+  transition: transform 0.35s ease, opacity 0.35s ease;
+  pointer-events: none;
+}
+
+.photo-item:hover .photo-hover-desc {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* hover 操作 */
+.photo-delete,
+.photo-edit {
+  position: absolute;
+  top: 8px;
+  z-index: 3;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.photo-delete {
+  right: 8px;
+}
+
+.photo-edit {
+  left: 8px;
+  top: auto;
+  bottom: 8px;
+  transform: translateY(-4px) rotate(-6deg);
+}
+
+.photo-item:hover .photo-delete {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.photo-item:hover .photo-edit {
+  opacity: 1;
+  transform: translateY(0) rotate(-6deg);
+}

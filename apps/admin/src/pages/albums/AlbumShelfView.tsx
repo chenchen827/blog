@@ -5,6 +5,7 @@ import { Button, Popconfirm } from "antd";
 import { Book } from "@repo/shared";
 import type { BookPage } from "@repo/shared";
 import type { Album } from "../../apis/albums";
+import "./AlbumShelfView.css";
 
 /* 书页尺寸 */
 const BOOK_WIDTH = 300;
@@ -22,22 +23,28 @@ function padNo(value: number): string {
   return String(value).padStart(2, "0");
 }
 
-/** 封面页（闭合时在顶、翻开后为右页）：封面图 + 标题 + 描述 */
+/** 内页（闭合时被封面压住，翻开后移动到左页背面）*/
 function AlbumCover({ album, no }: { album: Album; no: string }) {
   return (
-    <div className="relative flex h-full w-full flex-col justify-between overflow-hidden">
-      {album.coverUrl ? (
-        <img src={album.coverUrl} alt={album.name} className="absolute inset-0 h-full w-full object-cover" />
-      ) : (
-        <div aria-hidden="true" className="absolute inset-0 bg-linear-to-br from-[#1b1b1b] via-[#101010] to-primary" />
-      )}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-linear-to-t from-black/90 via-black/50 to-transparent" />
-      <span className="relative self-end p-4 text-[10px] font-black uppercase tracking-[0.4em] text-accent">Album · {no}</span>
+    <div className="album-cover relative flex h-full w-full flex-col justify-between overflow-hidden">
+      <div className="album-cover-frame">
+        {album.coverUrl ? (
+          <img src={album.coverUrl} alt={album.name} />
+        ) : (
+          <div aria-hidden="true" className="absolute inset-0 bg-linear-to-br from-[#1b1b1b] via-[#101010] to-primary" />
+        )}
+        <span className="album-cover-tape" aria-hidden="true" />
+        <span className="album-cover-corner album-cover-corner-tl" aria-hidden="true" />
+        <span className="album-cover-corner album-cover-corner-tr" aria-hidden="true" />
+        <span className="album-cover-corner album-cover-corner-bl" aria-hidden="true" />
+        <span className="album-cover-corner album-cover-corner-br" aria-hidden="true" />
+        <span className="album-cover-meta">Album · {no}</span>
+      </div>
     </div>
   );
 }
 
-/** 内页正面（闭合时被封面压住，翻开后移动到左页背面） */
+/** 封面页 */
 function AlbumContent({ album, no }: { album: Album; no: string }) {
   return (
     <div className="relative flex h-full w-full flex-col justify-between overflow-hidden bg-linear-to-br from-surface-soft to-[#0c0c0c] p-5">
@@ -73,7 +80,7 @@ function AlbumContent({ album, no }: { album: Album; no: string }) {
   );
 }
 
-/** 左页背面：进入相片 / 编辑 / 删除 */
+/** 右页内面：进入相片 / 编辑 / 删除 */
 function AlbumOperations({
   album,
   no,

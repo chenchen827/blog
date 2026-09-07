@@ -8,10 +8,33 @@ import { createPhoto, deletePhoto, listPhotos, updatePhoto } from '../../apis/ph
 import type { Photo } from '../../apis/photos'
 import { uploadImageToAliyun } from '../../apis/upload'
 import { EmptyState } from '@repo/shared'
+import './photos.css'
 
 interface PhotoFormValues {
   imageUrl: string
   description?: string
+}
+
+interface PreviewInfo {
+  width?: number
+  height?: number
+  format?: string
+}
+
+function detectFormat(url?: string): string {
+  if (!url) return '未知'
+  const clean = url.split('?')[0]
+  const ext = clean.split('.').pop()?.toLowerCase() ?? ''
+  const map: Record<string, string> = {
+    jpg: 'JPEG',
+    jpeg: 'JPEG',
+    png: 'PNG',
+    webp: 'WEBP',
+    gif: 'GIF',
+    bmp: 'BMP',
+    avif: 'AVIF',
+  }
+  return map[ext] ?? (ext ? ext.toUpperCase() : '未知')
 }
 
 export default function PhotoListPage() {
@@ -31,6 +54,8 @@ export default function PhotoListPage() {
   const [editing, setEditing] = useState<Photo | null>(null)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [previewPhoto, setPreviewPhoto] = useState<Photo | null>(null)
+  const [previewInfo, setPreviewInfo] = useState<PreviewInfo | null>(null)
 
   const loadAlbums = useCallback(async () => {
     try {
@@ -86,6 +111,23 @@ export default function PhotoListPage() {
     form.resetFields()
     form.setFieldsValue({ imageUrl: '', description: '' })
     setModalOpen(true)
+  }
+
+  const openPreview = (photo: Photo) => {
+    setPreviewPhoto(photo)
+    setPreviewInfo(null)
+    const image = new Image()
+    image.onload = () => {
+      setPreviewInfo({
+        width: image.naturalWidth,
+        height: image.naturalHeight,
+        format: detectFormat(photo.imageUrl),
+      })
+    }
+    image.onerror = () => {
+      setPreviewInfo({ format: detectFormat(photo.imageUrl) })
+    }
+    image.src = photo.imageUrl ?? ''
   }
 
   const openEdit = (photo: Photo) => {
@@ -174,7 +216,7 @@ export default function PhotoListPage() {
             </Button>
             <h1 className="text-[24px] font-extrabold uppercase leading-tight tracking-[-0.01em] text-text-primary">相片管理</h1>
           </div>
-          <p className="mt-2 text-sm text-text-secondary">选择相集后以瀑布流查看相片，双击相片可编辑地址与描述。</p>
+          <p className="mt-2 text-sm text-text-secondary">选择相集后以瀑布流查看相片，双击相片可查看原图，悬停可编辑。</p>
         </div>
         <Button type="primary" disabled={!albumId} onClick={openAdd}>
           新增相片
@@ -212,33 +254,42 @@ export default function PhotoListPage() {
           }
         />
       ) : (
-        <div className="columns-1 gap-4 sm:columns-2 xl:columns-3 2xl:columns-4">
-          {photos.map((photo) => (
-            <div key={photo.id} className="mb-4 break-inside-avoid overflow-hidden rounded-none border border-hairline bg-primary">
-              <button
-                type="button"
-                className="group relative block w-full overflow-hidden"
-                onDoubleClick={() => openEdit(photo)}
-                title="双击编辑"
-              >
-                <img
-                  src={photo.imageUrl}
-                  alt={photo.description || '相片'}
-                  loading="lazy"
-                  className="block w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-                />
-                {photo.description ? (
-                  <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-full bg-gradient-to-t from-black/90 via-black/60 to-transparent px-3 py-3 text-left text-sm text-text-primary opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                    {photo.description}
-                  </span>
-                ) : null}
-              </button>
-              <div className="flex items-center justify-end px-3 py-1.5">
-                <Popconfirm title="确定删除该相片？" onConfirm={() => handleDelete(photo.id)}>
-                  <Button type="link" size="small" danger>
-                    删除
+        <div className="photo-wall columns-1 sm:columns-2 xl:columns-3 2xl:columns-4">
+          {photos.map((photo, index) => (
+            <div key={photo.id} className="photo-item">
+              <div className="photo-polaroid">
+                <span className="photo-tape" aria-hidden="true" />
+                <button
+                  type="button"
+                  className="relative block w-full overflow-hidden"
+                  onDoubleClick={() => openPreview(photo)}
+                  title="双击查看原图"
+                >
+                  <div className="photo-frame">
+                    <img
+                      src={photo.imageUrl}
+                      alt={photo.description || '相片'}
+                      loading="lazy"
+                    />
+                    {photo.description ? <span className="photo-hover-desc">{photo.description}</span> : null}
+                  </div>
+                </button>
+                <div className="photo-delete">
+                  <Popconfirm title="确定删除该相片？" onConfirm={() => handleDelete(photo.id)}>
+                    <Button type="link" size="small" danger>
+                      删除
+                    </Button>
+                  </Popconfirm>
+                </div>
+                <div className="photo-edit">
+                  <Button type="primary" size="small" onClick={() => openEdit(photo)}>
+                    编辑
                   </Button>
-                </Popconfirm>
+                </div>
+                <div className="photo-caption">
+                  <span className="photo-no">No.{String(index + 1).padStart(3, '0')}</span>
+                  <span className="photo-desc">{photo.description || '未命名相片'}</span>
+                </div>
               </div>
             </div>
           ))}
@@ -270,6 +321,39 @@ export default function PhotoListPage() {
             <Input.TextArea placeholder="请输入相片描述" autoSize={{ minRows: 2, maxRows: 4 }} maxLength={200} showCount />
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        title="原图预览"
+        open={!!previewPhoto}
+        onCancel={() => setPreviewPhoto(null)}
+        footer={null}
+        width={860}
+        destroyOnHidden
+      >
+        {previewPhoto ? (
+          <div className="mt-4">
+            <div className="flex max-h-[64vh] items-center justify-center bg-canvas">
+              <img src={previewPhoto.imageUrl} alt={previewPhoto.description || '原图'} className="max-h-[64vh] w-auto object-contain" />
+            </div>
+            <div className="mt-4 grid gap-3 border-t border-hairline pt-4 sm:grid-cols-3">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.28em] text-text-secondary">尺寸</p>
+                <p className="mt-1 text-base font-bold text-text-primary">
+                  {previewInfo?.width && previewInfo?.height ? `${previewInfo.width} × ${previewInfo.height} px` : '加载中…'}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.28em] text-text-secondary">格式</p>
+                <p className="mt-1 text-base font-bold text-accent">{previewInfo?.format ?? '加载中…'}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.28em] text-text-secondary">描述</p>
+                <p className="mt-1 text-base text-text-primary">{previewPhoto.description || '—'}</p>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </Modal>
 
       <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageFile} />

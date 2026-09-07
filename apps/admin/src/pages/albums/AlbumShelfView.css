@@ -1,0 +1,117 @@
+/* 相集封面：相纸 / 拍立得质感 */
+.album-cover {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  background: linear-gradient(180deg, #161616, #0c0c0c);
+  border: 1px solid var(--color-hairline);
+}
+
+.album-cover-frame {
+  position: relative;
+  width: 90%;
+  height: 92%;
+  overflow: hidden;
+  background: #0a0a0a;
+  border: 1px solid #222222;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+  transform: rotate(-1.2deg);
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.album-cover:hover .album-cover-frame {
+  transform: rotate(0deg) translateY(-2px);
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.7);
+}
+
+.album-cover-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.94);
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
+}
+
+.album-cover:hover .album-cover-frame img {
+  transform: scale(1.04);
+  filter: saturate(1.05);
+}
+
+/* 顶部胶带 */
+.album-cover-tape {
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  width: 64px;
+  height: 20px;
+  transform: translateX(-50%) rotate(-2deg);
+  background: linear-gradient(180deg, rgba(217, 255, 0, 0.18), rgba(217, 255, 0, 0.05));
+  border: 1px solid rgba(217, 255, 0, 0.3);
+  opacity: 0.9;
+  z-index: 3;
+}
+
+/* 荧光画框角 */
+.album-cover-corner {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-color: rgba(217, 255, 0, 0.75);
+  border-style: solid;
+  z-index: 2;
+  transition: transform 0.3s ease;
+}
+
+.album-cover-corner-tl {
+  top: 8px;
+  left: 8px;
+  border-width: 2px 0 0 2px;
+}
+
+.album-cover-corner-tr {
+  top: 8px;
+  right: 8px;
+  border-width: 2px 2px 0 0;
+}
+
+.album-cover-corner-bl {
+  bottom: 8px;
+  left: 8px;
+  border-width: 0 0 2px 2px;
+}
+
+.album-cover-corner-br {
+  bottom: 8px;
+  right: 8px;
+  border-width: 0 2px 2px 0;
+}
+
+.album-cover:hover .album-cover-corner-tl {
+  transform: translate(-2px, -2px);
+}
+
+.album-cover:hover .album-cover-corner-tr {
+  transform: translate(2px, -2px);
+}
+
+.album-cover:hover .album-cover-corner-bl {
+  transform: translate(-2px, 2px);
+}
+
+.album-cover:hover .album-cover-corner-br {
+  transform: translate(2px, 2px);
+}
+
+/* 封面编号标签 */
+.album-cover-meta {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  z-index: 3;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.4em;
+  color: var(--color-accent);
+}
