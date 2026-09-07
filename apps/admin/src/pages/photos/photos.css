@@ -7,7 +7,9 @@
   break-inside: avoid;
   margin-bottom: 24px;
   transform: rotate(var(--tilt, 0deg));
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
+  transition:
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.4s ease;
 }
 
 .photo-item:nth-child(3n + 1) {
@@ -48,7 +50,9 @@
   display: block;
   width: 100%;
   filter: saturate(0.92);
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
+  transition:
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.4s ease;
 }
 
 .photo-item:hover .photo-frame img {
@@ -63,10 +67,11 @@
   position: absolute;
   width: 18px;
   height: 18px;
-  border-color: rgba(217, 255, 0, 0.7);
+  border-color: rgba(217, 255, 0, 0.9);
   border-style: solid;
   z-index: 1;
   transition: transform 0.3s ease;
+  mix-blend-mode: difference;
 }
 
 .photo-frame::before {
@@ -92,7 +97,7 @@
 /* 顶部胶带 */
 .photo-tape {
   position: absolute;
-  top: -9px;
+  top: 2px;
   left: 50%;
   width: 68px;
   height: 20px;
@@ -140,7 +145,9 @@
   background: linear-gradient(180deg, transparent, rgba(5, 5, 5, 0.92));
   transform: translateY(100%);
   opacity: 0;
-  transition: transform 0.35s ease, opacity 0.35s ease;
+  transition:
+    transform 0.35s ease,
+    opacity 0.35s ease;
   pointer-events: none;
 }
 
@@ -157,17 +164,20 @@
   z-index: 3;
   opacity: 0;
   transform: translateY(-4px);
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
 }
 
 .photo-delete {
+  top: -6px;
   right: 8px;
 }
 
 .photo-edit {
-  left: 8px;
+  left: 16px;
   top: auto;
-  bottom: 8px;
+  bottom: 48px;
   transform: translateY(-4px) rotate(-6deg);
 }
 
