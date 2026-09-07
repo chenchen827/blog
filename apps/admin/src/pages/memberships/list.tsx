@@ -1,5 +1,6 @@
+import { EmptyState } from '@repo/shared'
 import { useCallback, useEffect, useState } from 'react'
-import { Alert, App, Button, Empty, Form, Grid, Input, InputNumber, Modal, Popconfirm, Space, Table } from 'antd'
+import { Alert, App, Button, Form, Grid, Input, InputNumber, Modal, Popconfirm, Space, Table } from 'antd'
 import type { TableProps } from 'antd'
 
 import { createMembership, deleteMembership, listMemberships, updateMembership } from '../../apis/memberships'
@@ -174,7 +175,7 @@ export default function MembershipListPage() {
         loading={loading}
         columns={columns}
         dataSource={list}
-        locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无会员商品" /> }}
+        locale={{ emptyText: <EmptyState title="暂无会员商品" /> }}
         pagination={{ pageSize: 10, showSizeChanger: true, showTotal: (total) => `共 ${total} 条` }}
         scroll={isCompact ? undefined : { x: 960 }}
       />

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Alert, App, Button, Empty, Form, Input, Modal, Popconfirm, Select, Spin } from 'antd'
+import { Alert, App, Button, Form, Input, Modal, Popconfirm, Select, Spin } from 'antd'
 import { useNavigate, useSearchParams } from 'react-router'
 
 import { listAlbums } from '../../apis/albums'
@@ -7,6 +7,7 @@ import type { Album } from '../../apis/albums'
 import { createPhoto, deletePhoto, listPhotos, updatePhoto } from '../../apis/photos'
 import type { Photo } from '../../apis/photos'
 import { uploadImageToAliyun } from '../../apis/upload'
+import { EmptyState } from '@repo/shared'
 
 interface PhotoFormValues {
   imageUrl: string
@@ -198,9 +199,18 @@ export default function PhotoListPage() {
       </div>
 
       {!albumId ? (
-        <Empty description="请选择相集" />
+        <EmptyState code="PHOTO" title="请选择相集" description="先从相集管理选择一个相集，相片会以瀑布流陈列在这里。" />
       ) : photos.length === 0 ? (
-        <Empty description="该相集暂无相片" />
+        <EmptyState
+          code="PHOTO"
+          title="该相集暂无相片"
+          description="上传第一张相片，为这个相集注入视觉信号。"
+          action={
+            <Button type="primary" onClick={openAdd}>
+              新增相片
+            </Button>
+          }
+        />
       ) : (
         <div className="columns-1 gap-4 sm:columns-2 xl:columns-3 2xl:columns-4">
           {photos.map((photo) => (

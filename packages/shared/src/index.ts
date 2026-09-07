@@ -1,5 +1,5 @@
 export * from './components/AntdProvider'
 export * from './components/Button'
+export * from './components/EmptyState'
 export * from './types'
 export * from './utils'
-

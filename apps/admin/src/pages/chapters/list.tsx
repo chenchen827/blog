@@ -1,5 +1,6 @@
+import { EmptyState } from '@repo/shared'
 import { useCallback, useEffect, useState } from 'react'
-import { Alert, App, Button, Empty, Form, Grid, Input, InputNumber, Modal, Popconfirm, Select, Space, Table } from 'antd'
+import { Alert, App, Button, Form, Grid, Input, InputNumber, Modal, Popconfirm, Select, Space, Table } from 'antd'
 import type { TableProps } from 'antd'
 import { useNavigate, useSearchParams } from 'react-router'
 
@@ -240,7 +241,7 @@ export default function ChapterListPage() {
         loading={loading}
         columns={columns}
         dataSource={list}
-        locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={courseId ? '暂无章节' : '请先选择课程' } /> }}
+        locale={{ emptyText: <EmptyState title={courseId ? '暂无章节' : '请先选择课程'} /> }}
         pagination={{
           current: pagination.current,
           pageSize: pagination.pageSize,

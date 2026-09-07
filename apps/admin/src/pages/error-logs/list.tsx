@@ -1,5 +1,6 @@
+import { EmptyState } from '@repo/shared'
 import { useCallback, useEffect, useState } from 'react'
-import { Alert, App, Button, Empty, Popconfirm, Space, Table, Tag } from 'antd'
+import { Alert, App, Button, Popconfirm, Space, Table, Tag } from 'antd'
 import type { TableProps } from 'antd'
 import { useNavigate } from 'react-router'
 
@@ -122,7 +123,7 @@ export default function ErrorLogListPage() {
         loading={loading}
         columns={columns}
         dataSource={logs}
-        locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无日志" /> }}
+        locale={{ emptyText: <EmptyState title="暂无日志" /> }}
         pagination={{ pageSize: 10, showSizeChanger: true, showTotal: (total) => `共 ${total} 条` }}
         scroll={{ x: 900 }}
       />

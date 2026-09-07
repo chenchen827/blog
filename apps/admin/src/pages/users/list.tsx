@@ -1,5 +1,6 @@
+import { EmptyState } from '@repo/shared'
 import { useState } from 'react'
-import { Alert, App, Button, Empty, Form, Grid, Input, Modal, Popconfirm, Select, Space, Switch, Table } from 'antd'
+import { Alert, App, Button, Form, Grid, Input, Modal, Popconfirm, Select, Space, Switch, Table } from 'antd'
 import type { TableProps } from 'antd'
 
 import { deleteUser, updateUser, updateUserRole } from '../../apis/users'
@@ -178,7 +179,7 @@ export default function UserListPage() {
         loading={loading}
         columns={columns}
         dataSource={users}
-        locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无用户" /> }}
+        locale={{ emptyText: <EmptyState title="暂无用户" /> }}
         pagination={{
           current: pagination.current,
           pageSize: pagination.pageSize,

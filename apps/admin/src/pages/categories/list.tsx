@@ -1,5 +1,6 @@
+import { EmptyState } from '@repo/shared'
 import { useCallback, useEffect, useState } from 'react'
-import { Alert, App, Button, Empty, Form, Grid, Input, InputNumber, Modal, Popconfirm, Space, Table } from 'antd'
+import { Alert, App, Button, Form, Grid, Input, InputNumber, Modal, Popconfirm, Space, Table } from 'antd'
 import type { TableProps } from 'antd'
 
 import { createCategory, deleteCategory, listCategories, updateCategory } from '../../apis/categories'
@@ -145,7 +146,7 @@ export default function CategoryListPage() {
         loading={loading}
         columns={columns}
         dataSource={filteredList}
-        locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无分类" /> }}
+        locale={{ emptyText: <EmptyState title="暂无分类" /> }}
         pagination={{ pageSize: 10, showSizeChanger: true, showTotal: (total) => `共 ${total} 条` }}
         scroll={isCompact ? undefined : { x: 760 }}
       />

@@ -1,5 +1,6 @@
+import { EmptyState } from '@repo/shared'
 import type { Key } from 'react'
-import { Alert, App, Button, Empty, Grid, Input, Popconfirm, Space, Table } from 'antd'
+import { Alert, App, Button, Grid, Input, Popconfirm, Space, Table } from 'antd'
 import type { TableProps } from 'antd'
 import { forceDeleteArticle, restoreArticles } from '../../apis/articles'
 import { stripHtml } from '../../utils/tool'
@@ -104,7 +105,7 @@ export default function ArticleTrashPage() {
         columns={columns}
         dataSource={articles}
         rowSelection={{ selectedRowKeys, onChange: setSelectedRowKeys }}
-        locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="回收站为空" /> }}
+        locale={{ emptyText: <EmptyState title="回收站为空" /> }}
         pagination={{
           current: pagination.current,
           pageSize: pagination.pageSize,

@@ -1,4 +1,5 @@
-import { Alert, App, Button, Empty, Grid, Input, Popconfirm, Space, Table } from "antd";
+import { EmptyState } from '@repo/shared'
+import { Alert, App, Button, Grid, Input, Popconfirm, Space, Table } from "antd";
 import type { TableProps } from "antd";
 import { useNavigate } from "react-router";
 import { deleteArticles } from "../../apis/articles";
@@ -96,7 +97,7 @@ export default function ArticleListPage() {
         columns={columns}
         dataSource={articles}
         rowSelection={{ selectedRowKeys, onChange: setSelectedRowKeys }}
-        locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无文章" /> }}
+        locale={{ emptyText: <EmptyState title="暂无文章" /> }}
         pagination={{
           current: pagination.current,
           pageSize: pagination.pageSize,

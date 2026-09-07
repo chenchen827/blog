@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Alert, App, Button, Empty, Form, Image, Input, Modal, Popconfirm, Space, Spin } from 'antd'
+import { Alert, App, Button, Form, Image, Input, Modal, Popconfirm, Space, Spin } from 'antd'
 import { useNavigate } from 'react-router'
 
 import { createAlbum, deleteAlbum, listAlbums, updateAlbum } from '../../apis/albums'
 import type { Album } from '../../apis/albums'
 import { uploadImageToAliyun } from '../../apis/upload'
+import { EmptyState } from '@repo/shared'
 
 interface AlbumFormValues {
   name: string
@@ -145,7 +146,16 @@ export default function AlbumListPage() {
       {error && <Alert type="error" showIcon message={error} closable onClose={() => setError('')} />}
 
       {!loading && albums.length === 0 ? (
-        <Empty description="暂无相集" />
+        <EmptyState
+          code="ALBUM"
+          title="暂无相集"
+          description="创建一个相集，把零散的图片归档成完整的故事线。"
+          action={
+            <Button type="primary" onClick={openCreate}>
+              新增相集
+            </Button>
+          }
+        />
       ) : (
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {albums.map((album) => (

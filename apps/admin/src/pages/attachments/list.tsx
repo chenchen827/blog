@@ -1,5 +1,6 @@
+import { EmptyState } from '@repo/shared'
 import { useCallback, useEffect, useState } from 'react'
-import { Alert, App, Button, Empty, Grid, Image, Popconfirm, Space, Table, Typography } from 'antd'
+import { Alert, App, Button, Grid, Image, Popconfirm, Space, Table, Typography } from 'antd'
 import type { TableProps } from 'antd'
 import { deleteAttachment, listAttachments } from '../../apis/attachments'
 import { formatFileSize } from '../../utils/tool'
@@ -123,7 +124,7 @@ export default function AttachmentListPage() {
         loading={loading}
         columns={columns}
         dataSource={attachments}
-        locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无附件" /> }}
+        locale={{ emptyText: <EmptyState title="暂无附件" /> }}
         pagination={{
           current: pagination.current,
           pageSize: pagination.pageSize,

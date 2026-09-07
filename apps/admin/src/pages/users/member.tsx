@@ -1,4 +1,5 @@
-import { Alert, Empty, Grid, Input, Select, Space, Table } from 'antd'
+import { EmptyState } from '@repo/shared'
+import { Alert, Grid, Input, Select, Space, Table } from 'antd'
 import type { TableProps } from 'antd'
 
 import type { AdminUser } from '../../apis/users'
@@ -62,7 +63,7 @@ export default function MemberListPage() {
         loading={loading}
         columns={columns}
         dataSource={users}
-        locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无会员" /> }}
+        locale={{ emptyText: <EmptyState title="暂无会员" /> }}
         pagination={{
           current: pagination.current,
           pageSize: pagination.pageSize,

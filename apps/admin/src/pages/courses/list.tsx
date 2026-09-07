@@ -1,5 +1,6 @@
+import { EmptyState } from '@repo/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Alert, App, Button, Empty, Form, Grid, Image, Input, Modal, Popconfirm, Space, Switch, Table, Tag } from 'antd'
+import { Alert, App, Button, Form, Grid, Image, Input, Modal, Popconfirm, Space, Switch, Table, Tag } from 'antd'
 import type { TableProps } from 'antd'
 import { useNavigate } from 'react-router'
 
@@ -224,7 +225,7 @@ export default function CourseListPage() {
         loading={loading}
         columns={columns}
         dataSource={list}
-        locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无课程" /> }}
+        locale={{ emptyText: <EmptyState title="暂无课程" /> }}
         pagination={{
           current: pagination.current,
           pageSize: pagination.pageSize,
