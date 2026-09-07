@@ -101,8 +101,7 @@ function AlbumOperations({
         aria-hidden="true"
         className="absolute inset-0 opacity-[0.05]"
         style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.8) 1px, transparent 1px)",
+          backgroundImage: "linear-gradient(rgba(255,255,255,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.8) 1px, transparent 1px)",
           backgroundSize: "26px 26px",
         }}
       />
@@ -126,19 +125,16 @@ function AlbumOperations({
             →
           </span>
         </button>
-
-        <div className="grid grid-cols-2 gap-3">
-          <button type="button" className="paper-btn paper-btn--ghost" onClick={() => onEdit(album)}>
+        <button type="button" className="paper-btn paper-btn--ghost w-3" onClick={() => onEdit(album)}>
+          <span className="paper-btn__tape" aria-hidden="true" />
+          <span className="paper-btn__text">编辑</span>
+        </button>
+        <Popconfirm title="确定删除该相集？" onConfirm={() => onDelete(album.id)}>
+          <button type="button" className="paper-btn paper-btn--danger">
             <span className="paper-btn__tape" aria-hidden="true" />
-            <span className="paper-btn__text">编辑</span>
+            <span className="paper-btn__text">删除</span>
           </button>
-          <Popconfirm title="确定删除该相集？" onConfirm={() => onDelete(album.id)}>
-            <button type="button" className="paper-btn paper-btn--danger">
-              <span className="paper-btn__tape" aria-hidden="true" />
-              <span className="paper-btn__text">删除</span>
-            </button>
-          </Popconfirm>
-        </div>
+        </Popconfirm>
       </div>
 
       <span className="relative text-[9px] font-black uppercase tracking-[0.35em] text-text-secondary">Hover to Close</span>
