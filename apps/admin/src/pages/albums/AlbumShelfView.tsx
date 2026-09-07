@@ -105,19 +105,16 @@ function AlbumOperations({
           backgroundSize: "26px 26px",
         }}
       />
-
       <div className="relative flex items-start justify-between text-[9px] font-black uppercase tracking-[0.4em] text-text-secondary">
         <span>Album · {no}</span>
         <span aria-hidden="true" className="text-accent">
           //
         </span>
       </div>
-
-      <div className="relative space-y-4">
+      <div className="relative -top-6 space-y-6">
         <p className="text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary">
           <span className="text-accent">{album.photosCount ?? 0}</span> Photos
         </p>
-
         <button type="button" className="paper-btn paper-btn--primary" onClick={() => onOpenPhotos(album)}>
           <span className="paper-btn__tape" aria-hidden="true" />
           <span className="paper-btn__text">进入相片</span>
@@ -136,7 +133,6 @@ function AlbumOperations({
           </button>
         </Popconfirm>
       </div>
-
       <span className="relative text-[9px] font-black uppercase tracking-[0.35em] text-text-secondary">Hover to Close</span>
     </div>
   );

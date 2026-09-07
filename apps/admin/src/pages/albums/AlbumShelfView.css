@@ -224,7 +224,6 @@
   border-color: rgba(255, 203, 48, 0.537);
 }
 
-
 /* 主操作：荧光黄更亮，外圈泛起荧光光晕，纸张纹理略加深 */
 .paper-btn--primary:hover {
   filter: brightness(1.07);
@@ -240,11 +239,12 @@
 
 /* 次操作：纸张提亮成纯白，边框点亮成荧光黄（选中提示），阴影加深 */
 .paper-btn--ghost:hover {
-  background: linear-gradient(180deg, #ffffff, #eeeeea);
-  border-color: #d9ff00;
+  background: linear-gradient(180deg, #f0faff, #b9d6f6);
+  border-color: #8ae9fa;
+  color: #0a7cad;
   box-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.6),
-    0 0 0 1px rgba(217, 255, 0, 0.35);
+    0 20px 40px rgba(160, 219, 244, 0.6),
+    0 0 0 1px rgba(99, 149, 163, 0.35);
 }
 
 /* 危险操作：纸面泛起淡红，红色加深，像作废戳被“激活” */
@@ -273,4 +273,3 @@
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
-

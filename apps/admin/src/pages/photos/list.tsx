@@ -211,7 +211,7 @@ export default function PhotoListPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="flex flex-wrap items-center gap-3">
-            <Button type="link" className="!px-0" onClick={() => navigate("/albums/list")}>
+            <Button type="link" className="px-0!" onClick={() => navigate("/albums/list")}>
               ← 返回相集
             </Button>
             <h1 className="text-[24px] font-extrabold uppercase leading-tight tracking-[-0.01em] text-text-primary">相片管理</h1>
