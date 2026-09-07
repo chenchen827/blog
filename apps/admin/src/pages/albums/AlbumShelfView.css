@@ -115,3 +115,153 @@
   letter-spacing: 0.4em;
   color: var(--color-accent);
 }
+
+/* ============================================================
+   纸张标签按钮 —— 像贴在书页上的纸片标签 / 档案贴纸
+   ============================================================ */
+.paper-btn {
+  position: relative;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 16px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  text-align: left;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s ease, filter 0.28s ease, background 0.28s ease,
+    border-color 0.28s ease, color 0.28s ease;
+}
+
+/* 纸张网格纹理 */
+.paper-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.06) 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+
+/* 顶部胶带 */
+.paper-btn__tape {
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  width: 44px;
+  height: 14px;
+  transform: translateX(-50%) rotate(-2deg);
+  background: linear-gradient(180deg, rgba(217, 255, 0, 0.5), rgba(217, 255, 0, 0.14));
+  border: 1px solid rgba(217, 255, 0, 0.4);
+  z-index: 2;
+  transition: transform 0.28s ease, background 0.28s ease;
+}
+
+.paper-btn__text,
+.paper-btn__arrow {
+  position: relative;
+  z-index: 1;
+}
+
+.paper-btn__arrow {
+  font-size: 15px;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 主操作：荧光黄贴纸，黑墨字 */
+.paper-btn--primary {
+  color: #050505;
+  background: linear-gradient(180deg, #ecff2f, #d9ff00);
+  border-color: #b7d800;
+  box-shadow: 0 12px 28px rgba(217, 255, 0, 0.16);
+  transform: rotate(-1deg);
+}
+
+.paper-btn--primary .paper-btn__tape {
+  background: linear-gradient(180deg, rgba(5, 5, 5, 0.6), rgba(5, 5, 5, 0.3));
+  border-color: rgba(5, 5, 5, 0.65);
+}
+
+/* 次操作：米白纸张 */
+.paper-btn--ghost {
+  color: #0a0a0a;
+  background: linear-gradient(180deg, #f6f6f4, #e6e6e2);
+  border-color: #3c3c3c;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+  transform: rotate(0.9deg);
+}
+
+/* 危险操作：白纸 + 红色虚线边框（作废戳） */
+.paper-btn--danger {
+  color: #ff3b30;
+  background: linear-gradient(180deg, #ffffff, #f0f0ee);
+  border: 1px dashed #ff3b30;
+  box-shadow: 0 12px 28px rgba(255, 59, 48, 0.14);
+  transform: rotate(-0.7deg);
+}
+
+.paper-btn--danger .paper-btn__tape {
+  background: linear-gradient(180deg, rgba(255, 59, 48, 0.5), rgba(255, 59, 48, 0.14));
+  border-color: rgba(255, 59, 48, 0.4);
+}
+
+/* 悬停：纸片被抬起并摆正，纸张材质随交互做出反馈 */
+.paper-btn:hover {
+  transform: translateY(-4px) rotate(0deg);
+}
+
+/* 主操作：荧光黄更亮，外圈泛起荧光光晕，纸张纹理略加深 */
+.paper-btn--primary:hover {
+  filter: brightness(1.07);
+  border-color: #a3c400;
+  box-shadow: 0 20px 40px rgba(217, 255, 0, 0.34), 0 0 0 1px rgba(217, 255, 0, 0.45);
+}
+
+.paper-btn--primary:hover::before {
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.09) 1px, transparent 1px);
+}
+
+/* 次操作：纸张提亮成纯白，边框点亮成荧光黄（选中提示），阴影加深 */
+.paper-btn--ghost:hover {
+  background: linear-gradient(180deg, #ffffff, #eeeeea);
+  border-color: #d9ff00;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(217, 255, 0, 0.35);
+}
+
+/* 危险操作：纸面泛起淡红，红色加深，像作废戳被“激活” */
+.paper-btn--danger:hover {
+  color: #ff1f15;
+  background: linear-gradient(180deg, #fff4f3, #ffe7e4);
+  border-color: #ff1f15;
+  box-shadow: 0 20px 40px rgba(255, 59, 48, 0.3), 0 0 0 1px rgba(255, 59, 48, 0.35);
+}
+
+/* 胶带随纸片上浮轻轻翘起 */
+.paper-btn:hover .paper-btn__tape {
+  transform: translateX(-50%) rotate(3deg) translateY(-2px) scale(1.06);
+}
+
+/* 主操作箭头向右滑动 */
+.paper-btn:hover .paper-btn__arrow {
+  transform: translateX(4px) scale(1.12);
+}
+
+/* 按下 / 键盘焦点 */
+.paper-btn:active {
+  transform: translateY(-1px) rotate(0deg);
+}
+
+.paper-btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}

@@ -291,7 +291,6 @@ export function Book({
                   transform: `rotateY(${angle}deg)${fanOffset}`,
                   transformOrigin: 'left center',
                   transformStyle: 'preserve-3d',
-                  willChange: 'transform',
                   transition: `transform ${duration}ms ${EASE} ${delay}ms`,
                 }}
               >
@@ -302,7 +301,7 @@ export function Book({
                     pageClassName,
                     page.frontClassName,
                   )}
-                  style={{ backfaceVisibility: 'hidden', pointerEvents: 'none' }}
+                  style={{ backfaceVisibility: 'hidden' }}
                 >
                   {page.front}
                 </div>

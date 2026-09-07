@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import { Button, Popconfirm } from "antd";
+import { Popconfirm } from "antd";
 
 import { Book } from "@repo/shared";
 import type { BookPage } from "@repo/shared";
@@ -96,33 +96,52 @@ function AlbumOperations({
 }) {
   return (
     <div className="relative flex h-full w-full flex-col justify-between overflow-hidden bg-linear-to-br from-[#151515] via-surface to-[#0c0c0c] p-5">
-      <div className="flex items-start justify-between text-[9px] font-black uppercase tracking-[0.4em] text-text-secondary">
+      {/* 纸张网格纹理，与内页一致 */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 opacity-[0.05]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.8) 1px, transparent 1px)",
+          backgroundSize: "26px 26px",
+        }}
+      />
+
+      <div className="relative flex items-start justify-between text-[9px] font-black uppercase tracking-[0.4em] text-text-secondary">
         <span>Album · {no}</span>
         <span aria-hidden="true" className="text-accent">
           //
         </span>
       </div>
 
-      <div className="space-y-3">
+      <div className="relative space-y-4">
         <p className="text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary">
           <span className="text-accent">{album.photosCount ?? 0}</span> Photos
         </p>
-        <Button type="primary" block onClick={() => onOpenPhotos(album)}>
-          进入相片
-        </Button>
-        <div className="grid grid-cols-2 gap-2">
-          <Button block onClick={() => onEdit(album)}>
-            编辑
-          </Button>
+
+        <button type="button" className="paper-btn paper-btn--primary" onClick={() => onOpenPhotos(album)}>
+          <span className="paper-btn__tape" aria-hidden="true" />
+          <span className="paper-btn__text">进入相片</span>
+          <span className="paper-btn__arrow" aria-hidden="true">
+            →
+          </span>
+        </button>
+
+        <div className="grid grid-cols-2 gap-3">
+          <button type="button" className="paper-btn paper-btn--ghost" onClick={() => onEdit(album)}>
+            <span className="paper-btn__tape" aria-hidden="true" />
+            <span className="paper-btn__text">编辑</span>
+          </button>
           <Popconfirm title="确定删除该相集？" onConfirm={() => onDelete(album.id)}>
-            <Button danger block>
-              删除
-            </Button>
+            <button type="button" className="paper-btn paper-btn--danger">
+              <span className="paper-btn__tape" aria-hidden="true" />
+              <span className="paper-btn__text">删除</span>
+            </button>
           </Popconfirm>
         </div>
       </div>
 
-      <span className="text-[9px] font-black uppercase tracking-[0.35em] text-text-secondary">Hover to Close</span>
+      <span className="relative text-[9px] font-black uppercase tracking-[0.35em] text-text-secondary">Hover to Close</span>
     </div>
   );
 }
@@ -258,8 +277,6 @@ export default function AlbumShelfView({ albums, onOpenPhotos, onEdit, onDelete 
                 zIndex: 10 - Math.abs(offset),
                 transform: `translate(-50%, -50%) translateX(${offset * SLIDE_STEP_X}px) translateZ(${-Math.abs(offset) * SLIDE_DEPTH}px)`,
                 transition: `transform ${MOVE_DURATION}ms ${EASE}`,
-                willChange: "transform",
-                backfaceVisibility: "hidden",
               };
 
               return (
