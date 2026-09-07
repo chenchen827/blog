@@ -1,209 +1,209 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { Alert, App, Button, Form, Input, Modal, Popconfirm, Select, Spin } from 'antd'
-import { useNavigate, useSearchParams } from 'react-router'
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Alert, App, Button, Form, Input, Modal, Popconfirm, Select, Spin } from "antd";
+import { useNavigate, useSearchParams } from "react-router";
 
-import { listAlbums } from '../../apis/albums'
-import type { Album } from '../../apis/albums'
-import { createPhoto, deletePhoto, listPhotos, updatePhoto } from '../../apis/photos'
-import type { Photo } from '../../apis/photos'
-import { uploadImageToAliyun } from '../../apis/upload'
-import { EmptyState } from '@repo/shared'
-import './photos.css'
+import { listAlbums } from "../../apis/albums";
+import type { Album } from "../../apis/albums";
+import { createPhoto, deletePhoto, listPhotos, updatePhoto } from "../../apis/photos";
+import type { Photo } from "../../apis/photos";
+import { uploadImageToAliyun } from "../../apis/upload";
+import { EmptyState } from "@repo/shared";
+import "./photos.css";
 
 interface PhotoFormValues {
-  imageUrl: string
-  description?: string
+  imageUrl: string;
+  description?: string;
 }
 
 interface PreviewInfo {
-  width?: number
-  height?: number
-  format?: string
+  width?: number;
+  height?: number;
+  format?: string;
 }
 
 function detectFormat(url?: string): string {
-  if (!url) return '未知'
-  const clean = url.split('?')[0]
-  const ext = clean.split('.').pop()?.toLowerCase() ?? ''
+  if (!url) return "未知";
+  const clean = url.split("?")[0];
+  const ext = clean.split(".").pop()?.toLowerCase() ?? "";
   const map: Record<string, string> = {
-    jpg: 'JPEG',
-    jpeg: 'JPEG',
-    png: 'PNG',
-    webp: 'WEBP',
-    gif: 'GIF',
-    bmp: 'BMP',
-    avif: 'AVIF',
-  }
-  return map[ext] ?? (ext ? ext.toUpperCase() : '未知')
+    jpg: "JPEG",
+    jpeg: "JPEG",
+    png: "PNG",
+    webp: "WEBP",
+    gif: "GIF",
+    bmp: "BMP",
+    avif: "AVIF",
+  };
+  return map[ext] ?? (ext ? ext.toUpperCase() : "未知");
 }
 
 export default function PhotoListPage() {
-  const { message } = App.useApp()
-  const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const [form] = Form.useForm<PhotoFormValues>()
-  const imageInputRef = useRef<HTMLInputElement>(null)
+  const { message } = App.useApp();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [form] = Form.useForm<PhotoFormValues>();
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
-  const albumIdParam = searchParams.get('albumId')
-  const [albumId, setAlbumId] = useState<string | undefined>(albumIdParam ?? undefined)
-  const [albumOptions, setAlbumOptions] = useState<Album[]>([])
-  const [photos, setPhotos] = useState<Photo[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [modalOpen, setModalOpen] = useState(false)
-  const [editing, setEditing] = useState<Photo | null>(null)
-  const [saving, setSaving] = useState(false)
-  const [uploading, setUploading] = useState(false)
-  const [previewPhoto, setPreviewPhoto] = useState<Photo | null>(null)
-  const [previewInfo, setPreviewInfo] = useState<PreviewInfo | null>(null)
+  const albumIdParam = searchParams.get("albumId");
+  const [albumId, setAlbumId] = useState<string | undefined>(albumIdParam ?? undefined);
+  const [albumOptions, setAlbumOptions] = useState<Album[]>([]);
+  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState<Photo | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [previewPhoto, setPreviewPhoto] = useState<Photo | null>(null);
+  const [previewInfo, setPreviewInfo] = useState<PreviewInfo | null>(null);
 
   const loadAlbums = useCallback(async () => {
     try {
-      const res = await listAlbums()
-      setAlbumOptions(res.data.albums ?? [])
+      const res = await listAlbums();
+      setAlbumOptions(res.data.albums ?? []);
     } catch (err) {
-      message.error(err instanceof Error ? err.message : '加载相集失败')
+      message.error(err instanceof Error ? err.message : "加载相集失败");
     }
-  }, [message])
+  }, [message]);
 
   const loadPhotos = useCallback(
     async (id: string | undefined) => {
       if (!id) {
-        setPhotos([])
-        return
+        setPhotos([]);
+        return;
       }
-      setLoading(true)
-      setError('')
+      setLoading(true);
+      setError("");
       try {
-        const res = await listPhotos(id)
-        const data = res.data
-        setPhotos(Array.isArray(data) ? data : (data.photos ?? []))
+        const res = await listPhotos(id);
+        const data = res.data;
+        setPhotos(Array.isArray(data) ? data : (data.photos ?? []));
       } catch (err) {
-        const msg = err instanceof Error ? err.message : '加载相片失败'
-        setError(msg)
-        message.error(msg)
+        const msg = err instanceof Error ? err.message : "加载相片失败";
+        setError(msg);
+        message.error(msg);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     },
     [message],
-  )
+  );
 
   useEffect(() => {
-    void loadAlbums()
-  }, [loadAlbums])
+    void loadAlbums();
+  }, [loadAlbums]);
 
   useEffect(() => {
-    void loadPhotos(albumId)
-  }, [albumId, loadPhotos])
+    void loadPhotos(albumId);
+  }, [albumId, loadPhotos]);
 
   const handleAlbumChange = (value: string) => {
-    setAlbumId(value)
-    navigate(`/photos/list?albumId=${value}`, { replace: true })
-  }
+    setAlbumId(value);
+    navigate(`/photos/list?albumId=${value}`, { replace: true });
+  };
 
   const openAdd = () => {
     if (!albumId) {
-      message.warning('请先选择相集')
-      return
+      message.warning("请先选择相集");
+      return;
     }
-    setEditing(null)
-    form.resetFields()
-    form.setFieldsValue({ imageUrl: '', description: '' })
-    setModalOpen(true)
-  }
+    setEditing(null);
+    form.resetFields();
+    form.setFieldsValue({ imageUrl: "", description: "" });
+    setModalOpen(true);
+  };
 
   const openPreview = (photo: Photo) => {
-    setPreviewPhoto(photo)
-    setPreviewInfo(null)
-    const image = new Image()
+    setPreviewPhoto(photo);
+    setPreviewInfo(null);
+    const image = new Image();
     image.onload = () => {
       setPreviewInfo({
         width: image.naturalWidth,
         height: image.naturalHeight,
         format: detectFormat(photo.imageUrl),
-      })
-    }
+      });
+    };
     image.onerror = () => {
-      setPreviewInfo({ format: detectFormat(photo.imageUrl) })
-    }
-    image.src = photo.imageUrl ?? ''
-  }
+      setPreviewInfo({ format: detectFormat(photo.imageUrl) });
+    };
+    image.src = photo.imageUrl ?? "";
+  };
 
   const openEdit = (photo: Photo) => {
-    setEditing(photo)
-    form.resetFields()
+    setEditing(photo);
+    form.resetFields();
     form.setFieldsValue({
-      imageUrl: photo.imageUrl ?? '',
-      description: photo.description ?? '',
-    })
-    setModalOpen(true)
-  }
+      imageUrl: photo.imageUrl ?? "",
+      description: photo.description ?? "",
+    });
+    setModalOpen(true);
+  };
 
   const closeModal = () => {
-    if (saving) return
-    setModalOpen(false)
-    form.resetFields()
-  }
+    if (saving) return;
+    setModalOpen(false);
+    form.resetFields();
+  };
 
   const handleSave = async (values: PhotoFormValues) => {
-    if (!albumId) return
-    setSaving(true)
+    if (!albumId) return;
+    setSaving(true);
     try {
       const payload = {
         imageUrl: values.imageUrl.trim(),
-        description: values.description?.trim() || '',
-      }
+        description: values.description?.trim() || "",
+      };
       if (editing) {
-        await updatePhoto(editing.id, payload)
-        message.success('相片已更新')
+        await updatePhoto(editing.id, payload);
+        message.success("相片已更新");
       } else {
-        await createPhoto({ albumId, ...payload })
-        message.success('相片已添加')
+        await createPhoto({ albumId, ...payload });
+        message.success("相片已添加");
       }
-      setModalOpen(false)
-      form.resetFields()
-      void loadPhotos(albumId)
+      setModalOpen(false);
+      form.resetFields();
+      void loadPhotos(albumId);
     } catch (err) {
-      message.error(err instanceof Error ? err.message : '保存失败')
+      message.error(err instanceof Error ? err.message : "保存失败");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const handleDelete = async (id: number) => {
-    if (!albumId) return
+    if (!albumId) return;
     try {
-      await deletePhoto(id)
-      message.success('相片已删除')
-      void loadPhotos(albumId)
+      await deletePhoto(id);
+      message.success("相片已删除");
+      void loadPhotos(albumId);
     } catch (err) {
-      message.error(err instanceof Error ? err.message : '删除失败')
+      message.error(err instanceof Error ? err.message : "删除失败");
     }
-  }
+  };
 
   const handleImageFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    event.target.value = ''
-    if (!file) return
-    setUploading(true)
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    setUploading(true);
     try {
-      const url = await uploadImageToAliyun(file)
-      form.setFieldValue('imageUrl', url)
-      message.success('图片已上传')
+      const url = await uploadImageToAliyun(file);
+      form.setFieldValue("imageUrl", url);
+      message.success("图片已上传");
     } catch (err) {
-      message.error(err instanceof Error ? err.message : '图片上传失败')
+      message.error(err instanceof Error ? err.message : "图片上传失败");
     } finally {
-      setUploading(false)
+      setUploading(false);
     }
-  }
+  };
 
   if (loading && photos.length === 0) {
     return (
       <div className="flex min-h-80 items-center justify-center">
         <Spin />
       </div>
-    )
+    );
   }
 
   return (
@@ -211,7 +211,7 @@ export default function PhotoListPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="flex flex-wrap items-center gap-3">
-            <Button type="link" className="!px-0" onClick={() => navigate('/albums/list')}>
+            <Button type="link" className="!px-0" onClick={() => navigate("/albums/list")}>
               ← 返回相集
             </Button>
             <h1 className="text-[24px] font-extrabold uppercase leading-tight tracking-[-0.01em] text-text-primary">相片管理</h1>
@@ -223,7 +223,7 @@ export default function PhotoListPage() {
         </Button>
       </div>
 
-      {error && <Alert type="error" showIcon message={error} closable onClose={() => setError('')} />}
+      {error && <Alert type="error" showIcon message={error} closable onClose={() => setError("")} />}
 
       <div className="flex flex-wrap items-center gap-4">
         <Select
@@ -235,9 +235,7 @@ export default function PhotoListPage() {
           options={albumOptions.map((album) => ({ label: album.name, value: String(album.id) }))}
           style={{ width: 300 }}
         />
-        <span className="text-sm text-text-secondary">
-          {albumId ? `当前相集 ID：${albumId}` : '请先选择相集以加载相片'}
-        </span>
+        <span className="text-sm text-text-secondary">{albumId ? `当前相集 ID：${albumId}` : "请先选择相集以加载相片"}</span>
       </div>
 
       {!albumId ? (
@@ -259,26 +257,15 @@ export default function PhotoListPage() {
             <div key={photo.id} className="photo-item">
               <div className="photo-polaroid">
                 <span className="photo-tape" aria-hidden="true" />
-                <button
-                  type="button"
-                  className="relative block w-full overflow-hidden"
-                  onDoubleClick={() => openPreview(photo)}
-                  title="双击查看原图"
-                >
+                <button type="button" className="relative block w-full overflow-hidden" onDoubleClick={() => openPreview(photo)} title="双击查看原图">
                   <div className="photo-frame">
-                    <img
-                      src={photo.imageUrl}
-                      alt={photo.description || '相片'}
-                      loading="lazy"
-                    />
+                    <img src={photo.imageUrl} alt={photo.description || "相片"} loading="lazy" />
                     {photo.description ? <span className="photo-hover-desc">{photo.description}</span> : null}
                   </div>
                 </button>
                 <div className="photo-delete">
                   <Popconfirm title="确定删除该相片？" onConfirm={() => handleDelete(photo.id)}>
-                    <Button type="link" size="small" danger>
-                      删除
-                    </Button>
+                    <Button size="small">删除</Button>
                   </Popconfirm>
                 </div>
                 <div className="photo-edit">
@@ -287,8 +274,8 @@ export default function PhotoListPage() {
                   </Button>
                 </div>
                 <div className="photo-caption">
-                  <span className="photo-no">No.{String(index + 1).padStart(3, '0')}</span>
-                  <span className="photo-desc">{photo.description || '未命名相片'}</span>
+                  <span className="photo-no">No.{String(index + 1).padStart(3, "0")}</span>
+                  <span className="photo-desc">{photo.description || "未命名相片"}</span>
                 </div>
               </div>
             </div>
@@ -297,7 +284,7 @@ export default function PhotoListPage() {
       )}
 
       <Modal
-        title={editing ? '编辑相片' : '新增相片'}
+        title={editing ? "编辑相片" : "新增相片"}
         open={modalOpen}
         onCancel={closeModal}
         onOk={() => form.submit()}
@@ -307,7 +294,7 @@ export default function PhotoListPage() {
         destroyOnHidden
       >
         <Form<PhotoFormValues> form={form} layout="vertical" requiredMark={false} onFinish={handleSave} className="mt-4">
-          <Form.Item name="imageUrl" label="相片地址" rules={[{ required: true, whitespace: true, message: '请输入相片地址' }]}>
+          <Form.Item name="imageUrl" label="相片地址" rules={[{ required: true, whitespace: true, message: "请输入相片地址" }]}>
             <Input
               placeholder="图片 URL，可手动输入或点击右侧上传"
               addonAfter={
@@ -323,33 +310,26 @@ export default function PhotoListPage() {
         </Form>
       </Modal>
 
-      <Modal
-        title="原图预览"
-        open={!!previewPhoto}
-        onCancel={() => setPreviewPhoto(null)}
-        footer={null}
-        width={860}
-        destroyOnHidden
-      >
+      <Modal title="原图预览" open={!!previewPhoto} onCancel={() => setPreviewPhoto(null)} footer={null} width={860} destroyOnHidden>
         {previewPhoto ? (
           <div className="mt-4">
             <div className="flex max-h-[64vh] items-center justify-center bg-canvas">
-              <img src={previewPhoto.imageUrl} alt={previewPhoto.description || '原图'} className="max-h-[64vh] w-auto object-contain" />
+              <img src={previewPhoto.imageUrl} alt={previewPhoto.description || "原图"} className="max-h-[64vh] w-auto object-contain" />
             </div>
             <div className="mt-4 grid gap-3 border-t border-hairline pt-4 sm:grid-cols-3">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.28em] text-text-secondary">尺寸</p>
                 <p className="mt-1 text-base font-bold text-text-primary">
-                  {previewInfo?.width && previewInfo?.height ? `${previewInfo.width} × ${previewInfo.height} px` : '加载中…'}
+                  {previewInfo?.width && previewInfo?.height ? `${previewInfo.width} × ${previewInfo.height} px` : "加载中…"}
                 </p>
               </div>
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.28em] text-text-secondary">格式</p>
-                <p className="mt-1 text-base font-bold text-accent">{previewInfo?.format ?? '加载中…'}</p>
+                <p className="mt-1 text-base font-bold text-accent">{previewInfo?.format ?? "加载中…"}</p>
               </div>
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.28em] text-text-secondary">描述</p>
-                <p className="mt-1 text-base text-text-primary">{previewPhoto.description || '—'}</p>
+                <p className="mt-1 text-base text-text-primary">{previewPhoto.description || "—"}</p>
               </div>
             </div>
           </div>
@@ -358,5 +338,5 @@ export default function PhotoListPage() {
 
       <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageFile} />
     </section>
-  )
+  );
 }

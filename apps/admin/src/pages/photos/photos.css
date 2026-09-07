@@ -163,30 +163,28 @@
   top: 8px;
   z-index: 3;
   opacity: 0;
-  transform: translateY(-4px);
   transition:
-    opacity 0.25s ease,
-    transform 0.25s ease;
+    opacity 0.25s ease-in-out,
+    transform 0.25s ease-in-out;
 }
 
 .photo-delete {
-  top: -6px;
-  right: 8px;
+  top: -10px;
+  right: 0px;
+  transform: rotate(9deg);
 }
 
 .photo-edit {
   left: 16px;
   top: auto;
   bottom: 48px;
-  transform: translateY(-4px) rotate(-6deg);
+  transform: rotate(-9deg);
 }
 
 .photo-item:hover .photo-delete {
   opacity: 1;
-  transform: translateY(0);
 }
 
 .photo-item:hover .photo-edit {
   opacity: 1;
-  transform: translateY(0) rotate(-6deg);
 }
