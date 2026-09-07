@@ -1,44 +1,89 @@
+import { useEffect, useState } from "react";
+import type { CSSProperties } from "react";
 import { Button, Popconfirm } from "antd";
 
 import { Book } from "@repo/shared";
 import type { BookPage } from "@repo/shared";
 import type { Album } from "../../apis/albums";
 
-/** 每一摞“相册书”最多容纳的相集数（外加 1 页书架封面） */
-const ALBUMS_PER_STACK = 6;
+/* 书页尺寸 */
+const BOOK_WIDTH = 300;
+const BOOK_HEIGHT = 420;
 
-/** 把相集按固定数量分组，每组渲染成一摞可翻页的书 */
-function chunkAlbums<T>(items: T[], size: number): T[][] {
-  const chunks: T[][] = [];
-  for (let i = 0; i < items.length; i += size) {
-    chunks.push(items.slice(i, i + size));
-  }
-  return chunks;
-}
+/* Cover-Flow 舞台几何（单位 px / deg） */
+const STAGE_PERSPECTIVE = 1400; // 舞台透视
+const SLIDE_STEP_X = 240; // 相邻滑片水平间距
+const SLIDE_DEPTH = 190; // 相邻滑片向 Z 轴后退的距离
+const SLIDE_ROTATE = 34; // 相邻滑片 rotateY 角度
+const SLIDE_SCALE = 0.72; // 非中心滑片缩放
+const SPREAD_SHIFT = 152; // 两页摊开时整体位移，使摊开书居中
+const MOVE_DURATION = 520; // 切换动画时长（ms）
+const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
 
 function padNo(value: number): string {
   return String(value).padStart(2, "0");
 }
 
-/** 单本相集封面：封面图或占位图 */
-function AlbumPageFront({ album, no }: { album: Album; no: string }) {
+/** 封面页（闭合时在顶、翻开后为右页）：封面图 + 标题 + 描述 */
+function AlbumCover({ album, no }: { album: Album; no: string }) {
   return (
     <div className="relative flex h-full w-full flex-col justify-between overflow-hidden">
       {album.coverUrl ? (
         <img src={album.coverUrl} alt={album.name} className="absolute inset-0 h-full w-full object-cover" />
       ) : (
-        <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-br from-[#1b1b1b] via-[#101010] to-[#0a0a0a]" />
+        <div aria-hidden="true" className="absolute inset-0 bg-linear-to-br from-[#1b1b1b] via-[#101010] to-primary" />
       )}
-      {/* 底部压暗，保证文字可读 */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/80 to-transparent" />
-      <span className="relative self-end p-3 text-[9px] font-black uppercase tracking-[0.4em] text-accent">Album · {no}</span>
-      <span className="relative max-w-full truncate p-3 pt-0 text-sm font-black uppercase tracking-wide text-text-primary">{album.name}</span>
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-linear-to-t from-black/90 via-black/50 to-transparent" />
+
+      <span className="relative self-end p-4 text-[10px] font-black uppercase tracking-[0.4em] text-accent">Album · {no}</span>
+
+      {/* <div className="relative max-w-full p-5">
+        <h3 className="text-xl font-black uppercase leading-tight tracking-[-0.01em] text-text-primary">{album.name}</h3>
+        <span aria-hidden="true" className="mt-3 block h-1 w-10 bg-accent" />
+        <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-text-secondary">{album.description || "—"}</p>
+      </div> */}
     </div>
   );
 }
 
-/** 相集翻开后的背面：相集信息 + 管理操作 */
-function AlbumPageBack({
+/** 内页正面（闭合时被封面压住，翻开后移动到左页背面） */
+function AlbumContent({ album, no }: { album: Album; no: string }) {
+  return (
+    <div className="relative flex h-full w-full flex-col justify-between overflow-hidden bg-linear-to-br from-surface-soft to-[#0c0c0c] p-5">
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 opacity-[0.06]"
+        style={{
+          backgroundImage: "linear-gradient(rgba(255,255,255,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.8) 1px, transparent 1px)",
+          backgroundSize: "26px 26px",
+        }}
+      />
+      <div className="relative flex items-start justify-between text-[10px] font-black uppercase tracking-[0.4em] text-text-secondary">
+        <span>Archive · {no}</span>
+        <span aria-hidden="true" className="text-accent">
+          ∅
+        </span>
+      </div>
+      <div className="relative">
+        <span className="block text-[24px] font-black uppercase leading-none tracking-[-0.02em] text-text-primary">{album.name}</span>
+        <span aria-hidden="true" className="mt-4 block h-1 w-10 bg-accent" />
+        <span className="mt-3 block text-[9px] font-black uppercase tracking-[0.5em] text-text-secondary">Photo Archive</span>
+      </div>
+      <div className="h-24 mt-1 text-text-secondary wrap-break-word line-clamp-4">{album.description || "—"}</div>
+      <div className="relative flex items-center justify-between text-[9px] font-black uppercase tracking-[0.35em] text-text-secondary">
+        <span>{padNo(album.photosCount ?? 0)} Photos</span>
+        <span aria-hidden="true" className="flex h-6 items-end gap-0.5">
+          {[10, 4, 14, 6, 10].map((h, i) => (
+            <span key={i} className="block w-0.75 bg-hairline" style={{ height: h }} />
+          ))}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/** 左页背面：进入相片 / 编辑 / 删除 */
+function AlbumOperations({
   album,
   no,
   onOpenPhotos,
@@ -52,69 +97,34 @@ function AlbumPageBack({
   onDelete: (id: number) => void;
 }) {
   return (
-    <div className="relative flex h-full w-full flex-col justify-between overflow-hidden bg-gradient-to-b from-[#151515] to-[#0c0c0c] p-4">
+    <div className="relative flex h-full w-full flex-col justify-between overflow-hidden bg-linear-to-br from-[#151515] via-surface to-[#0c0c0c] p-5">
       <div className="flex items-start justify-between text-[9px] font-black uppercase tracking-[0.4em] text-text-secondary">
-        <span>Issue · {no}</span>
+        <span>Album · {no}</span>
         <span aria-hidden="true" className="text-accent">
           //
         </span>
       </div>
 
-      <div className="relative">
-        <h3 className="text-base font-black uppercase leading-tight text-text-primary">{album.name}</h3>
-        <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-text-secondary">{album.description || "—"}</p>
-        <p className="mt-3 text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary">
+      <div className="space-y-3">
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary">
           <span className="text-accent">{album.photosCount ?? 0}</span> Photos
         </p>
-      </div>
-
-      <div className="relative flex flex-col gap-2">
-        <Button type="primary" size="small" block onClick={() => onOpenPhotos(album)}>
+        <Button type="primary" block onClick={() => onOpenPhotos(album)}>
           进入相片
         </Button>
         <div className="grid grid-cols-2 gap-2">
-          <Button size="small" block onClick={() => onEdit(album)}>
+          <Button block onClick={() => onEdit(album)}>
             编辑
           </Button>
           <Popconfirm title="确定删除该相集？" onConfirm={() => onDelete(album.id)}>
-            <Button size="small" danger block>
+            <Button danger block>
               删除
             </Button>
           </Popconfirm>
         </div>
       </div>
-    </div>
-  );
-}
 
-/** 书架封面（整摞相册书的正面，不绑定具体相集） */
-function StackCover({ stackIndex, count }: { stackIndex: number; count: number }) {
-  return (
-    <div className="relative flex h-full w-full flex-col justify-between overflow-hidden p-5">
-      <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-br from-[#222222] via-[#111111] to-[#070707]" />
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 opacity-[0.07]"
-        style={{
-          backgroundImage: "linear-gradient(rgba(255,255,255,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.8) 1px, transparent 1px)",
-          backgroundSize: "26px 26px",
-        }}
-      />
-      <div className="relative flex items-start justify-between text-[9px] font-black uppercase tracking-[0.4em] text-text-secondary">
-        <span>Album Archive</span>
-        <span aria-hidden="true" className="text-accent">
-          ∅
-        </span>
-      </div>
-      <div className="relative">
-        <span className="block text-[40px] font-black uppercase leading-none tracking-[-0.02em] text-text-primary">Stack</span>
-        <span className="mt-1 block text-[40px] font-black uppercase leading-none tracking-[-0.02em] text-accent">{padNo(stackIndex + 1)}</span>
-        <span aria-hidden="true" className="mt-4 block h-1 w-10 bg-accent" />
-      </div>
-      <div className="relative flex items-end justify-between">
-        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary">{count} Albums</span>
-        <span className="text-[9px] font-black uppercase tracking-[0.3em] text-text-secondary">Hover to Flip</span>
-      </div>
+      <span className="text-[9px] font-black uppercase tracking-[0.35em] text-text-secondary">Hover to Close</span>
     </div>
   );
 }
@@ -126,46 +136,171 @@ interface AlbumShelfViewProps {
   onDelete: (id: number) => void;
 }
 
-/** 书架视图：把相集按组渲染成一摞摞可翻页的“相册书” */
+/** 书架视图：循环 Cover-Flow 轮播，每个相集独立成一本可翻开的书 */
 export default function AlbumShelfView({ albums, onOpenPhotos, onEdit, onDelete }: AlbumShelfViewProps) {
-  const stacks = chunkAlbums(albums, ALBUMS_PER_STACK);
+  const [active, setActive] = useState(0);
+  const [hovered, setHovered] = useState(false);
+  const [pinned, setPinned] = useState(false);
+
+  const total = albums.length;
+
+  // 删除 / 刷新后把 active 归一化到合法索引（循环轮播，取模即可）
+  useEffect(() => {
+    if (total === 0) return;
+    setActive((current) => ((current % total) + total) % total);
+  }, [total]);
+
+  if (total === 0) return null;
+
+  const safeActive = ((active % total) + total) % total;
+  const currentAlbum = albums[safeActive];
+  const opened = hovered || pinned;
+
+  const closeAnd = (next: number) => {
+    setHovered(false);
+    setPinned(false);
+    setActive(((next % total) + total) % total);
+  };
+
+  const goTo = (index: number) => closeAnd(index);
+  const goPrev = () => closeAnd(safeActive - 1);
+  const goNext = () => closeAnd(safeActive + 1);
+
+  // 循环窗口：优先取中心、左右各取两本，不足 total 时去重只渲染实际存在的相集
+  const visibleSlides: Array<{ album: Album; index: number; offset: number }> = [];
+  const seen = new Set<number>();
+  for (const offset of [0, -1, 1, -2, 2]) {
+    const index = (((safeActive + offset) % total) + total) % total;
+    if (seen.has(index)) continue;
+    seen.add(index);
+    visibleSlides.push({ album: albums[index], index, offset });
+  }
+  visibleSlides.sort((a, b) => a.offset - b.offset);
 
   return (
-    <div className="space-y-12 overflow-auto">
-      {stacks.map((stack, stackIndex) => {
-        const pages: BookPage[] = [
-          ...stack.map((album, index) => {
-            const no = padNo(stackIndex * ALBUMS_PER_STACK + index + 1);
-            return {
-              id: `${stackIndex}-${album.id}`,
-              label: `相集 ${no}：${album.name}`,
-              front: <AlbumPageFront album={album} no={no} />,
-              back: <AlbumPageBack album={album} no={no} onOpenPhotos={onOpenPhotos} onEdit={onEdit} onDelete={onDelete} />,
-            };
-          }),
-          {
-            id: `stack-${stackIndex}-cover`,
-            label: `书架封面（第 ${stackIndex + 1} 摞）`,
-            front: <StackCover stackIndex={stackIndex} count={stack.length} />,
-          },
-        ];
+    <section aria-label="相册封面流" className="space-y-5">
+      {/* 信息栏 */}
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <span className="text-[10px] font-black uppercase tracking-[0.45em] text-text-secondary">Album Archive</span>
+          <span aria-hidden="true" className="h-1.5 w-1.5 bg-accent" />
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-accent">
+            Album {padNo(safeActive + 1)} / {padNo(total)}
+          </span>
+        </div>
+      </div>
 
-        return (
-          <section key={stackIndex} aria-label={`相册书架 ${padNo(stackIndex + 1)}`}>
-            <div className="mb-4 flex items-center gap-3">
-              <span className="text-[10px] font-black uppercase tracking-[0.45em] text-text-secondary">Archive Stack {padNo(stackIndex + 1)}</span>
-              <span aria-hidden="true" className="h-1.5 w-1.5 bg-accent" />
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary">{stack.length} Albums</span>
-              <div aria-hidden="true" className="h-px flex-1 bg-hairline" />
-            </div>
-            <div className="overflow-x-auto px-4 py-2">
-              <div className="mx-auto w-max">
-                <Book pages={pages} width={210} height={296} />
-              </div>
-            </div>
-          </section>
-        );
-      })}
-    </div>
+      {/* 3D 渐变舞台 + 左右居中箭头 */}
+      <div className="relative">
+        <div className="relative h-140 w-full overflow-hidden" style={{ perspective: STAGE_PERSPECTIVE }}>
+          {/* 中心低亮度光晕 */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-110 w-190 -translate-x-1/2 -translate-y-1/2 rounded-full"
+            style={{ background: "radial-gradient(closest-side, rgba(217, 255, 0, 0.07), transparent 70%)" }}
+          />
+
+          {/* 滑片层 */}
+          <div className="pointer-events-none absolute inset-0 z-1" style={{ transformStyle: "preserve-3d" }}>
+            {visibleSlides.map(({ album, index, offset }) => {
+              const isCenter = offset === 0;
+
+              // 两页书：内页（左页，背面为操作） + 封面（右页，正面为标题与描述）
+              const pages: BookPage[] = [
+                {
+                  id: `album-${album.id}-inner`,
+                  label: `相册 ${padNo(index + 1)}：${album.name}（操作页）`,
+                  front: <AlbumContent album={album} no={padNo(index + 1)} />,
+                  back: <AlbumOperations album={album} no={padNo(index + 1)} onOpenPhotos={onOpenPhotos} onEdit={onEdit} onDelete={onDelete} />,
+                },
+                {
+                  id: `album-${album.id}-cover`,
+                  label: `相册 ${padNo(index + 1)}：${album.name}（封面）`,
+                  front: <AlbumCover album={album} no={padNo(index + 1)} />,
+                },
+              ];
+
+              const slideStyle: CSSProperties = {
+                width: BOOK_WIDTH,
+                height: BOOK_HEIGHT,
+                left: "50%",
+                top: "50%",
+                pointerEvents: "auto",
+                zIndex: 10 - Math.abs(offset),
+                transform: `translate(-50%, -50%) translateX(${offset * SLIDE_STEP_X}px) translateZ(${-Math.abs(offset) * SLIDE_DEPTH}px) rotateY(${-offset * SLIDE_ROTATE}deg) scale(${isCenter ? 1 : SLIDE_SCALE})`,
+                transition: `transform ${MOVE_DURATION}ms ${EASE}`,
+              };
+
+              return (
+                <div
+                  key={`${album.id}-${isCenter ? "center" : "side"}`}
+                  className="absolute"
+                  style={slideStyle}
+                  onMouseEnter={isCenter ? () => setHovered(true) : undefined}
+                  onMouseLeave={isCenter ? () => setHovered(false) : undefined}
+                >
+                  <div className={isCenter ? undefined : "pointer-events-none"}>
+                    <Book
+                      pages={pages}
+                      width={BOOK_WIDTH}
+                      height={BOOK_HEIGHT}
+                      shift={SPREAD_SHIFT}
+                      interactive={isCenter}
+                      open={isCenter ? opened : false}
+                      onOpenChange={isCenter ? setPinned : undefined}
+                      ariaLabel={`相册 ${padNo(index + 1)}：${album.name}。点击翻开封面，展示操作与相册信息。`}
+                    />
+                  </div>
+
+                  {!isCenter ? (
+                    <button
+                      type="button"
+                      aria-label={`切换到相册 ${padNo(index + 1)}：${album.name}`}
+                      tabIndex={-1}
+                      onClick={() => goTo(index)}
+                      className="absolute inset-0 cursor-pointer bg-transparent"
+                    />
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* 两侧渐变渐隐遮罩 */}
+          <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 z-2 w-16 bg-linear-to-r from-[#050505]/90 via-[#050505]/25 to-transparent md:w-24" />
+          <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 z-2 w-16 bg-linear-to-l from-[#050505]/90 via-[#050505]/25 to-transparent md:w-24" />
+        </div>
+
+        {/* 左右切换按钮：垂直居中 */}
+        {total > 1 ? (
+          <>
+            <button
+              type="button"
+              aria-label="上一个相册"
+              onClick={goPrev}
+              className="absolute left-3 top-1/2 z-3 flex h-12 w-12 -translate-y-1/2 items-center justify-center border border-hairline bg-primary/85 text-xl leading-none text-text-primary backdrop-blur-sm transition-colors hover:border-accent/60 hover:text-accent"
+            >
+              ‹
+            </button>
+            <button
+              type="button"
+              aria-label="下一个相册"
+              onClick={goNext}
+              className="absolute right-3 top-1/2 z-3 flex h-12 w-12 -translate-y-1/2 items-center justify-center border border-hairline bg-primary/85 text-xl leading-none text-text-primary backdrop-blur-sm transition-colors hover:border-accent/60 hover:text-accent"
+            >
+              ›
+            </button>
+          </>
+        ) : null}
+      </div>
+
+      {/* 当前相集说明 */}
+      <div className="space-y-1 text-center">
+        <h3 className="text-xl font-black uppercase leading-none tracking-[-0.01em] text-text-primary">{currentAlbum.name}</h3>
+        <p className="text-[10px] font-black uppercase tracking-[0.35em] text-text-secondary">
+          <span className="text-accent">{currentAlbum.photosCount ?? 0}</span> Photos · Hover to Open · Click Sides to Switch
+        </p>
+      </div>
+    </section>
   );
 }

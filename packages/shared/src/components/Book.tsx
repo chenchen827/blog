@@ -29,6 +29,8 @@ export interface BookProps {
   shift?: number
   /** 展开方式：hover = 悬停展开（点击可固定）；click = 仅点击展开 */
   trigger?: 'hover' | 'click'
+  /** 是否可交互：false 时永不展开（hover / focus / click / 键盘均 no-op），仅渲染闭合封面，供轮播侧边预览等场景使用 */
+  interactive?: boolean
   /** 受控展开状态 */
   open?: boolean
   /** 初始展开状态（非受控时生效） */
@@ -49,6 +51,7 @@ export interface BookProps {
 /* 3D 几何常量（单位 deg），参考 CSS 书本翻页演示：                    */
 /* 闭合时书页以 2° 步进轻微散开；展开后内页平铺到左侧（展示背面），    */
 /* 最上层封面保留在右侧；点击某一页或页边可“翻到”那一页。             */
+/* 单页书（pages.length === 1）：整页按内页翻开，展示背面后原位合上。  */
 /* ------------------------------------------------------------------ */
 const CLOSED_BASE = 15 // 封面闭合倾角
 const CLOSED_STEP = 2 // 层与层之间的角度差
@@ -123,7 +126,9 @@ function DefaultBack({ index, total }: { index: number; total: number }) {
  *
  * - 悬停 / 聚焦时书本展开，当前页平铺到左侧展示背面，封面在右侧；
  * - 点击某一页（或露出的页边）可把那一页“翻到”最前（再点封面合上）；
- * - 每一页都是双面卡片：正面为封面/内容，背面为信息与管理操作。
+ * - 每一页都是双面卡片：正面为封面/内容，背面为信息与管理操作；
+ * - 单页书（pages 仅 1 项）：展开 = 整页翻开显示背面，点击页面合上；
+ * - interactive=false：作为静态闭合封面预览，不响应任何展开交互。
  */
 export function Book({
   pages,
@@ -131,6 +136,7 @@ export function Book({
   height = 330,
   shift,
   trigger = 'hover',
+  interactive = true,
   open,
   defaultOpen = false,
   onOpenChange,
@@ -140,6 +146,7 @@ export function Book({
   pageClassName,
 }: BookProps) {
   const count = pages.length
+  const single = count === 1
   const controlled = open !== undefined
   const [hovered, setHovered] = useState(false)
   const [focused, setFocused] = useState(false)
@@ -147,8 +154,9 @@ export function Book({
   const [current, setCurrent] = useState(0)
 
   const hoverEnabled = trigger !== 'click'
-  const expanded = controlled ? open : hovered || focused || pinned
-  const resolvedShift = shift ?? Math.round(width * 0.55)
+  const expanded = interactive && (controlled ? open : hovered || focused || pinned)
+  // 单页书翻开后整页原位展示背面，无需像多页书那样为右侧封面让位
+  const resolvedShift = shift ?? (single ? width : Math.round(width * 0.55))
   const perspective = Math.max(720, Math.round(width * 4))
 
   const setOpenState = (next: boolean) => {
@@ -164,12 +172,14 @@ export function Book({
 
   /** 鼠标点击不把焦点交给书本，确保点击翻页 / 收起时互不干扰 */
   const handleMouseDown = (event: MouseEvent<HTMLDivElement>) => {
+    if (!interactive) return
     if (event.button !== 0) return
     if (isInteractiveTarget(event.target)) return
     event.preventDefault()
   }
 
   const handleClick = (event: MouseEvent<HTMLDivElement>) => {
+    if (!interactive) return
     if (isInteractiveTarget(event.target)) return
     const pageIndex = pageIndexFromEvent(event)
 
@@ -196,6 +206,7 @@ export function Book({
   }
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (!interactive) return
     if (event.key === 'Escape') {
       event.currentTarget.blur()
       setOpenState(false)
@@ -211,12 +222,12 @@ export function Book({
       <div
         role="group"
         aria-label={ariaLabel ?? `书本组件，共 ${count} 页。悬停或聚焦可展开，点击书页可翻页。`}
-        tabIndex={0}
+        tabIndex={interactive ? 0 : -1}
         className="rounded-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent/80"
         style={{ perspective }}
-        onMouseEnter={() => hoverEnabled && setHovered(true)}
+        onMouseEnter={() => hoverEnabled && interactive && setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        onFocus={() => hoverEnabled && setFocused(true)}
+        onFocus={() => hoverEnabled && interactive && setFocused(true)}
         onBlur={() => setFocused(false)}
         onMouseDown={handleMouseDown}
         onClick={handleClick}
@@ -253,10 +264,11 @@ export function Book({
           {pages.map((page, index) => {
             const isCover = index === count - 1
             const isCurrent = expanded && index === current
-            const angle = !expanded ? closedAngle(index, count) : isCover ? -COVER_OPEN : -TURN_ANGLE
+            // 单页书展开时整页当作内页翻到左侧，露出背面（操作 / 信息页）
+            const angle = !expanded ? closedAngle(index, count) : single ? -TURN_ANGLE : isCover ? -COVER_OPEN : -TURN_ANGLE
             const fanOffset =
-              expanded && !isCover
-                ? isCurrent
+              expanded && (single || !isCover)
+                ? isCurrent || single
                   ? ` translateZ(${-TOP_DEPTH}px)`
                   : ` translateZ(${BACK_DEPTH}px)`
                 : ''
@@ -289,7 +301,7 @@ export function Book({
                     pageClassName,
                     page.frontClassName,
                   )}
-                  style={{ backfaceVisibility: 'hidden' }}
+                  style={{ backfaceVisibility: 'hidden', pointerEvents: 'none' }}
                 >
                   {page.front}
                 </div>
@@ -317,3 +329,4 @@ export function Book({
 }
 
 export default Book
+
