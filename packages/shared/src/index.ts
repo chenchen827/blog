@@ -1,4 +1,5 @@
 export * from './components/AntdProvider'
+export * from './components/Book'
 export * from './components/Button'
 export * from './components/EmptyState'
 export * from './components/UserMenu'
