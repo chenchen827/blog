@@ -12,11 +12,9 @@ const BOOK_HEIGHT = 420;
 
 /* Cover-Flow 舞台几何（单位 px / deg） */
 const STAGE_PERSPECTIVE = 1400; // 舞台透视
-const SLIDE_STEP_X = 240; // 相邻滑片水平间距
-const SLIDE_DEPTH = 190; // 相邻滑片向 Z 轴后退的距离
-const SLIDE_ROTATE = 34; // 相邻滑片 rotateY 角度
-const SLIDE_SCALE = 0.72; // 非中心滑片缩放
-const SPREAD_SHIFT = 152; // 两页摊开时整体位移，使摊开书居中
+const SLIDE_STEP_X = 230; // 相邻滑片水平间距
+const SLIDE_DEPTH = 190; // 相邻滑片向 Z 轴后退的距离（越靠两侧离屏幕越远）
+const SPREAD_SHIFT = 170; // 镜像开合时两页摊开的整体位移，使摊开书居中
 const MOVE_DURATION = 520; // 切换动画时长（ms）
 const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
 
@@ -34,14 +32,7 @@ function AlbumCover({ album, no }: { album: Album; no: string }) {
         <div aria-hidden="true" className="absolute inset-0 bg-linear-to-br from-[#1b1b1b] via-[#101010] to-primary" />
       )}
       <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-linear-to-t from-black/90 via-black/50 to-transparent" />
-
       <span className="relative self-end p-4 text-[10px] font-black uppercase tracking-[0.4em] text-accent">Album · {no}</span>
-
-      {/* <div className="relative max-w-full p-5">
-        <h3 className="text-xl font-black uppercase leading-tight tracking-[-0.01em] text-text-primary">{album.name}</h3>
-        <span aria-hidden="true" className="mt-3 block h-1 w-10 bg-accent" />
-        <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-text-secondary">{album.description || "—"}</p>
-      </div> */}
     </div>
   );
 }
@@ -211,12 +202,18 @@ export default function AlbumShelfView({ albums, onOpenPhotos, onEdit, onDelete 
                   id: `album-${album.id}-inner`,
                   label: `相册 ${padNo(index + 1)}：${album.name}（操作页）`,
                   front: <AlbumContent album={album} no={padNo(index + 1)} />,
-                  back: <AlbumOperations album={album} no={padNo(index + 1)} onOpenPhotos={onOpenPhotos} onEdit={onEdit} onDelete={onDelete} />,
+                  back: <AlbumCover album={album} no={padNo(index + 1)} />,
                 },
                 {
                   id: `album-${album.id}-cover`,
                   label: `相册 ${padNo(index + 1)}：${album.name}（封面）`,
                   front: <AlbumCover album={album} no={padNo(index + 1)} />,
+                  back: <AlbumCover album={album} no={padNo(index + 1)} />,
+                },
+                {
+                  id: `album-${album.id}-cover`,
+                  label: `相册 ${padNo(index + 1)}：${album.name}（封面）`,
+                  front: <AlbumOperations album={album} no={padNo(index + 1)} onOpenPhotos={onOpenPhotos} onEdit={onEdit} onDelete={onDelete} />,
                 },
               ];
 
@@ -227,7 +224,7 @@ export default function AlbumShelfView({ albums, onOpenPhotos, onEdit, onDelete 
                 top: "50%",
                 pointerEvents: "auto",
                 zIndex: 10 - Math.abs(offset),
-                transform: `translate(-50%, -50%) translateX(${offset * SLIDE_STEP_X}px) translateZ(${-Math.abs(offset) * SLIDE_DEPTH}px) rotateY(${-offset * SLIDE_ROTATE}deg) scale(${isCenter ? 1 : SLIDE_SCALE})`,
+                transform: `translate(-50%, -50%) translateX(${offset * SLIDE_STEP_X}px) translateZ(${-Math.abs(offset) * SLIDE_DEPTH}px)`,
                 transition: `transform ${MOVE_DURATION}ms ${EASE}`,
               };
 
@@ -248,7 +245,6 @@ export default function AlbumShelfView({ albums, onOpenPhotos, onEdit, onDelete 
                       interactive={isCenter}
                       open={isCenter ? opened : false}
                       onOpenChange={isCenter ? setPinned : undefined}
-                      ariaLabel={`相册 ${padNo(index + 1)}：${album.name}。点击翻开封面，展示操作与相册信息。`}
                     />
                   </div>
 
