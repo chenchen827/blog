@@ -53,12 +53,12 @@ export interface BookProps {
 /* 最上层封面保留在右侧；点击某一页或页边可“翻到”那一页。             */
 /* 单页书（pages.length === 1）：整页按内页翻开，展示背面后原位合上。  */
 /* ------------------------------------------------------------------ */
-const CLOSED_BASE = 15 // 封面闭合倾角
-const CLOSED_STEP = 2 // 层与层之间的角度差
-const COVER_OPEN = 22 // 展开时封面的倾角（略微抬起）
+const CLOSED_BASE = 8 // 封面闭合倾角
+const CLOSED_STEP = 0.8 // 层与层之间的角度差
+const COVER_OPEN = 16 // 展开时封面的倾角（略微抬起）
 const TURN_ANGLE = 172 // 内页展开后平躺左侧的角度（展示背面）
-const TOP_DEPTH = 6 // 当前页向前凸出的深度（px，越小与封面越齐）
-const BACK_DEPTH = 8 // 其余页向后退的深度（px）
+const TOP_DEPTH = 4 // 当前页向前凸出的深度（px，越小与封面越齐）
+const BACK_DEPTH = 5 // 其余页向后退的深度（px）
 const FLIP_DURATION = 620 // 翻页时长（ms）
 const COVER_DURATION = 520 // 封面动作时长（ms）
 const STAGGER = 70 // 逐页错峰时长（ms）
@@ -255,7 +255,7 @@ export function Book({
                 expanded && 'translate-x-0 opacity-0',
               )}
               style={{
-                transform: expanded ? 'translateX(0px)' : `translateX(${6 + layer * 4}px)`,
+                transform: expanded ? 'translateX(0px)' : `translateX(${3 + layer * 2}px)`,
               }}
             />
           ))}
@@ -291,6 +291,7 @@ export function Book({
                   transform: `rotateY(${angle}deg)${fanOffset}`,
                   transformOrigin: 'left center',
                   transformStyle: 'preserve-3d',
+                  willChange: 'transform',
                   transition: `transform ${duration}ms ${EASE} ${delay}ms`,
                 }}
               >

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { Button, Popconfirm } from "antd";
 
@@ -139,6 +139,13 @@ export default function AlbumShelfView({ albums, onOpenPhotos, onEdit, onDelete 
   const [active, setActive] = useState(0);
   const [hovered, setHovered] = useState(false);
   const [pinned, setPinned] = useState(false);
+  const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    };
+  }, []);
 
   const total = albums.length;
 
@@ -153,6 +160,17 @@ export default function AlbumShelfView({ albums, onOpenPhotos, onEdit, onDelete 
   const safeActive = ((active % total) + total) % total;
   const currentAlbum = albums[safeActive];
   const opened = hovered || pinned;
+
+  const enterCenter = () => {
+    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    setHovered(true);
+  };
+
+  const leaveCenter = () => {
+    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    // 快速移入移出时给关闭动画一个缓冲，避免动画被打断而残留中间帧
+    hoverTimerRef.current = setTimeout(() => setHovered(false), 260);
+  };
 
   const closeAnd = (next: number) => {
     setHovered(false);
@@ -203,24 +221,31 @@ export default function AlbumShelfView({ albums, onOpenPhotos, onEdit, onDelete 
             {visibleSlides.map(({ album, index, offset }) => {
               const isCenter = offset === 0;
 
-              // 两页书：内页（左页，背面为操作） + 封面（右页，正面为标题与描述）
+              // 多页书：目录 → 简介 → 相片一览 → 封面，翻开后可逐页翻动
+              const no = padNo(index + 1);
               const pages: BookPage[] = [
                 {
-                  id: `album-${album.id}-inner`,
-                  label: `相册 ${padNo(index + 1)}：${album.name}（操作页）`,
-                  front: <AlbumContent album={album} no={padNo(index + 1)} />,
-                  back: <AlbumCover album={album} no={padNo(index + 1)} />,
+                  id: `album-${album.id}-index`,
+                  label: `相册 ${no}：${album.name}（目录）`,
+                  front: <AlbumContent album={album} no={no} />,
+                  back: <AlbumCover album={album} no={no} key="overview0" />,
+                },
+                {
+                  id: `album-${album.id}-overview`,
+                  label: `相册 ${no}：${album.name}（简介）`,
+                  front: <AlbumContent album={album} no={no} key="overview1" />,
+                  back: <AlbumCover album={album} no={no} key="overview2" />,
+                },
+                {
+                  id: `album-${album.id}-photos`,
+                  label: `相册 ${no}：${album.name}（相片一览）`,
+                  front: <AlbumContent album={album} no={no} key="overview3" />,
+                  back: <AlbumCover album={album} no={no} key="overview4" />,
                 },
                 {
                   id: `album-${album.id}-cover`,
-                  label: `相册 ${padNo(index + 1)}：${album.name}（封面）`,
-                  front: <AlbumCover album={album} no={padNo(index + 1)} />,
-                  back: <AlbumCover album={album} no={padNo(index + 1)} />,
-                },
-                {
-                  id: `album-${album.id}-cover`,
-                  label: `相册 ${padNo(index + 1)}：${album.name}（封面）`,
-                  front: <AlbumOperations album={album} no={padNo(index + 1)} onOpenPhotos={onOpenPhotos} onEdit={onEdit} onDelete={onDelete} />,
+                  label: `相册 ${no}：${album.name}（封面）`,
+                  front: <AlbumOperations album={album} no={no} onOpenPhotos={onOpenPhotos} onEdit={onEdit} onDelete={onDelete} />,
                 },
               ];
 
@@ -233,6 +258,8 @@ export default function AlbumShelfView({ albums, onOpenPhotos, onEdit, onDelete 
                 zIndex: 10 - Math.abs(offset),
                 transform: `translate(-50%, -50%) translateX(${offset * SLIDE_STEP_X}px) translateZ(${-Math.abs(offset) * SLIDE_DEPTH}px)`,
                 transition: `transform ${MOVE_DURATION}ms ${EASE}`,
+                willChange: "transform",
+                backfaceVisibility: "hidden",
               };
 
               return (
@@ -240,8 +267,8 @@ export default function AlbumShelfView({ albums, onOpenPhotos, onEdit, onDelete 
                   key={`${album.id}-${isCenter ? "center" : "side"}`}
                   className="absolute"
                   style={slideStyle}
-                  onMouseEnter={isCenter ? () => setHovered(true) : undefined}
-                  onMouseLeave={isCenter ? () => setHovered(false) : undefined}
+                  onMouseEnter={isCenter ? enterCenter : undefined}
+                  onMouseLeave={isCenter ? leaveCenter : undefined}
                 >
                   <div className={isCenter ? undefined : "pointer-events-none"}>
                     <Book
