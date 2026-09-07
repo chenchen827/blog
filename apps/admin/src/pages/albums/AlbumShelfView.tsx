@@ -317,7 +317,7 @@ export default function AlbumShelfView({ albums, onOpenPhotos, onEdit, onDelete 
               type="button"
               aria-label="上一个相册"
               onClick={goPrev}
-              className="absolute left-3 top-1/2 z-3 flex h-12 w-12 -translate-y-1/2 items-center justify-center border border-hairline bg-primary/85 text-xl leading-none text-text-primary backdrop-blur-sm transition-colors hover:border-accent/60 hover:text-accent"
+              className="absolute left-3 top-1/2 z-3 flex h-12 w-12 -translate-y-1/2 items-center justify-center border border-hairline bg-primary/85 text-xl leading-none text-text-primary backdrop-blur-sm transition-colors cursor-pointer hover:border-accent/60 hover:text-accent"
             >
               ‹
             </button>
@@ -325,7 +325,7 @@ export default function AlbumShelfView({ albums, onOpenPhotos, onEdit, onDelete 
               type="button"
               aria-label="下一个相册"
               onClick={goNext}
-              className="absolute right-3 top-1/2 z-3 flex h-12 w-12 -translate-y-1/2 items-center justify-center border border-hairline bg-primary/85 text-xl leading-none text-text-primary backdrop-blur-sm transition-colors hover:border-accent/60 hover:text-accent"
+              className="absolute right-3 top-1/2 z-3 flex h-12 w-12 -translate-y-1/2 items-center justify-center border border-hairline bg-primary/85 text-xl leading-none text-text-primary backdrop-blur-sm transition-colors cursor-pointer hover:border-accent/60 hover:text-accent"
             >
               ›
             </button>
