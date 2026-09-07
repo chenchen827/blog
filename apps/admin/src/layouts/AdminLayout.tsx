@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from "react-router";
-import { Alert, Button, Spin } from "antd";
+import { Alert, App, Button, Spin } from "antd";
+import { UserMenu } from "@repo/shared";
+import type { UserMenuUser, UserProfileValues } from "@repo/shared";
 
 import { navItems } from "../router/nav";
 import type { NavItem } from "../types/nav";
 import { clearToken, getCachedRole, getToken, saveRole } from "../utils/auth";
-import { getCurrentUser } from "../apis/users";
+import { getCurrentUser, updateUser } from "../apis/users";
 import { ADMIN_ONLY_MENU_LABELS, isAdminOnlyPath, isAdminRole } from "../constants/permissions";
 
 function cx(...parts: Array<string | false | null | undefined>): string {
@@ -106,25 +108,40 @@ function NavList({ onNavigate, isAdmin }: NavListProps) {
 export default function AdminLayout() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const { message } = App.useApp();
   const [menuOpen, setMenuOpen] = useState(false);
   const closeMenu = () => setMenuOpen(false);
 
   const token = getToken();
   const [role, setRole] = useState<number | null>(() => getCachedRole());
-  const [roleLoading, setRoleLoading] = useState(() => Boolean(token) && getCachedRole() === null);
+  const [currentUser, setCurrentUser] = useState<UserMenuUser | null>(null);
+  const [userLoading, setUserLoading] = useState(() => Boolean(token));
   const [authError, setAuthError] = useState("");
+  const [updatingProfile, setUpdatingProfile] = useState(false);
   const isAdmin = isAdminRole(role);
 
   useEffect(() => {
-    if (!token || role !== null) return;
+    if (!token || currentUser !== null) return;
     let active = true;
-    setRoleLoading(true);
+    setUserLoading(true);
     setAuthError("");
     getCurrentUser()
       .then((res) => {
         if (!active) return;
-        const userRole = Number(res.data.user.role);
+        const user = res.data.user;
+        const userRole = Number(user.role);
         setRole(userRole);
+        setCurrentUser({
+          id: user.id,
+          name: user.nickname || user.username,
+          username: user.username,
+          email: user.email,
+          avatar: user.avatar,
+          role: user.role,
+          sex: Number(user.sex),
+          company: user.company,
+          introduce: user.introduce,
+        });
         saveRole(userRole);
       })
       .catch((err) => {
@@ -133,23 +150,55 @@ export default function AdminLayout() {
         }
       })
       .finally(() => {
-        if (active) setRoleLoading(false);
+        if (active) setUserLoading(false);
       });
     return () => {
       active = false;
     };
-  }, [token, role]);
+  }, [token, currentUser]);
 
   if (!token) {
     return <Navigate to="/login" replace />;
   }
+
+  const handleUpdateProfile = async (values: UserProfileValues) => {
+    if (!currentUser?.id) return;
+    setUpdatingProfile(true);
+    try {
+      await updateUser(currentUser.id, {
+        email: currentUser.email,
+        username: currentUser.username,
+        nickname: values.nickname,
+        sex: values.sex,
+        company: values.company ?? "",
+        introduce: values.introduce ?? "",
+      });
+      setCurrentUser((prev) =>
+        prev
+          ? {
+              ...prev,
+              name: values.nickname,
+              sex: values.sex,
+              company: values.company ?? "",
+              introduce: values.introduce ?? "",
+            }
+          : prev,
+      );
+      message.success("个人信息已更新");
+    } catch (err) {
+      message.error(err instanceof Error ? err.message : "个人信息更新失败");
+      throw err;
+    } finally {
+      setUpdatingProfile(false);
+    }
+  };
 
   function handleLogout() {
     clearToken();
     navigate("/login", { replace: true });
   }
 
-  if (roleLoading) {
+  if (userLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-canvas">
         <Spin />
@@ -186,19 +235,13 @@ export default function AdminLayout() {
         <Link to="/" className="hidden shrink-0 text-lg font-black uppercase tracking-wide text-text-primary md:inline">
           Blog Admin
         </Link>
-        <Link
-          to="/login"
-          className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-none bg-accent px-6 text-base font-black uppercase tracking-wide text-ink transition-[filter] hover:brightness-90"
-        >
-          登录
-        </Link>
-        <button
-          type="button"
-          onClick={handleLogout}
-          className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-none bg-surface-soft px-5 text-base font-black uppercase tracking-wide text-text-primary transition-colors hover:bg-surface"
-        >
-          登出
-        </button>
+        <UserMenu
+          className="ml-auto"
+          user={currentUser ?? undefined}
+          onLogout={handleLogout}
+          onUpdateProfile={handleUpdateProfile}
+          updatingProfile={updatingProfile}
+        />
       </header>
       <div className="flex flex-1 items-stretch">
         <aside className="sticky top-17 hidden h-[calc(100vh-68px)] w-60 shrink-0 overflow-y-auto border-r border-hairline bg-primary xl:block">
