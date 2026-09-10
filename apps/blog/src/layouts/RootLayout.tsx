@@ -99,14 +99,6 @@ export default function RootLayout() {
           </form>
 
           <div className="ml-auto flex items-center gap-2 lg:ml-0">
-            {!user && (
-              <Link
-                to="/register"
-                className="rounded-none border border-hairline px-3 py-2 text-sm font-bold uppercase tracking-wide text-text-secondary transition-colors hover:border-accent hover:text-accent"
-              >
-                注册
-              </Link>
-            )}
             <UserMenu user={menuUser} onLogout={logout} onLogin={() => navigate("/login")} onUpdateProfile={updateProfile} />
           </div>
         </nav>

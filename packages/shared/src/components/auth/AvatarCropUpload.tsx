@@ -18,7 +18,7 @@ export interface AvatarCropUploadProps {
   disabled?: boolean;
 }
 
-export default function AvatarCropUpload({ value, onCrop, disabled }: AvatarCropUploadProps) {
+export function AvatarCropUpload({ value, onCrop, disabled }: AvatarCropUploadProps) {
   const { message } = App.useApp();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
@@ -250,7 +250,7 @@ export default function AvatarCropUpload({ value, onCrop, disabled }: AvatarCrop
               <button
                 type="button"
                 onClick={handleConfirmCrop}
-                className="inline-flex min-h-11 flex-1 items-center justify-center rounded-none bg-accent px-4 text-base font-black uppercase tracking-wider text-ink transition-[filter] hover:brightness-90"
+                className="inline-flex min-h-11 flex-1 items-center justify-center rounded-none bg-accent px-4 text-base font-black uppercase tracking-wider text-ink! transition-[filter] hover:brightness-90"
               >
                 确认裁剪
               </button>
