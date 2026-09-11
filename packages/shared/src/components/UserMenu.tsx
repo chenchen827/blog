@@ -38,11 +38,8 @@ export interface UserMenuProps {
   className?: string;
 }
 
-const ACTION_BUTTON_CLASS =
-  "group flex min-h-11 w-full items-center justify-between rounded-[5px] border px-4 text-sm font-black uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-primary";
-
 const OUTLINE_ACTION_BUTTON_CLASS =
-  "flex min-h-11 w-full items-center justify-center rounded-[5px] border-[3px] border-text-secondary bg-primary px-4 text-sm font-black uppercase tracking-wider text-text-primary transition-all duration-150 hover:border-ink hover:bg-text-primary hover:text-ink! focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary focus-visible:ring-offset-2 focus-visible:ring-offset-primary active:translate-y-px";
+  "flex min-h-11 w-full items-center justify-center rounded-[5px] border-[3px] border-text-secondary bg-primary px-4 text-sm font-black uppercase tracking-wider text-text-primary transition-all duration-150 hover:border-ink hover:bg-accent-yellow hover:text-ink! focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary focus-visible:ring-offset-2 focus-visible:ring-offset-primary active:translate-y-px";
 
 /** 顶部导航栏用户头像下拉菜单（公共组件） */
 export function UserMenu({ user, onLogout, loginUrl, onLogin, onUpdateProfile, updatingProfile, className }: UserMenuProps) {
@@ -157,11 +154,8 @@ export function UserMenu({ user, onLogout, loginUrl, onLogin, onUpdateProfile, u
 
           <div className="flex flex-col gap-2 p-3">
             {editDisabled ? null : (
-              <button type="button" onClick={openEdit} className={cn(ACTION_BUTTON_CLASS, "border-accent bg-accent text-ink! hover:bg-accent-yellow hover:text-ink!")}>
+              <button type="button" onClick={openEdit} className={cn(OUTLINE_ACTION_BUTTON_CLASS)}>
                 <span>编辑个人信息</span>
-                <span aria-hidden="true" className="text-base transition-transform group-hover:translate-x-1">
-                  →
-                </span>
               </button>
             )}
 

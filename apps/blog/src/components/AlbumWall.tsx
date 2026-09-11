@@ -370,7 +370,6 @@ export default function AlbumWall({ albums }: AlbumWallProps) {
     }
     velocityRef.current = 0;
     dragRef.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, moved: false };
-    event.currentTarget.setPointerCapture(event.pointerId);
   };
 
   const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -382,7 +381,10 @@ export default function AlbumWall({ albums }: AlbumWallProps) {
     const distance = verticalDistance + horizontalDistance;
 
     if (Math.abs(distance) > 1.5) {
-      drag.moved = true;
+      if (!drag.moved) {
+        drag.moved = true;
+        event.currentTarget.setPointerCapture(event.pointerId);
+      }
       suppressClickRef.current = true;
       drag.x = event.clientX;
       drag.y = event.clientY;
@@ -422,7 +424,7 @@ export default function AlbumWall({ albums }: AlbumWallProps) {
   }, []);
 
   const renderCycle = (slots: AlbumSlot[], copyIndex: number, track: TrackSide) => (
-    <div key={copyIndex} className="flex flex-col gap-[var(--album-gap)] pb-[var(--album-gap)]" aria-hidden={copyIndex > 0 || undefined}>
+    <div key={copyIndex} className="flex flex-col gap-(--album-gap) pb-(--album-gap)" aria-hidden={copyIndex > 0 || undefined}>
       {slots.map((slot) => (
         <AlbumDisc
           key={slot.key}
@@ -440,7 +442,7 @@ export default function AlbumWall({ albums }: AlbumWallProps) {
     <section
       ref={containerRef}
       aria-label="相册墙"
-      className="album-wall relative left-1/2 -my-8 h-[calc(100dvh-8rem)] min-h-[560px] w-screen -translate-x-1/2 cursor-grab touch-none select-none overflow-hidden active:cursor-grabbing md:h-[calc(100dvh-5rem)]"
+      className="album-wall fixed inset-0 h-[100dvh] w-screen cursor-grab touch-none select-none overflow-hidden active:cursor-grabbing"
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={finishPointerDrag}
@@ -488,7 +490,7 @@ export default function AlbumWall({ albums }: AlbumWallProps) {
         <p className="album-info-copy max-w-full text-[9px] font-black uppercase tracking-[0.34em] text-accent">All Works of 2020 - 2026</p>
         <p
           key={`${activeAlbum.id}-description`}
-          className="album-info-copy album-copy-enter mt-3 max-w-full text-base font-extrabold uppercase leading-tight tracking-[-0.025em] text-text-primary md:text-2xl xl:text-3xl"
+          className="album-info-copy album-copy-enter mt-3 max-w-full text-base font-extrabold uppercase leading-tight tracking-tight text-text-primary md:text-2xl xl:text-3xl"
         >
           {activeAlbum.description || "No description archived."}
         </p>

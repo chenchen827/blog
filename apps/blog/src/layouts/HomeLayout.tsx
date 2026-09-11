@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
-import { Link, NavLink, Outlet, useNavigate } from "react-router";
+import { NavLink, Outlet, useNavigate } from "react-router";
 import { UserMenu } from "@repo/shared";
-import type { UserMenuUser } from "@repo/shared";
 
 import type { SiteSetting } from "../types";
 import { getSetting } from "../apis/settings";
 import { useAuth } from "../auth/AuthContext";
+import HomeLink from "../components/HomeLink";
 import Starfield from "../components/Starfield";
 import { cn } from "../lib/cn";
+import { toMenuUser } from "../lib/userMenu";
 
 const NAV = [
   { to: "/knowledge", label: "知识库" },
@@ -15,21 +16,6 @@ const NAV = [
   { to: "/portfolio", label: "作品集" },
   { to: "/posts", label: "文章" },
 ];
-
-function toMenuUser(user: ReturnType<typeof useAuth>["user"]): UserMenuUser | undefined {
-  if (!user) return undefined;
-  return {
-    id: user.id,
-    name: user.nickname || user.username,
-    username: user.username,
-    email: user.email,
-    avatar: user.avatar,
-    role: user.role,
-    sex: user.sex,
-    company: user.company,
-    introduce: user.introduce,
-  };
-}
 
 export default function HomeLayout() {
   const { user, logout, updateProfile } = useAuth();
@@ -66,13 +52,7 @@ export default function HomeLayout() {
           }}
         />
         <nav className="relative z-10 mx-auto flex max-w-7xl items-center gap-x-6 px-4 py-4">
-          <Link
-            to="/"
-            title={siteName}
-            className="flex min-h-11 min-w-0 max-w-[52vw] shrink items-center text-sm font-black uppercase tracking-[0.18em] text-accent transition-colors hover:text-accent-yellow md:max-w-64"
-          >
-            <span className="truncate">{siteName}</span>
-          </Link>
+          <HomeLink label={siteName} className="max-w-[52vw] shrink md:max-w-64" />
 
           <div className="hidden items-center gap-1 md:flex">
             {NAV.map((item) => (
