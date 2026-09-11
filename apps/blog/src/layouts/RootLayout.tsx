@@ -67,10 +67,6 @@ export default function RootLayout() {
       <Starfield count={1200} speedRange={[0.5, 1.2]} alphaRange={[0.3, 1]} sizeRange={[0.6, 1.8]} minScale={0.2} minAlpha={0.08} glowColor="#cfe0ff" dotColor="#fff6e8" />
       <header className="sticky top-0 z-30 border-b border-hairline bg-canvas/90 backdrop-blur">
         <nav className="mx-auto flex max-w-7xl items-center gap-x-6 px-4 py-4">
-          <Link to="/" className="shrink-0 text-lg font-black uppercase tracking-wide text-text-primary">
-            {setting?.name || "My Blog"}
-          </Link>
-
           <div className="hidden items-center gap-1 md:flex">
             {NAV.map((item) => (
               <NavLink

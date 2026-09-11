@@ -1,9 +1,11 @@
 import { useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { App, Button, Form, Input, Select } from 'antd'
+import { App, Form, Input, Select } from 'antd'
+import { AuthPanel, AuthPanelHeader } from '@repo/shared'
 
 import { useAuth } from '../auth/AuthContext'
 import { sendEmailCode } from '../apis/captcha'
+import AuthBackdrop from '../components/AuthBackdrop'
 
 interface RegisterValues {
   email: string
@@ -63,56 +65,78 @@ export default function Register() {
   }
 
   return (
-    <div className="mx-auto max-w-md space-y-6">
-      <div>
-        <span className="text-[10px] font-black uppercase tracking-[0.5em] text-accent">Sign Up</span>
-        <h1 className="mt-2 text-3xl font-black uppercase leading-tight tracking-[-0.01em] text-text-primary">用户注册</h1>
-      </div>
+    <AuthBackdrop code="02" label="Register">
+      <div className="w-full max-w-xl space-y-6">
+        <AuthPanel>
+          <AuthPanelHeader eyebrow="User Enrollment" title="User Register" description="创建博客账号，用于收藏内容并访问专属空间。" index="02" />
 
-      <div className="rounded-none border border-hairline bg-primary/70 p-6">
-        <Form<RegisterValues> form={form} layout="vertical" requiredMark={false} onFinish={onFinish} initialValues={{ sex: 2 }}>
-          <Form.Item label={<span className="text-sm font-bold text-text-primary">邮箱</span>} name="email" rules={[{ required: true, type: 'email', message: '请输入正确的邮箱' }]}>
-            <Input placeholder="example@qq.com" autoComplete="email" />
-          </Form.Item>
-          <Form.Item label={<span className="text-sm font-bold text-text-primary">邮箱验证码</span>} required>
-            <div className="flex gap-2">
-              <Form.Item name="captchaText" noStyle rules={[{ required: true, message: '请输入邮箱验证码' }]}>
-                <Input placeholder="邮箱验证码" />
-              </Form.Item>
-              <Button onClick={handleSendCode} loading={sending} className="shrink-0">
-                获取验证码
-              </Button>
-            </div>
-          </Form.Item>
-          <Form.Item label={<span className="text-sm font-bold text-text-primary">用户名</span>} name="username" rules={[{ required: true, whitespace: true, message: '请输入用户名' }]}>
-            <Input placeholder="用户名" autoComplete="username" />
-          </Form.Item>
-          <Form.Item label={<span className="text-sm font-bold text-text-primary">昵称</span>} name="nickname" rules={[{ required: true, whitespace: true, message: '请输入昵称' }]}>
-            <Input placeholder="昵称" />
-          </Form.Item>
-          <Form.Item label={<span className="text-sm font-bold text-text-primary">密码</span>} name="password" rules={[{ required: true, min: 6, message: '密码至少 6 位' }]}>
-            <Input.Password placeholder="密码" autoComplete="new-password" />
-          </Form.Item>
-          <Form.Item label={<span className="text-sm font-bold text-text-primary">性别</span>} name="sex">
-            <Select
-              options={[
-                { label: '保密', value: 2 },
-                { label: '男', value: 0 },
-                { label: '女', value: 1 },
-              ]}
-            />
-          </Form.Item>
-          <Form.Item className="mb-0">
-            <Button type="primary" htmlType="submit" loading={loading} block>
-              注册
-            </Button>
-          </Form.Item>
-        </Form>
-      </div>
+          <Form<RegisterValues> form={form} layout="vertical" requiredMark={false} onFinish={onFinish} initialValues={{ sex: 2 }} className="pt-6">
+            <Form.Item label="邮箱" name="email" rules={[{ required: true, type: 'email', message: '请输入正确的邮箱' }]}>
+              <Input size="large" placeholder="example@qq.com" autoComplete="email" />
+            </Form.Item>
 
-      <p className="text-center text-sm text-text-secondary">
-        已有账号？<Link to="/login" className="text-accent hover:underline">去登录</Link>
-      </p>
-    </div>
+            <Form.Item label="邮箱验证码" required>
+              <div className="flex gap-2">
+                <Form.Item name="captchaText" noStyle rules={[{ required: true, message: '请输入邮箱验证码' }]}>
+                  <Input size="large" placeholder="邮箱验证码" autoComplete="one-time-code" />
+                </Form.Item>
+                <button
+                  type="button"
+                  onClick={handleSendCode}
+                  disabled={sending}
+                  className="shrink-0 bg-accent px-4 text-sm font-black uppercase tracking-wider text-ink! transition-[filter] hover:brightness-90 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {sending ? '发送中…' : '获取验证码'}
+                </button>
+              </div>
+            </Form.Item>
+
+            <Form.Item label="用户名" name="username" rules={[{ required: true, whitespace: true, message: '请输入用户名' }]}>
+              <Input size="large" placeholder="用户名" autoComplete="username" />
+            </Form.Item>
+
+            <Form.Item label="昵称" name="nickname" rules={[{ required: true, whitespace: true, message: '请输入昵称' }]}>
+              <Input size="large" placeholder="昵称" />
+            </Form.Item>
+
+            <Form.Item label="密码" name="password" rules={[{ required: true, min: 6, message: '密码至少 6 位' }]}>
+              <Input.Password size="large" placeholder="密码" autoComplete="new-password" />
+            </Form.Item>
+
+            <Form.Item label="性别" name="sex">
+              <Select
+                size="large"
+                options={[
+                  { label: '保密', value: 2 },
+                  { label: '男', value: 0 },
+                  { label: '女', value: 1 },
+                ]}
+              />
+            </Form.Item>
+
+            <Form.Item className="mb-0">
+              <button
+                type="submit"
+                disabled={loading}
+                aria-busy={loading}
+                className="flex min-h-11 w-full cursor-pointer items-center justify-center gap-3 rounded-none bg-accent px-6 text-base font-black uppercase tracking-[0.22em] text-ink! transition-[filter,transform] hover:brightness-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-canvas disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <span>{loading ? '注册中…' : '完成注册'}</span>
+                <span aria-hidden="true" className="text-lg leading-none">
+                  →
+                </span>
+              </button>
+            </Form.Item>
+          </Form>
+        </AuthPanel>
+
+        <p className="text-center text-sm text-text-secondary">
+          已有账号？
+          <Link to="/login" className="ml-1 font-bold text-accent transition-colors hover:text-accent-yellow">
+            去登录
+          </Link>
+        </p>
+      </div>
+    </AuthBackdrop>
   )
 }
