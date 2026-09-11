@@ -9,7 +9,7 @@ import { App } from "antd";
 import { uploadImageToAliyun } from "../../../apis/upload";
 import "./articles.css";
 
-/** 受控富文本编辑器，可被 antd Form.Item 直接注入 value / onChange */
+/** 受控富文本编辑器,可被 antd Form.Item 直接注入 value / onChange */
 interface ArticleEditorProps {
   value?: string;
   onChange?: (html: string) => void;
@@ -23,7 +23,7 @@ interface ToolbarButtonProps {
   children: ReactNode;
 }
 
-/** 工具栏按钮：激活态使用荧光黄，保证键盘可达与可读标签 */
+/** 工具栏按钮：激活态使用荧光黄,保证键盘可达与可读标签 */
 function ToolbarButton({ label, active = false, disabled = false, onClick, children }: ToolbarButtonProps) {
   return (
     <button
@@ -46,7 +46,7 @@ function ToolbarButton({ label, active = false, disabled = false, onClick, child
 export default function ArticleEditor({ value = "", onChange }: ArticleEditorProps) {
   const { message } = App.useApp();
 
-  /** 将粘贴 / 拖入的图片文件上传到阿里云，并插入到当前光标位置 */
+  /** 将粘贴 / 拖入的图片文件上传到阿里云,并插入到当前光标位置 */
   const uploadAndInsertImages = async (editor: Editor, files: File[]) => {
     console.log(
       "[ArticleEditor] upload files",
@@ -95,7 +95,7 @@ export default function ArticleEditor({ value = "", onChange }: ArticleEditorPro
       },
     },
     onUpdate: ({ editor }) => {
-      // 空文档统一为 ''，便于表单必填校验
+      // 空文档统一为 '',便于表单必填校验
       onChange?.(editor.isEmpty ? "" : editor.getHTML());
     },
   });
@@ -110,7 +110,7 @@ export default function ArticleEditor({ value = "", onChange }: ArticleEditorPro
     }
   }, [value, editor]);
 
-  // 订阅 transaction，刷新工具栏按钮的激活态
+  // 订阅 transaction,刷新工具栏按钮的激活态
   const [, forceRender] = useState(0);
 
   useEffect(() => {

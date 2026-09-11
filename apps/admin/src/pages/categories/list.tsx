@@ -1,129 +1,129 @@
-import { EmptyState } from '@repo/shared'
-import { useCallback, useEffect, useState } from 'react'
-import { Alert, App, Button, Form, Grid, Input, InputNumber, Modal, Popconfirm, Space, Table } from 'antd'
-import type { TableProps } from 'antd'
+import { EmptyState } from "@repo/shared";
+import { useCallback, useEffect, useState } from "react";
+import { Alert, App, Button, Form, Grid, Input, InputNumber, Modal, Popconfirm, Space, Table } from "antd";
+import type { TableProps } from "antd";
 
-import { createCategory, deleteCategory, listCategories, updateCategory } from '../../apis/categories'
-import type { Category } from '../../apis/categories'
+import { createCategory, deleteCategory, listCategories, updateCategory } from "../../apis/categories";
+import type { Category } from "../../apis/categories";
 
 interface CategoryFormValues {
-  name: string
-  rank: number
+  name: string;
+  rank: number;
 }
 
 export default function CategoryListPage() {
-  const { message } = App.useApp()
-  const screens = Grid.useBreakpoint()
-  const isCompact = !screens.md
-  const [form] = Form.useForm<CategoryFormValues>()
+  const { message } = App.useApp();
+  const screens = Grid.useBreakpoint();
+  const isCompact = !screens.md;
+  const [form] = Form.useForm<CategoryFormValues>();
 
-  const [list, setList] = useState<Category[]>([])
-  const [keyword, setKeyword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [modalOpen, setModalOpen] = useState(false)
-  const [editing, setEditing] = useState<Category | null>(null)
-  const [saving, setSaving] = useState(false)
+  const [list, setList] = useState<Category[]>([]);
+  const [keyword, setKeyword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState<Category | null>(null);
+  const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
-    setLoading(true)
-    setError('')
+    setLoading(true);
+    setError("");
     try {
-      const res = await listCategories()
-      setList(res.data.categories ?? [])
+      const res = await listCategories();
+      setList(res.data.categories ?? []);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : '加载分类失败'
-      setError(msg)
-      message.error(msg)
+      const msg = err instanceof Error ? err.message : "加载分类失败";
+      setError(msg);
+      message.error(msg);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [message])
+  }, [message]);
 
   useEffect(() => {
-    void load()
-  }, [load])
+    void load();
+  }, [load]);
 
   const openCreate = () => {
-    setEditing(null)
-    form.resetFields()
-    form.setFieldsValue({ name: '', rank: 1 })
-    setModalOpen(true)
-  }
+    setEditing(null);
+    form.resetFields();
+    form.setFieldsValue({ name: "", rank: 1 });
+    setModalOpen(true);
+  };
 
   const openEdit = (record: Category) => {
-    setEditing(record)
-    form.resetFields()
-    form.setFieldsValue({ name: record.name, rank: Number(record.rank) })
-    setModalOpen(true)
-  }
+    setEditing(record);
+    form.resetFields();
+    form.setFieldsValue({ name: record.name, rank: Number(record.rank) });
+    setModalOpen(true);
+  };
 
   const closeModal = () => {
-    if (saving) return
-    setModalOpen(false)
-    form.resetFields()
-  }
+    if (saving) return;
+    setModalOpen(false);
+    form.resetFields();
+  };
 
   const handleSave = async (values: CategoryFormValues) => {
-    setSaving(true)
+    setSaving(true);
     try {
-      const payload = { name: values.name.trim(), rank: Number(values.rank) }
+      const payload = { name: values.name.trim(), rank: Number(values.rank) };
       if (editing) {
-        await updateCategory(editing.id, payload)
-        message.success('分类已更新')
+        await updateCategory(editing.id, payload);
+        message.success("分类已更新");
       } else {
-        await createCategory(payload)
-        message.success('分类已创建')
+        await createCategory(payload);
+        message.success("分类已创建");
       }
-      setModalOpen(false)
-      form.resetFields()
-      void load()
+      setModalOpen(false);
+      form.resetFields();
+      void load();
     } catch (err) {
-      message.error(err instanceof Error ? err.message : '保存失败')
+      message.error(err instanceof Error ? err.message : "保存失败");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const handleDelete = async (id: number) => {
     try {
-      await deleteCategory(id)
-      message.success('分类已删除')
-      void load()
+      await deleteCategory(id);
+      message.success("分类已删除");
+      void load();
     } catch (err) {
-      message.error(err instanceof Error ? err.message : '删除失败')
+      message.error(err instanceof Error ? err.message : "删除失败");
     }
-  }
+  };
 
-  const filteredList = list.filter((item) => item.name.toLowerCase().includes(keyword.trim().toLowerCase()))
+  const filteredList = list.filter((item) => item.name.toLowerCase().includes(keyword.trim().toLowerCase()));
 
-  const columns: TableProps<Category>['columns'] = [
-    { key: 'id', title: 'ID', dataIndex: 'id', width: 80 },
-    { key: 'name', title: '分类名称', dataIndex: 'name', ellipsis: true },
-    { key: 'rank', title: '排序', dataIndex: 'rank', width: 100 },
-  ]
+  const columns: TableProps<Category>["columns"] = [
+    { key: "id", title: "ID", dataIndex: "id", width: 80 },
+    { key: "name", title: "分类名称", dataIndex: "name", ellipsis: true },
+    { key: "rank", title: "排序", dataIndex: "rank", width: 100 },
+  ];
 
   if (!isCompact) {
-    columns.push({ key: 'createdAt', title: '创建时间', dataIndex: 'createdAt', width: 160, render: (value?: string) => value || '—' })
+    columns.push({ key: "createdAt", title: "创建时间", dataIndex: "createdAt", width: 160, render: (value?: string) => value || "—" });
   }
 
   columns.push({
-    key: 'actions',
-    title: '操作',
+    key: "actions",
+    title: "操作",
     width: 140,
     render: (_, record) => (
       <Space size="small">
         <Button type="link" size="small" onClick={() => openEdit(record)}>
           编辑
         </Button>
-        <Popconfirm title="删除前需先清空该分类下的课程，确定删除？" onConfirm={() => handleDelete(record.id)}>
+        <Popconfirm title="删除前需先清空该分类下的课程,确定删除？" onConfirm={() => handleDelete(record.id)}>
           <Button type="link" size="small" danger>
             删除
           </Button>
         </Popconfirm>
       </Space>
     ),
-  })
+  });
 
   return (
     <section className="space-y-6">
@@ -137,9 +137,9 @@ export default function CategoryListPage() {
         </Button>
       </div>
 
-      {error && <Alert type="error" showIcon message={error} closable onClose={() => setError('')} />}
+      {error && <Alert type="error" showIcon message={error} closable onClose={() => setError("")} />}
 
-      <Input.Search allowClear placeholder="按分类名称筛选" onSearch={setKeyword} style={{ width: isCompact ? '100%' : 320 }} />
+      <Input.Search allowClear placeholder="按分类名称筛选" onSearch={setKeyword} style={{ width: isCompact ? "100%" : 320 }} />
 
       <Table<Category>
         rowKey="id"
@@ -152,7 +152,7 @@ export default function CategoryListPage() {
       />
 
       <Modal
-        title={editing ? '编辑分类' : '新增分类'}
+        title={editing ? "编辑分类" : "新增分类"}
         open={modalOpen}
         onCancel={closeModal}
         onOk={() => form.submit()}
@@ -162,14 +162,14 @@ export default function CategoryListPage() {
         destroyOnHidden
       >
         <Form<CategoryFormValues> form={form} layout="vertical" requiredMark={false} onFinish={handleSave} className="mt-4">
-          <Form.Item name="name" label="分类名称" rules={[{ required: true, whitespace: true, message: '请输入分类名称' }]}>
+          <Form.Item name="name" label="分类名称" rules={[{ required: true, whitespace: true, message: "请输入分类名称" }]}>
             <Input placeholder="请输入分类名称" maxLength={45} showCount />
           </Form.Item>
-          <Form.Item name="rank" label="排序" rules={[{ required: true, message: '请输入排序值' }]}>
-            <InputNumber min={1} precision={0} style={{ width: '100%' }} placeholder="正整数，越小越靠前" />
+          <Form.Item name="rank" label="排序" rules={[{ required: true, message: "请输入排序值" }]}>
+            <InputNumber min={1} precision={0} style={{ width: "100%" }} placeholder="正整数,越小越靠前" />
           </Form.Item>
         </Form>
       </Modal>
     </section>
-  )
+  );
 }

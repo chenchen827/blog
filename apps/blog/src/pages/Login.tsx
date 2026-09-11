@@ -28,7 +28,7 @@ export default function LoginPage() {
           </>
         }
         eyebrow="Account Access"
-        description="使用博客账号登录，继续访问你的个人空间。"
+        description="使用博客账号登录,继续访问你的个人空间。"
         submitLabel="登录"
         footerNote="Blog · Auth Terminal"
         onFinish={handleFinish}

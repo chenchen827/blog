@@ -124,7 +124,7 @@ export default function AlbumListPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-[24px] font-extrabold uppercase leading-tight tracking-[-0.01em] text-text-primary">相集管理</h1>
-          <p className="mt-2 text-sm text-text-secondary">管理相集及其封面，进入相片管理后可维护相片。</p>
+          <p className="mt-2 text-sm text-text-secondary">管理相集及其封面,进入相片管理后可维护相片。</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex border border-hairline bg-primary p-0.5">
@@ -163,7 +163,7 @@ export default function AlbumListPage() {
         <EmptyState
           code="ALBUM"
           title="暂无相集"
-          description="创建一个相集，把零散的图片归档成完整的故事线。"
+          description="创建一个相集,把零散的图片归档成完整的故事线。"
           action={
             <Button type="primary" onClick={openCreate}>
               新增相集
@@ -174,7 +174,7 @@ export default function AlbumListPage() {
         <div className="space-y-4">
           {/* <p className="flex items-center gap-2 text-xs text-text-secondary">
             <span aria-hidden="true" className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
-            悬停展开成书，点击书页翻页，点击封面合上；翻开后的背面可进入相片 / 编辑 / 删除。
+            悬停展开成书,点击书页翻页,点击封面合上；翻开后的背面可进入相片 / 编辑 / 删除。
           </p> */}
           <AlbumShelfView albums={albums} onOpenPhotos={openPhotos} onEdit={openEdit} onDelete={handleDelete} />
         </div>
@@ -198,7 +198,7 @@ export default function AlbumListPage() {
           </Form.Item>
           <Form.Item name="coverUrl" label="封面地址">
             <Input
-              placeholder="封面图片 URL，可手动输入或点击右侧上传"
+              placeholder="封面图片 URL,可手动输入或点击右侧上传"
               addonAfter={
                 <Button type="primary" loading={uploading} onClick={() => coverInputRef.current?.click()}>
                   上传封面

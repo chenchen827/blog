@@ -216,7 +216,7 @@ export default function PhotoListPage() {
             </Button>
             <h1 className="text-[24px] font-extrabold uppercase leading-tight tracking-[-0.01em] text-text-primary">相片管理</h1>
           </div>
-          <p className="mt-2 text-sm text-text-secondary">选择相集后以瀑布流查看相片，双击相片可查看原图，悬停可编辑。</p>
+          <p className="mt-2 text-sm text-text-secondary">选择相集后以瀑布流查看相片,双击相片可查看原图,悬停可编辑。</p>
         </div>
         <Button type="primary" disabled={!albumId} onClick={openAdd}>
           新增相片
@@ -239,12 +239,12 @@ export default function PhotoListPage() {
       </div>
 
       {!albumId ? (
-        <EmptyState code="PHOTO" title="请选择相集" description="先从相集管理选择一个相集，相片会以瀑布流陈列在这里。" />
+        <EmptyState code="PHOTO" title="请选择相集" description="先从相集管理选择一个相集,相片会以瀑布流陈列在这里。" />
       ) : photos.length === 0 ? (
         <EmptyState
           code="PHOTO"
           title="该相集暂无相片"
-          description="上传第一张相片，为这个相集注入视觉信号。"
+          description="上传第一张相片,为这个相集注入视觉信号。"
           action={
             <Button type="primary" onClick={openAdd}>
               新增相片
@@ -296,7 +296,7 @@ export default function PhotoListPage() {
         <Form<PhotoFormValues> form={form} layout="vertical" requiredMark={false} onFinish={handleSave} className="mt-4">
           <Form.Item name="imageUrl" label="相片地址" rules={[{ required: true, whitespace: true, message: "请输入相片地址" }]}>
             <Input
-              placeholder="图片 URL，可手动输入或点击右侧上传"
+              placeholder="图片 URL,可手动输入或点击右侧上传"
               addonAfter={
                 <Button type="primary" loading={uploading} onClick={() => imageInputRef.current?.click()}>
                   上传图片

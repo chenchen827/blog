@@ -6,7 +6,7 @@ import { listArticles } from "../../apis/articles";
 import type { Article } from "../../apis/types";
 
 interface UseArticleListOptions {
-  /** true 查询回收站，false 查询正常列表 */
+  /** true 查询回收站,false 查询正常列表 */
   deleted: boolean;
 }
 
@@ -22,7 +22,7 @@ export interface ArticlePaginationState {
  * - 服务端分页
  * - 行选择
  * - loading / error 状态
- * 列表页与回收站共用，避免重复实现。
+ * 列表页与回收站共用,避免重复实现。
  */
 export function useArticleList({ deleted }: UseArticleListOptions) {
   const { message } = App.useApp();
@@ -34,7 +34,7 @@ export function useArticleList({ deleted }: UseArticleListOptions) {
   const [pagination, setPagination] = useState<ArticlePaginationState>({ current: 1, pageSize: 10, total: 0 });
   const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([]);
 
-  // 用 ref 保存最新搜索词，避免表格回调中的闭包读到旧值
+  // 用 ref 保存最新搜索词,避免表格回调中的闭包读到旧值
   const keywordRef = useRef(keyword);
   keywordRef.current = keyword;
 

@@ -2,7 +2,7 @@ import type { IndexRouteObject, NonIndexRouteObject } from "react-router";
 
 export interface RouteMeta {
   label: string;
-  /** false 时不在侧边栏菜单展示，路由仍可访问 */
+  /** false 时不在侧边栏菜单展示,路由仍可访问 */
   visible?: boolean;
 }
 

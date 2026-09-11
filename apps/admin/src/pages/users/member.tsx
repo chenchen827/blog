@@ -1,59 +1,49 @@
-import { EmptyState } from '@repo/shared'
-import { Alert, Grid, Input, Select, Space, Table } from 'antd'
-import type { TableProps } from 'antd'
+import { EmptyState } from "@repo/shared";
+import { Alert, Grid, Input, Select, Space, Table } from "antd";
+import type { TableProps } from "antd";
 
-import type { AdminUser } from '../../apis/users'
-import type { UserSearchField } from './useUserList'
-import { useAdminUserList } from './useUserList'
-import { emptyText, roleText, sexText } from './meta'
+import type { AdminUser } from "../../apis/users";
+import type { UserSearchField } from "./useUserList";
+import { useAdminUserList } from "./useUserList";
+import { emptyText, roleText, sexText } from "./meta";
 
 const searchOptions = [
-  { label: '昵称', value: 'nickname' },
-  { label: '用户名', value: 'username' },
-  { label: '邮箱', value: 'email' },
-]
+  { label: "昵称", value: "nickname" },
+  { label: "用户名", value: "username" },
+  { label: "邮箱", value: "email" },
+];
 
 export default function MemberListPage() {
-  const screens = Grid.useBreakpoint()
-  const isCompact = !screens.md
+  const screens = Grid.useBreakpoint();
+  const isCompact = !screens.md;
 
-  const {
-    users,
-    loading,
-    error,
-    field,
-    pagination,
-    search,
-    changeField,
-    onTableChange,
-    clearError,
-  } = useAdminUserList({ role: 10 })
+  const { users, loading, error, field, pagination, search, changeField, onTableChange, clearError } = useAdminUserList({ role: 10 });
 
-  const columns: TableProps<AdminUser>['columns'] = [
-    { key: 'id', title: 'ID', dataIndex: 'id', width: 80 },
-    { key: 'username', title: '用户名', dataIndex: 'username', ellipsis: true },
-    { key: 'nickname', title: '昵称', dataIndex: 'nickname', ellipsis: true },
-  ]
+  const columns: TableProps<AdminUser>["columns"] = [
+    { key: "id", title: "ID", dataIndex: "id", width: 80 },
+    { key: "username", title: "用户名", dataIndex: "username", ellipsis: true },
+    { key: "nickname", title: "昵称", dataIndex: "nickname", ellipsis: true },
+  ];
 
   if (!isCompact) {
     columns.push(
-      { key: 'email', title: '邮箱', dataIndex: 'email', ellipsis: true },
-      { key: 'sex', title: '性别', dataIndex: 'sex', width: 90, render: (value: number) => sexText(value) },
-      { key: 'role', title: '角色', dataIndex: 'role', width: 100, render: (value: number | string) => roleText(value) },
-      { key: 'createdAt', title: '注册时间', dataIndex: 'createdAt', width: 180, render: (value?: string) => emptyText(value) },
-    )
+      { key: "email", title: "邮箱", dataIndex: "email", ellipsis: true },
+      { key: "sex", title: "性别", dataIndex: "sex", width: 90, render: (value: number) => sexText(value) },
+      { key: "role", title: "角色", dataIndex: "role", width: 100, render: (value: number | string) => roleText(value) },
+      { key: "createdAt", title: "注册时间", dataIndex: "createdAt", width: 180, render: (value?: string) => emptyText(value) },
+    );
   }
 
   return (
     <section className="space-y-6">
       <div>
         <h1 className="text-[24px] font-extrabold uppercase leading-tight tracking-[-0.01em] text-text-primary">会员列表</h1>
-        <p className="mt-2 text-sm text-text-secondary">仅查询 role = 10 的会员，不含新增、编辑与删除操作。</p>
+        <p className="mt-2 text-sm text-text-secondary">仅查询 role = 10 的会员,不含新增、编辑与删除操作。</p>
       </div>
 
       {error && <Alert type="error" showIcon message={error} closable onClose={clearError} />}
 
-      <Space.Compact style={{ width: isCompact ? '100%' : 360 }}>
+      <Space.Compact style={{ width: isCompact ? "100%" : 360 }}>
         <Select value={field} onChange={(value) => changeField(value as UserSearchField)} options={searchOptions} style={{ width: 100 }} />
         <Input.Search key={field} allowClear placeholder="输入关键词查询" onSearch={search} />
       </Space.Compact>
@@ -75,5 +65,5 @@ export default function MemberListPage() {
         scroll={isCompact ? undefined : { x: 960 }}
       />
     </section>
-  )
+  );
 }

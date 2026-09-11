@@ -12,7 +12,7 @@ interface ArticleFormValues {
 /**
  * 写文章 / 编辑文章共用页面：
  * - 无 ?id 时为新建
- * - 有 ?id 时拉取详情，并作为表单初始值回显
+ * - 有 ?id 时拉取详情,并作为表单初始值回显
  */
 export default function ArticleNewPage() {
   const { message } = App.useApp();
@@ -24,7 +24,7 @@ export default function ArticleNewPage() {
   const [submitting, setSubmitting] = useState(false);
   const [initialValues, setInitialValues] = useState<ArticleFormValues>({ title: "", content: "" });
 
-  // 编辑态：先取详情，再以初始值方式挂载表单，确保富文本也能正确回显
+  // 编辑态：先取详情,再以初始值方式挂载表单,确保富文本也能正确回显
   useEffect(() => {
     if (!id) return;
     let active = true;

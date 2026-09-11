@@ -38,7 +38,7 @@ export default function LoginPage() {
       submitLabel="登录后台"
       footerNote="Blog Admin · Auth Terminal"
       onFinish={handleFinish}
-      onError={(error) => message.error(error instanceof Error ? error.message : "登录失败，请重试")}
+      onError={(error) => message.error(error instanceof Error ? error.message : "登录失败,请重试")}
       footer={
         <>
           还没有账号？

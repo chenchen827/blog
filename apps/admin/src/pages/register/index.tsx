@@ -10,11 +10,11 @@ import { getToken } from "../../utils/auth";
 function toErrorMessage(error: unknown): string {
   if (error instanceof Error) {
     if (error.message === "Failed to fetch") {
-      return "无法连接服务器，请确认服务已启动。";
+      return "无法连接服务器,请确认服务已启动。";
     }
     return error.message;
   }
-  return "操作失败，请重试。";
+  return "操作失败,请重试。";
 }
 
 export default function RegisterPage() {
@@ -49,9 +49,9 @@ export default function RegisterPage() {
       const loginRes = await signInUser(values.email, values.password);
       const avatarUrl = await uploadImageToAliyun(values.avatarFile, loginRes.data.token);
       await updateUserProfile(loginRes.data.token, { avatar: avatarUrl, sex: values.sex });
-      message.success("注册成功，请登录。");
+      message.success("注册成功,请登录。");
     } catch {
-      message.warning("账号已创建，但头像上传失败，请登录后重新设置头像。");
+      message.warning("账号已创建,但头像上传失败,请登录后重新设置头像。");
     }
 
     navigate("/login?registered=1", { replace: true });
@@ -61,11 +61,11 @@ export default function RegisterPage() {
     <Register
       title="User Register"
       eyebrow="System Archive"
-      description="填写邮箱并完成验证码校验后，即可创建账号。"
+      description="填写邮箱并完成验证码校验后,即可创建账号。"
       submitLabel="完成注册"
       footerNote="Blog Admin · User Registration"
       onSendCode={handleSendCode}
-      onCodeSent={() => message.success("验证码已发送，请查收邮箱。")}
+      onCodeSent={() => message.success("验证码已发送,请查收邮箱。")}
       onSubmit={handleRegister}
       onError={(error) => message.error(toErrorMessage(error))}
       footer={

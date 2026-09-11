@@ -1,120 +1,120 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Alert, App, Button, Form, Input, Space, Spin } from 'antd'
+import { useCallback, useEffect, useState } from "react";
+import { Alert, App, Button, Form, Input, Space, Spin } from "antd";
 
-import { flushAllCaches, getSetting, reindexSearchEngine, updateSetting } from '../../apis/settings'
+import { flushAllCaches, getSetting, reindexSearchEngine, updateSetting } from "../../apis/settings";
 
 interface SettingFormValues {
-  name: string
-  icp: string
-  copyright: string
+  name: string;
+  icp: string;
+  copyright: string;
 }
 
-const EMPTY_SETTING: SettingFormValues = { name: '', icp: '', copyright: '' }
+const EMPTY_SETTING: SettingFormValues = { name: "", icp: "", copyright: "" };
 
 export default function SettingsPage() {
-  const { message } = App.useApp()
-  const [form] = Form.useForm<SettingFormValues>()
+  const { message } = App.useApp();
+  const [form] = Form.useForm<SettingFormValues>();
 
-  const [setting, setSetting] = useState<SettingFormValues>(EMPTY_SETTING)
-  const [editing, setEditing] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [flushing, setFlushing] = useState(false)
-  const [reindexing, setReindexing] = useState(false)
-  const [error, setError] = useState('')
+  const [setting, setSetting] = useState<SettingFormValues>(EMPTY_SETTING);
+  const [editing, setEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [flushing, setFlushing] = useState(false);
+  const [reindexing, setReindexing] = useState(false);
+  const [error, setError] = useState("");
 
   const load = useCallback(async () => {
-    setLoading(true)
-    setError('')
+    setLoading(true);
+    setError("");
     try {
-      const res = await getSetting()
+      const res = await getSetting();
       const next = {
-        name: res.data.setting.name ?? '',
-        icp: res.data.setting.icp ?? '',
-        copyright: res.data.setting.copyright ?? '',
-      }
-      setSetting(next)
-      form.setFieldsValue(next)
+        name: res.data.setting.name ?? "",
+        icp: res.data.setting.icp ?? "",
+        copyright: res.data.setting.copyright ?? "",
+      };
+      setSetting(next);
+      form.setFieldsValue(next);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : '加载系统设置失败'
-      setError(msg)
-      message.error(msg)
+      const msg = err instanceof Error ? err.message : "加载系统设置失败";
+      setError(msg);
+      message.error(msg);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [form, message])
+  }, [form, message]);
 
   useEffect(() => {
-    void load()
-  }, [load])
+    void load();
+  }, [load]);
 
   const startEdit = () => {
-    form.setFieldsValue(setting)
-    setEditing(true)
-  }
+    form.setFieldsValue(setting);
+    setEditing(true);
+  };
 
   const cancelEdit = () => {
-    form.setFieldsValue(setting)
-    setEditing(false)
-  }
+    form.setFieldsValue(setting);
+    setEditing(false);
+  };
 
   const handleSave = async (values: SettingFormValues) => {
     const next = {
       name: values.name.trim(),
       icp: values.icp.trim(),
       copyright: values.copyright.trim(),
-    }
+    };
 
-    setSaving(true)
+    setSaving(true);
     try {
-      await updateSetting(next)
-      setSetting(next)
-      setEditing(false)
-      message.success('系统设置已保存')
+      await updateSetting(next);
+      setSetting(next);
+      setEditing(false);
+      message.success("系统设置已保存");
     } catch (err) {
-      message.error(err instanceof Error ? err.message : '保存失败')
+      message.error(err instanceof Error ? err.message : "保存失败");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const handleFlush = async () => {
-    setFlushing(true)
+    setFlushing(true);
     try {
-      await flushAllCaches()
-      message.success('缓存已清除')
+      await flushAllCaches();
+      message.success("缓存已清除");
     } catch (err) {
-      message.error(err instanceof Error ? err.message : '清除缓存失败')
+      message.error(err instanceof Error ? err.message : "清除缓存失败");
     } finally {
-      setFlushing(false)
+      setFlushing(false);
     }
-  }
+  };
 
   const handleReindex = async () => {
-    setReindexing(true)
+    setReindexing(true);
     try {
-      await reindexSearchEngine()
-      message.success('搜索引擎索引已重建')
+      await reindexSearchEngine();
+      message.success("搜索引擎索引已重建");
     } catch (err) {
-      message.error(err instanceof Error ? err.message : '重建索引失败')
+      message.error(err instanceof Error ? err.message : "重建索引失败");
     } finally {
-      setReindexing(false)
+      setReindexing(false);
     }
-  }
+  };
 
   if (loading) {
     return (
       <div className="flex min-h-80 items-center justify-center">
         <Spin />
       </div>
-    )
+    );
   }
 
   const infoRows = [
-    { label: '站点名称', value: setting.name },
-    { label: 'ICP 备案号', value: setting.icp },
-    { label: '版权信息', value: setting.copyright },
-  ]
+    { label: "站点名称", value: setting.name },
+    { label: "ICP 备案号", value: setting.icp },
+    { label: "版权信息", value: setting.copyright },
+  ];
 
   return (
     <section className="space-y-6">
@@ -123,16 +123,14 @@ export default function SettingsPage() {
         <p className="mt-2 text-sm text-text-secondary">维护系统基础信息与运行维护操作。</p>
       </div>
 
-      {error && <Alert type="error" showIcon message={error} closable onClose={() => setError('')} />}
+      {error && <Alert type="error" showIcon message={error} closable onClose={() => setError("")} />}
 
       <div className="max-w-2xl space-y-6">
         <div className="rounded-none border border-hairline bg-primary p-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <h2 className="text-base font-black uppercase tracking-wider text-text-primary">基础信息</h2>
-              <p className="mt-1 text-sm text-text-secondary">
-                {editing ? '当前为编辑模式，保存后生效。' : '基础信息默认只读，点击“编辑”后可修改。'}
-              </p>
+              <p className="mt-1 text-sm text-text-secondary">{editing ? "当前为编辑模式,保存后生效。" : "基础信息默认只读,点击“编辑”后可修改。"}</p>
             </div>
             {!editing && (
               <Button type="primary" onClick={startEdit}>
@@ -146,15 +144,13 @@ export default function SettingsPage() {
               {infoRows.map((row) => (
                 <div key={row.label} className="flex gap-6 px-1 py-4">
                   <span className="w-24 shrink-0 text-sm leading-6 text-text-secondary">{row.label}</span>
-                  <span className="min-w-0 flex-1 whitespace-pre-wrap break-words text-base leading-6 text-text-primary">
-                    {row.value || '—'}
-                  </span>
+                  <span className="min-w-0 flex-1 whitespace-pre-wrap break-words text-base leading-6 text-text-primary">{row.value || "—"}</span>
                 </div>
               ))}
             </div>
           ) : (
             <Form<SettingFormValues> form={form} layout="vertical" requiredMark={false} onFinish={handleSave} className="mt-5">
-              <Form.Item name="name" label="站点名称" rules={[{ required: true, whitespace: true, message: '请输入站点名称' }]}>
+              <Form.Item name="name" label="站点名称" rules={[{ required: true, whitespace: true, message: "请输入站点名称" }]}>
                 <Input placeholder="请输入站点名称" maxLength={100} showCount />
               </Form.Item>
               <Form.Item name="icp" label="ICP 备案号">
@@ -177,7 +173,7 @@ export default function SettingsPage() {
 
         <div className="rounded-none border border-hairline bg-primary p-6">
           <h2 className="text-base font-black uppercase tracking-wider text-text-primary">维护操作</h2>
-          <p className="mt-2 text-sm text-text-secondary">以下操作可能影响线上数据，请确认后再执行。</p>
+          <p className="mt-2 text-sm text-text-secondary">以下操作可能影响线上数据,请确认后再执行。</p>
           <Space wrap className="mt-4">
             <Button loading={flushing} onClick={handleFlush}>
               清除缓存
@@ -189,5 +185,5 @@ export default function SettingsPage() {
         </div>
       </div>
     </section>
-  )
+  );
 }

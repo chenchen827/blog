@@ -185,7 +185,7 @@
   transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* 主操作：荧光黄贴纸，黑墨字 */
+/* 主操作：荧光黄贴纸,黑墨字 */
 .paper-btn--primary {
   color: #050505;
   background: linear-gradient(180deg, #ecff2f, #d9ff00);
@@ -224,7 +224,7 @@
   border-color: rgba(255, 203, 48, 0.537);
 }
 
-/* 主操作：荧光黄更亮，外圈泛起荧光光晕，纸张纹理略加深 */
+/* 主操作：荧光黄更亮,外圈泛起荧光光晕,纸张纹理略加深 */
 .paper-btn--primary:hover {
   filter: brightness(1.07);
   border-color: #a3c400;
@@ -237,7 +237,7 @@
   background-image: linear-gradient(rgba(0, 0, 0, 0.09) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.09) 1px, transparent 1px);
 }
 
-/* 次操作：纸张提亮成纯白，边框点亮成荧光黄（选中提示），阴影加深 */
+/* 次操作：纸张提亮成纯白,边框点亮成荧光黄（选中提示）,阴影加深 */
 .paper-btn--ghost:hover {
   background: linear-gradient(180deg, #f0faff, #b9d6f6);
   border-color: #8ae9fa;
@@ -247,7 +247,7 @@
     0 0 0 1px rgba(99, 149, 163, 0.35);
 }
 
-/* 危险操作：纸面泛起淡红，红色加深，像作废戳被“激活” */
+/* 危险操作：纸面泛起淡红,红色加深,像作废戳被“激活” */
 .paper-btn--danger:hover {
   color: #ff5f15;
   background: linear-gradient(180deg, #fff4f3, #ffe7e4);

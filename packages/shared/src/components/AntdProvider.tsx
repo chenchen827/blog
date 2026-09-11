@@ -9,8 +9,8 @@ export interface AntdProviderProps {
 /**
  * 全局 antd 配置：
  * - 中文语言包
- * - 深色主题，主色 / 表面色 / 边框色 / 圆角对齐根目录 design.md（黑色杂志化 + 荧光黄）
- * - 将 design.md 的 Token 通过 ConfigProvider 映射到 antd 组件，避免各页面各自写散落的样式覆盖
+ * - 深色主题,主色 / 表面色 / 边框色 / 圆角对齐根目录 design.md（黑色杂志化 + 荧光黄）
+ * - 将 design.md 的 Token 通过 ConfigProvider 映射到 antd 组件,避免各页面各自写散落的样式覆盖
  */
 export function AntdProvider({ children }: AntdProviderProps) {
   return (

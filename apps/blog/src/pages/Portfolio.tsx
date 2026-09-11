@@ -1,40 +1,40 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
 
-import type { Course } from '../types'
-import { getHome } from '../apis/home'
-import CourseCard from '../components/CourseCard'
-import SectionHeader from '../components/SectionHeader'
-import Loader from '../components/Loader'
-import { EmptyState } from '@repo/shared'
+import type { Course } from "../types";
+import { getHome } from "../apis/home";
+import CourseCard from "../components/CourseCard";
+import SectionHeader from "../components/SectionHeader";
+import Loader from "../components/Loader";
+import { EmptyState } from "@repo/shared";
 
 export default function Portfolio() {
-  const [courses, setCourses] = useState<Course[]>([])
-  const [loading, setLoading] = useState(true)
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let active = true
-    setLoading(true)
+    let active = true;
+    setLoading(true);
     getHome()
       .then((res) => {
-        if (!active) return
-        const featured = [...(res.data.introductoryCourses ?? []), ...(res.data.recommendedCourses ?? [])]
-        const deduped = [...new Map(featured.map((c) => [c.id, c])).values()]
-        setCourses(deduped)
+        if (!active) return;
+        const featured = [...(res.data.introductoryCourses ?? []), ...(res.data.recommendedCourses ?? [])];
+        const deduped = [...new Map(featured.map((c) => [c.id, c])).values()];
+        setCourses(deduped);
       })
       .catch(() => {
-        if (active) setCourses([])
+        if (active) setCourses([]);
       })
       .finally(() => {
-        if (active) setLoading(false)
-      })
+        if (active) setLoading(false);
+      });
     return () => {
-      active = false
-    }
-  }, [])
+      active = false;
+    };
+  }, []);
 
   return (
     <div className="space-y-8">
-      <SectionHeader code="PORTFOLIO" title="个人作品集" desc="创作者主推的入门与旗舰作品，点击进入详情查看章节。" />
+      <SectionHeader code="PORTFOLIO" title="个人作品集" desc="创作者主推的入门与旗舰作品,点击进入详情查看章节。" />
 
       {loading ? (
         <Loader />
@@ -48,5 +48,5 @@ export default function Portfolio() {
         </div>
       )}
     </div>
-  )
+  );
 }

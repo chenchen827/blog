@@ -31,7 +31,7 @@ export interface RegisterSubmitValues {
 export type RegisterErrorContext = "sendCode" | "submit";
 
 export interface RegisterProps {
-  /** 请求邮箱验证码，并返回服务端下发的 captchaKey。 */
+  /** 请求邮箱验证码,并返回服务端下发的 captchaKey。 */
   onSendCode: (email: string) => Promise<string>;
   /** 提交规范化后的注册数据；由调用方保留 API、上传与路由逻辑。 */
   onSubmit: (values: RegisterSubmitValues) => void | Promise<void>;
@@ -58,7 +58,7 @@ export function Register({
   requireAvatar = true,
   title = "User Register",
   eyebrow = "System Archive",
-  description = "填写邮箱并完成验证码校验后，即可创建账号。",
+  description = "填写邮箱并完成验证码校验后,即可创建账号。",
   index = "02",
   submitLabel = "完成注册",
   submittingLabel = "注册中…",

@@ -9,7 +9,7 @@ export interface AuthBackdropProps {
   className?: string;
 }
 
-/** 博客认证页背景：工业网格、荧光定位线和机械编号，不干扰表单可读性。 */
+/** 博客认证页背景：工业网格、荧光定位线和机械编号,不干扰表单可读性。 */
 export default function AuthBackdrop({ children, code, label, className }: AuthBackdropProps) {
   return (
     <section className={cn("relative isolate overflow-hidden border-y border-hairline bg-primary/55", className)}>

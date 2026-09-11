@@ -1,4 +1,4 @@
-import { EmptyState } from '@repo/shared'
+import { EmptyState } from "@repo/shared";
 import { Alert, App, Button, Grid, Input, Popconfirm, Space, Table } from "antd";
 import type { TableProps } from "antd";
 import { useNavigate } from "react-router";
@@ -41,7 +41,7 @@ export default function ArticleListPage() {
     }
   };
 
-  // 基础列始终保留；内容摘要与时间列在移动端折叠，避免桌面表格被压缩到触屏
+  // 基础列始终保留；内容摘要与时间列在移动端折叠,避免桌面表格被压缩到触屏
   const columns: TableProps<Article>["columns"] = [
     { key: "id", title: "ID", dataIndex: "id", width: 80 },
     { key: "title", title: "标题", dataIndex: "title", ellipsis: true },

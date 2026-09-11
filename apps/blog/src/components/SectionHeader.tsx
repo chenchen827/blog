@@ -1,12 +1,12 @@
-import type { ReactNode } from 'react'
+import type { ReactNode } from "react";
 
 interface SectionHeaderProps {
-  /** 模块标签，例如 KNOWLEDGE / ALBUM */
-  code: string
-  title: string
-  desc?: string
+  /** 模块标签,例如 KNOWLEDGE / ALBUM */
+  code: string;
+  title: string;
+  desc?: string;
   /** 右侧附加内容 */
-  action?: ReactNode
+  action?: ReactNode;
 }
 
 /** 区块标题：工业档案风格小标签 + 海报级大标题 */
@@ -20,5 +20,5 @@ export default function SectionHeader({ code, title, desc, action }: SectionHead
       </div>
       {action ? <div className="pb-1">{action}</div> : null}
     </header>
-  )
+  );
 }

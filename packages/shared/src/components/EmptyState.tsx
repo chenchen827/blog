@@ -3,13 +3,13 @@ import type { ReactNode } from "react";
 import { cn } from "../utils";
 
 export interface EmptyStateProps {
-  /** 主标题，默认“这里还没有内容” */
+  /** 主标题,默认“这里还没有内容” */
   title?: string;
-  /** 说明文字，默认引导用户新建数据 */
+  /** 说明文字,默认引导用户新建数据 */
   description?: string;
-  /** 附加操作，例如“新增相集 / 上传相片”按钮 */
+  /** 附加操作,例如“新增相集 / 上传相片”按钮 */
   action?: ReactNode;
-  /** 模块标签，例如 ALBUM / PHOTO */
+  /** 模块标签,例如 ALBUM / PHOTO */
   code?: string;
   className?: string;
 }
@@ -18,7 +18,7 @@ export interface EmptyStateProps {
  * 工业档案风格的全局空状态组件：
  * 用斜切框、虚线圆环、网格纹理和荧光黄符号替代 antd 默认灰空图标。
  */
-export function EmptyState({ title = "这里还没有内容", description = "从零开始建立你的记录，让这块区域开始运转。", action, code = "EMPTY", className }: EmptyStateProps) {
+export function EmptyState({ title = "这里还没有内容", description = "从零开始建立你的记录,让这块区域开始运转。", action, code = "EMPTY", className }: EmptyStateProps) {
   return (
     <div
       className={cn(

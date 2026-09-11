@@ -133,7 +133,7 @@ export function AvatarCropUpload({ value, onCrop, disabled }: AvatarCropUploadPr
   function handleConfirmCrop() {
     const image = imageRef.current;
     if (!image || naturalSize.width <= 0 || naturalSize.height <= 0) {
-      message.warning("图片尚未加载完成，请稍候再试。");
+      message.warning("图片尚未加载完成,请稍候再试。");
       return;
     }
 
@@ -147,7 +147,7 @@ export function AvatarCropUpload({ value, onCrop, disabled }: AvatarCropUploadPr
     canvas.height = OUTPUT_SIZE;
     const context = canvas.getContext("2d");
     if (!context) {
-      message.error("浏览器不支持 Canvas，无法裁剪图片。");
+      message.error("浏览器不支持 Canvas,无法裁剪图片。");
       return;
     }
 
@@ -156,7 +156,7 @@ export function AvatarCropUpload({ value, onCrop, disabled }: AvatarCropUploadPr
     canvas.toBlob(
       (blob) => {
         if (!blob) {
-          message.error("头像裁剪失败，请重试。");
+          message.error("头像裁剪失败,请重试。");
           return;
         }
 
@@ -192,7 +192,7 @@ export function AvatarCropUpload({ value, onCrop, disabled }: AvatarCropUploadPr
 
       <div className="min-w-0">
         <p className="text-sm font-bold text-text-primary">头像裁剪</p>
-        <p className="mt-2 text-xs leading-relaxed text-text-secondary">选择图片后先本地裁剪，注册时会自动上传至阿里云并写入用户头像字段。</p>
+        <p className="mt-2 text-xs leading-relaxed text-text-secondary">选择图片后先本地裁剪,注册时会自动上传至阿里云并写入用户头像字段。</p>
       </div>
 
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden!" onChange={handleFileChange} />

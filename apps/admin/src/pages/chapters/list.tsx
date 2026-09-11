@@ -1,187 +1,187 @@
-import { EmptyState } from '@repo/shared'
-import { useCallback, useEffect, useState } from 'react'
-import { Alert, App, Button, Form, Grid, Input, InputNumber, Modal, Popconfirm, Select, Space, Table } from 'antd'
-import type { TableProps } from 'antd'
-import { useNavigate, useSearchParams } from 'react-router'
+import { EmptyState } from "@repo/shared";
+import { useCallback, useEffect, useState } from "react";
+import { Alert, App, Button, Form, Grid, Input, InputNumber, Modal, Popconfirm, Select, Space, Table } from "antd";
+import type { TableProps } from "antd";
+import { useNavigate, useSearchParams } from "react-router";
 
-import { createChapter, deleteChapter, listChapters, updateChapter } from '../../apis/chapters'
-import type { Chapter } from '../../apis/chapters'
-import { getCourse, listCourses } from '../../apis/courses'
-import type { Course } from '../../apis/courses'
+import { createChapter, deleteChapter, listChapters, updateChapter } from "../../apis/chapters";
+import type { Chapter } from "../../apis/chapters";
+import { getCourse, listCourses } from "../../apis/courses";
+import type { Course } from "../../apis/courses";
 
 interface ChapterFormValues {
-  title: string
-  content?: string
-  video?: string
-  rank: number
+  title: string;
+  content?: string;
+  video?: string;
+  rank: number;
 }
 
 export default function ChapterListPage() {
-  const { message } = App.useApp()
-  const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const screens = Grid.useBreakpoint()
-  const isCompact = !screens.md
-  const [form] = Form.useForm<ChapterFormValues>()
+  const { message } = App.useApp();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const screens = Grid.useBreakpoint();
+  const isCompact = !screens.md;
+  const [form] = Form.useForm<ChapterFormValues>();
 
-  const courseIdParam = searchParams.get('courseId')
-  const [courseId, setCourseId] = useState<string | undefined>(courseIdParam ?? undefined)
-  const [courseName, setCourseName] = useState('')
-  const [courseOptions, setCourseOptions] = useState<Course[]>([])
+  const courseIdParam = searchParams.get("courseId");
+  const [courseId, setCourseId] = useState<string | undefined>(courseIdParam ?? undefined);
+  const [courseName, setCourseName] = useState("");
+  const [courseOptions, setCourseOptions] = useState<Course[]>([]);
 
-  const [list, setList] = useState<Chapter[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [keyword, setKeyword] = useState('')
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 })
-  const [modalOpen, setModalOpen] = useState(false)
-  const [editing, setEditing] = useState<Chapter | null>(null)
-  const [saving, setSaving] = useState(false)
+  const [list, setList] = useState<Chapter[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [keyword, setKeyword] = useState("");
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState<Chapter | null>(null);
+  const [saving, setSaving] = useState(false);
 
   const loadChapters = useCallback(
     async (id: string | undefined, title: string, current: number, pageSize: number) => {
       if (!id) {
-        setList([])
-        setPagination({ current: 1, pageSize: 10, total: 0 })
-        return
+        setList([]);
+        setPagination({ current: 1, pageSize: 10, total: 0 });
+        return;
       }
-      setLoading(true)
-      setError('')
+      setLoading(true);
+      setError("");
       try {
-        const res = await listChapters({ courseId: id, title: title || undefined, currentPage: current, pageSize })
-        setList(res.data.chapters)
+        const res = await listChapters({ courseId: id, title: title || undefined, currentPage: current, pageSize });
+        setList(res.data.chapters);
         setPagination({
           current: res.data.pagination.currentPage,
           pageSize: res.data.pagination.pageSize,
           total: res.data.pagination.total,
-        })
+        });
       } catch (err) {
-        const msg = err instanceof Error ? err.message : '加载章节失败'
-        setError(msg)
-        message.error(msg)
+        const msg = err instanceof Error ? err.message : "加载章节失败";
+        setError(msg);
+        message.error(msg);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     },
     [message],
-  )
+  );
 
   const loadCourses = useCallback(async () => {
     try {
-      const res = await listCourses({ currentPage: 1, pageSize: 100 })
-      setCourseOptions(res.data.courses)
+      const res = await listCourses({ currentPage: 1, pageSize: 100 });
+      setCourseOptions(res.data.courses);
     } catch (err) {
-      message.error(err instanceof Error ? err.message : '加载课程列表失败')
+      message.error(err instanceof Error ? err.message : "加载课程列表失败");
     }
-  }, [message])
+  }, [message]);
 
   useEffect(() => {
-    void loadCourses()
-  }, [loadCourses])
+    void loadCourses();
+  }, [loadCourses]);
 
   useEffect(() => {
     if (courseId) {
-      setCourseName('')
+      setCourseName("");
       getCourse(courseId)
         .then((res) => setCourseName(res.data.course.name))
-        .catch(() => setCourseName(''))
+        .catch(() => setCourseName(""));
     } else {
-      setCourseName('')
+      setCourseName("");
     }
-    void loadChapters(courseId, '', 1, 10)
-  }, [courseId, loadChapters])
+    void loadChapters(courseId, "", 1, 10);
+  }, [courseId, loadChapters]);
 
   const handleCourseChange = (value: string) => {
-    setCourseId(value)
-    navigate(`/chapters/list?courseId=${value}`, { replace: true })
-  }
+    setCourseId(value);
+    navigate(`/chapters/list?courseId=${value}`, { replace: true });
+  };
 
   const openCreate = () => {
     if (!courseId) {
-      message.warning('请先选择课程')
-      return
+      message.warning("请先选择课程");
+      return;
     }
-    setEditing(null)
-    form.resetFields()
-    form.setFieldsValue({ title: '', content: '', video: '', rank: 1 })
-    setModalOpen(true)
-  }
+    setEditing(null);
+    form.resetFields();
+    form.setFieldsValue({ title: "", content: "", video: "", rank: 1 });
+    setModalOpen(true);
+  };
 
   const openEdit = (record: Chapter) => {
-    setEditing(record)
-    form.resetFields()
+    setEditing(record);
+    form.resetFields();
     form.setFieldsValue({
       title: record.title,
-      content: record.content ?? '',
-      video: record.video ?? '',
+      content: record.content ?? "",
+      video: record.video ?? "",
       rank: Number(record.rank),
-    })
-    setModalOpen(true)
-  }
+    });
+    setModalOpen(true);
+  };
 
   const closeModal = () => {
-    if (saving) return
-    setModalOpen(false)
-    form.resetFields()
-  }
+    if (saving) return;
+    setModalOpen(false);
+    form.resetFields();
+  };
 
   const handleSave = async (values: ChapterFormValues) => {
-    if (!courseId) return
-    setSaving(true)
+    if (!courseId) return;
+    setSaving(true);
     try {
       const payload = {
         courseId,
         title: values.title.trim(),
-        content: values.content?.trim() || '',
+        content: values.content?.trim() || "",
         video: values.video?.trim() || undefined,
         rank: Number(values.rank),
-      }
+      };
 
       if (editing) {
-        await updateChapter(editing.id, payload)
-        message.success('章节已更新')
+        await updateChapter(editing.id, payload);
+        message.success("章节已更新");
       } else {
-        await createChapter(payload)
-        message.success('章节已创建')
+        await createChapter(payload);
+        message.success("章节已创建");
       }
 
-      setModalOpen(false)
-      form.resetFields()
-      void loadChapters(courseId, keyword, pagination.current, pagination.pageSize)
+      setModalOpen(false);
+      form.resetFields();
+      void loadChapters(courseId, keyword, pagination.current, pagination.pageSize);
     } catch (err) {
-      message.error(err instanceof Error ? err.message : '保存失败')
+      message.error(err instanceof Error ? err.message : "保存失败");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const handleDelete = async (id: number) => {
-    if (!courseId) return
+    if (!courseId) return;
     try {
-      await deleteChapter(id)
-      message.success('章节已删除')
-      void loadChapters(courseId, keyword, pagination.current, pagination.pageSize)
+      await deleteChapter(id);
+      message.success("章节已删除");
+      void loadChapters(courseId, keyword, pagination.current, pagination.pageSize);
     } catch (err) {
-      message.error(err instanceof Error ? err.message : '删除失败')
+      message.error(err instanceof Error ? err.message : "删除失败");
     }
-  }
+  };
 
-  const columns: TableProps<Chapter>['columns'] = [
-    { key: 'id', title: 'ID', dataIndex: 'id', width: 80 },
-    { key: 'rank', title: '排序', dataIndex: 'rank', width: 90 },
-    { key: 'title', title: '章节标题', dataIndex: 'title', ellipsis: true },
-  ]
+  const columns: TableProps<Chapter>["columns"] = [
+    { key: "id", title: "ID", dataIndex: "id", width: 80 },
+    { key: "rank", title: "排序", dataIndex: "rank", width: 90 },
+    { key: "title", title: "章节标题", dataIndex: "title", ellipsis: true },
+  ];
 
   if (!isCompact) {
     columns.push(
-      { key: 'video', title: '视频', dataIndex: 'video', ellipsis: true, render: (value?: string) => (value ? '有' : '—') },
-      { key: 'createdAt', title: '创建时间', dataIndex: 'createdAt', width: 140 },
-    )
+      { key: "video", title: "视频", dataIndex: "video", ellipsis: true, render: (value?: string) => (value ? "有" : "—") },
+      { key: "createdAt", title: "创建时间", dataIndex: "createdAt", width: 140 },
+    );
   }
 
   columns.push({
-    key: 'actions',
-    title: '操作',
+    key: "actions",
+    title: "操作",
     width: 140,
     render: (_, record) => (
       <Space size="small">
@@ -195,28 +195,26 @@ export default function ChapterListPage() {
         </Popconfirm>
       </Space>
     ),
-  })
+  });
 
   return (
     <section className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="flex flex-wrap items-center gap-3">
-            <Button type="link" className="!px-0" onClick={() => navigate('/courses/list')}>
+            <Button type="link" className="!px-0" onClick={() => navigate("/courses/list")}>
               ← 返回课程
             </Button>
-            <h1 className="text-[24px] font-extrabold uppercase leading-tight tracking-[-0.01em] text-text-primary">
-              {courseName ? `章节管理：${courseName}` : '章节管理'}
-            </h1>
+            <h1 className="text-[24px] font-extrabold uppercase leading-tight tracking-[-0.01em] text-text-primary">{courseName ? `章节管理：${courseName}` : "章节管理"}</h1>
           </div>
-          <p className="mt-2 text-sm text-text-secondary">章节关联课程 ID：{courseId ?? '请先选择课程'}。</p>
+          <p className="mt-2 text-sm text-text-secondary">章节关联课程 ID：{courseId ?? "请先选择课程"}。</p>
         </div>
         <Button type="primary" onClick={openCreate} disabled={!courseId}>
           新增章节
         </Button>
       </div>
 
-      {error && <Alert type="error" showIcon message={error} closable onClose={() => setError('')} />}
+      {error && <Alert type="error" showIcon message={error} closable onClose={() => setError("")} />}
 
       <div className="flex flex-wrap items-center gap-4">
         <Select
@@ -226,13 +224,16 @@ export default function ChapterListPage() {
           value={courseId}
           onChange={handleCourseChange}
           options={courseOptions.map((course) => ({ label: course.name, value: String(course.id) }))}
-          style={{ width: isCompact ? '100%' : 280 }}
+          style={{ width: isCompact ? "100%" : 280 }}
         />
         <Input.Search
           allowClear
           placeholder="按章节标题搜索"
-          onSearch={(value) => { setKeyword(value); void loadChapters(courseId, value, 1, pagination.pageSize) }}
-          style={{ width: isCompact ? '100%' : 320 }}
+          onSearch={(value) => {
+            setKeyword(value);
+            void loadChapters(courseId, value, 1, pagination.pageSize);
+          }}
+          style={{ width: isCompact ? "100%" : 320 }}
         />
       </div>
 
@@ -241,7 +242,7 @@ export default function ChapterListPage() {
         loading={loading}
         columns={columns}
         dataSource={list}
-        locale={{ emptyText: <EmptyState title={courseId ? '暂无章节' : '请先选择课程'} /> }}
+        locale={{ emptyText: <EmptyState title={courseId ? "暂无章节" : "请先选择课程"} /> }}
         pagination={{
           current: pagination.current,
           pageSize: pagination.pageSize,
@@ -249,12 +250,14 @@ export default function ChapterListPage() {
           showSizeChanger: true,
           showTotal: (total) => `共 ${total} 条`,
         }}
-        onChange={(next) => { void loadChapters(courseId, keyword, next.current ?? 1, next.pageSize ?? pagination.pageSize) }}
+        onChange={(next) => {
+          void loadChapters(courseId, keyword, next.current ?? 1, next.pageSize ?? pagination.pageSize);
+        }}
         scroll={isCompact ? undefined : { x: 900 }}
       />
 
       <Modal
-        title={editing ? '编辑章节' : '新增章节'}
+        title={editing ? "编辑章节" : "新增章节"}
         open={modalOpen}
         onCancel={closeModal}
         onOk={() => form.submit()}
@@ -265,19 +268,19 @@ export default function ChapterListPage() {
       >
         <Form<ChapterFormValues> form={form} layout="vertical" requiredMark={false} onFinish={handleSave} className="mt-4">
           <Form.Item label="关联课程">
-            <Input value={courseId ? `${courseName || '课程'}（ID ${courseId}）` : ''} disabled />
+            <Input value={courseId ? `${courseName || "课程"}（ID ${courseId}）` : ""} disabled />
           </Form.Item>
 
-          <Form.Item name="title" label="章节标题" rules={[{ required: true, whitespace: true, message: '请输入章节标题' }]}>
+          <Form.Item name="title" label="章节标题" rules={[{ required: true, whitespace: true, message: "请输入章节标题" }]}>
             <Input placeholder="请输入章节标题" maxLength={45} showCount />
           </Form.Item>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <Form.Item name="rank" label="排序" rules={[{ required: true, message: '请输入排序值' }]}>
-              <InputNumber min={1} precision={0} style={{ width: '100%' }} placeholder="正整数，越小越靠前" />
+            <Form.Item name="rank" label="排序" rules={[{ required: true, message: "请输入排序值" }]}>
+              <InputNumber min={1} precision={0} style={{ width: "100%" }} placeholder="正整数,越小越靠前" />
             </Form.Item>
             <Form.Item name="video" label="视频 URL">
-              <Input placeholder="可选，请输入视频地址" />
+              <Input placeholder="可选,请输入视频地址" />
             </Form.Item>
           </div>
 
@@ -287,5 +290,5 @@ export default function ChapterListPage() {
         </Form>
       </Modal>
     </section>
-  )
+  );
 }

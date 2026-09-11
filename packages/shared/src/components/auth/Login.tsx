@@ -14,7 +14,7 @@ export interface LoginFormValues {
 export interface LoginProps {
   /** 提交登录表单；由调用方保留认证、Token 与路由逻辑。 */
   onFinish: (values: LoginFormValues) => void | Promise<void>;
-  /** 登录异常回调，便于调用方展示应用自己的错误提示。 */
+  /** 登录异常回调,便于调用方展示应用自己的错误提示。 */
   onError?: (error: unknown) => void;
   title?: ReactNode;
   eyebrow?: ReactNode;
@@ -69,13 +69,7 @@ export function Login({
 
         <Form<LoginFormValues> layout="vertical" requiredMark={false} onFinish={handleFinish} className="mt-7">
           <Form.Item name="login" label={accountLabel} rules={[{ required: true, whitespace: true, message: "请输入邮箱或用户名" }]}>
-            <Input
-              size="large"
-              prefix={<UserOutlined className="text-text-secondary" />}
-              placeholder={accountPlaceholder}
-              autoComplete="username"
-              allowClear
-            />
+            <Input size="large" prefix={<UserOutlined className="text-text-secondary" />} placeholder={accountPlaceholder} autoComplete="username" allowClear />
           </Form.Item>
 
           <Form.Item
@@ -86,12 +80,7 @@ export function Login({
               { min: 6, message: "密码至少为 6 位" },
             ]}
           >
-            <Input.Password
-              size="large"
-              prefix={<LockOutlined className="text-text-secondary" />}
-              placeholder={passwordPlaceholder}
-              autoComplete="current-password"
-            />
+            <Input.Password size="large" prefix={<LockOutlined className="text-text-secondary" />} placeholder={passwordPlaceholder} autoComplete="current-password" />
           </Form.Item>
 
           <button

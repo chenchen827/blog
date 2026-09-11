@@ -21,15 +21,8 @@ const maxWidthClasses: Record<AuthShellMaxWidth, string> = {
   register: "max-w-[620px]",
 };
 
-/** 认证页面统一外壳：独立路由使用全屏背景，嵌入式页面仅负责内容宽度。 */
-export function AuthShell({
-  children,
-  layout = "standalone",
-  maxWidth = "login",
-  footerNote,
-  backgroundImage = DEFAULT_AUTH_BACKGROUND,
-  className,
-}: AuthShellProps) {
+/** 认证页面统一外壳：独立路由使用全屏背景,嵌入式页面仅负责内容宽度。 */
+export function AuthShell({ children, layout = "standalone", maxWidth = "login", footerNote, backgroundImage = DEFAULT_AUTH_BACKGROUND, className }: AuthShellProps) {
   const content = (
     <section className={cn("relative mx-auto w-full", maxWidthClasses[maxWidth])}>
       {children}
@@ -56,8 +49,7 @@ export function AuthShell({
         aria-hidden="true"
         className="absolute inset-0 opacity-[0.05]"
         style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.7) 1px, transparent 1px)",
+          backgroundImage: "linear-gradient(rgba(255,255,255,0.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.7) 1px, transparent 1px)",
           backgroundSize: "48px 48px",
         }}
       />
@@ -92,7 +84,7 @@ export interface AuthPanelHeaderProps {
   index: ReactNode;
 }
 
-/** 认证卡片标题区，统一编号、标签和海报式标题排版。 */
+/** 认证卡片标题区,统一编号、标签和海报式标题排版。 */
 export function AuthPanelHeader({ eyebrow, title, description, index }: AuthPanelHeaderProps) {
   return (
     <div className="flex items-start justify-between gap-6 border-b border-hairline pb-7">

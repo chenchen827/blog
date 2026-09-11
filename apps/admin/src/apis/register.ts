@@ -67,7 +67,7 @@ export function signUp(payload: RegisterPayload): Promise<ApiResponse<{ user: Re
 }
 
 /**
- * 用户登录（注册成功后自动登录，用于获取上传头像所需的 token）
+ * 用户登录（注册成功后自动登录,用于获取上传头像所需的 token）
  * POST /auth/sign_in
  */
 export function signInUser(login: string, password: string): Promise<ApiResponse<UserLoginData>> {

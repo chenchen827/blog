@@ -15,7 +15,7 @@ const BOOK_HEIGHT = 420;
 const STAGE_PERSPECTIVE = 1400; // 舞台透视
 const SLIDE_STEP_X = 230; // 相邻滑片水平间距
 const SLIDE_DEPTH = 190; // 相邻滑片向 Z 轴后退的距离（越靠两侧离屏幕越远）
-const SPREAD_SHIFT = 170; // 镜像开合时两页摊开的整体位移，使摊开书居中
+const SPREAD_SHIFT = 170; // 镜像开合时两页摊开的整体位移,使摊开书居中
 const MOVE_DURATION = 520; // 切换动画时长（ms）
 const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
 
@@ -23,7 +23,7 @@ function padNo(value: number): string {
   return String(value).padStart(2, "0");
 }
 
-/** 内页（闭合时被封面压住，翻开后移动到左页背面）*/
+/** 内页（闭合时被封面压住,翻开后移动到左页背面）*/
 function AlbumCover({ album, no }: { album: Album; no: string }) {
   return (
     <div className="album-cover relative flex h-full w-full flex-col justify-between overflow-hidden">
@@ -96,7 +96,7 @@ function AlbumOperations({
 }) {
   return (
     <div className="relative flex h-full w-full flex-col justify-between overflow-hidden bg-linear-to-br from-[#151515] via-surface to-[#0c0c0c] p-5">
-      {/* 纸张网格纹理，与内页一致 */}
+      {/* 纸张网格纹理,与内页一致 */}
       <div
         aria-hidden="true"
         className="absolute inset-0 opacity-[0.05]"
@@ -145,7 +145,7 @@ interface AlbumShelfViewProps {
   onDelete: (id: number) => void;
 }
 
-/** 书架视图：循环 Cover-Flow 轮播，每个相集独立成一本可翻开的书 */
+/** 书架视图：循环 Cover-Flow 轮播,每个相集独立成一本可翻开的书 */
 export default function AlbumShelfView({ albums, onOpenPhotos, onEdit, onDelete }: AlbumShelfViewProps) {
   const [active, setActive] = useState(0);
   const [hovered, setHovered] = useState(false);
@@ -160,7 +160,7 @@ export default function AlbumShelfView({ albums, onOpenPhotos, onEdit, onDelete 
 
   const total = albums.length;
 
-  // 删除 / 刷新后把 active 归一化到合法索引（循环轮播，取模即可）
+  // 删除 / 刷新后把 active 归一化到合法索引（循环轮播,取模即可）
   useEffect(() => {
     if (total === 0) return;
     setActive((current) => ((current % total) + total) % total);
@@ -179,7 +179,7 @@ export default function AlbumShelfView({ albums, onOpenPhotos, onEdit, onDelete 
 
   const leaveCenter = () => {
     if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
-    // 快速移入移出时给关闭动画一个缓冲，避免动画被打断而残留中间帧
+    // 快速移入移出时给关闭动画一个缓冲,避免动画被打断而残留中间帧
     hoverTimerRef.current = setTimeout(() => setHovered(false), 260);
   };
 
@@ -193,7 +193,7 @@ export default function AlbumShelfView({ albums, onOpenPhotos, onEdit, onDelete 
   const goPrev = () => closeAnd(safeActive - 1);
   const goNext = () => closeAnd(safeActive + 1);
 
-  // 循环窗口：优先取中心、左右各取两本，不足 total 时去重只渲染实际存在的相集
+  // 循环窗口：优先取中心、左右各取两本,不足 total 时去重只渲染实际存在的相集
   const visibleSlides: Array<{ album: Album; index: number; offset: number }> = [];
   const seen = new Set<number>();
   for (const offset of [0, -1, 1, -2, 2]) {
@@ -232,7 +232,7 @@ export default function AlbumShelfView({ albums, onOpenPhotos, onEdit, onDelete 
             {visibleSlides.map(({ album, index, offset }) => {
               const isCenter = offset === 0;
 
-              // 多页书：目录 → 简介 → 相片一览 → 封面，翻开后可逐页翻动
+              // 多页书：目录 → 简介 → 相片一览 → 封面,翻开后可逐页翻动
               const no = padNo(index + 1);
               const pages: BookPage[] = [
                 {

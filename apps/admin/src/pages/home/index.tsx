@@ -204,7 +204,7 @@ export default function HomePage() {
               <br />
               Deck
             </h1>
-            <p className="mt-4 max-w-xl text-sm leading-relaxed text-text-secondary">数据看板已接入核心业务信号，实时追踪内容、用户与课程热度。</p>
+            <p className="mt-4 max-w-xl text-sm leading-relaxed text-text-secondary">数据看板已接入核心业务信号,实时追踪内容、用户与课程热度。</p>
           </div>
           <div className="flex h-20 w-20 items-center justify-center border border-accent/40 bg-accent/10 text-3xl font-black text-accent">∅</div>
         </div>
@@ -222,7 +222,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* 核心指标，滑入视口 */}
+      {/* 核心指标,滑入视口 */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map((metric, index) => (
           <div
@@ -301,7 +301,7 @@ export default function HomePage() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <h2 className="text-base font-black uppercase tracking-wider text-text-primary">快速入口</h2>
-            <p className="mt-1 text-xs text-text-secondary">横向滑动浏览，点击进入管理模块</p>
+            <p className="mt-1 text-xs text-text-secondary">横向滑动浏览,点击进入管理模块</p>
           </div>
           <div className="flex gap-2">
             <Button onClick={() => scrollTrack(-1)}>←</Button>
