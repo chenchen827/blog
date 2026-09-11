@@ -38,12 +38,11 @@ export interface UserMenuProps {
   className?: string;
 }
 
-function roleText(role?: number | string | null): string {
-  const value = Number(role);
-  if (value === 100) return "管理员";
-  if (value === 10) return "会员";
-  return "普通用户";
-}
+const ACTION_BUTTON_CLASS =
+  "group flex min-h-11 w-full items-center justify-between rounded-[5px] border px-4 text-sm font-black uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-primary";
+
+const OUTLINE_ACTION_BUTTON_CLASS =
+  "flex min-h-11 w-full items-center justify-center rounded-[5px] border-[3px] border-text-secondary bg-primary px-4 text-sm font-black uppercase tracking-wider text-text-primary transition-all duration-150 hover:border-ink hover:bg-text-primary hover:text-ink! focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary focus-visible:ring-offset-2 focus-visible:ring-offset-primary active:translate-y-px";
 
 /** 顶部导航栏用户头像下拉菜单（公共组件） */
 export function UserMenu({ user, onLogout, loginUrl, onLogin, onUpdateProfile, updatingProfile, className }: UserMenuProps) {
@@ -116,60 +115,62 @@ export function UserMenu({ user, onLogout, loginUrl, onLogin, onUpdateProfile, u
         </span>
       </button>
 
-      <div className={cn("absolute right-0 top-full z-50 pt-2 transition-all duration-200", open ? "pointer-events-auto" : "pointer-events-none")} aria-hidden={!open}>
+      <div className={cn("absolute right-0 top-full z-50 pt-3 transition-all duration-200", open ? "pointer-events-auto" : "pointer-events-none")} aria-hidden={!open}>
         <div
           className={cn(
-            "w-64 border border-hairline bg-primary/95 shadow-[0_24px_60px_rgba(0,0,0,0.7)] backdrop-blur-sm transition-all duration-200 [clip-path:polygon(0_0,100%_0,100%_calc(100%-16px),calc(100%-16px)_100%,0_100%)]",
+            "relative w-72 border border-hairline bg-primary/95 shadow-[0_24px_60px_rgba(0,0,0,0.78)] backdrop-blur-md transition-all duration-200 [clip-path:polygon(12px_0,100%_0,100%_calc(100%-18px),calc(100%-18px)_100%,0_100%,0_12px)]",
             open ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0",
           )}
         >
-          <div className="flex items-center gap-3 border-b border-hairline p-4">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-none border border-accent/40 bg-surface-soft text-lg font-black text-accent">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 opacity-[0.05]"
+            style={{
+              backgroundImage: "linear-gradient(rgba(255,255,255,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.8) 1px, transparent 1px)",
+              backgroundSize: "34px 34px",
+            }}
+          />
+
+          <div className="relative flex items-start gap-3 border-b border-hairline p-4">
+            <span className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-none border border-accent/50 bg-surface-soft text-lg font-black text-accent">
               {user?.avatar ? <img src={user.avatar} alt={user?.name ?? "用户头像"} className="h-full w-full object-cover" /> : initial}
+              <span className="absolute inset-x-0 bottom-0 h-1 bg-accent" />
             </span>
-            <div className="min-w-0">
-              <p className="truncate text-base font-black text-text-primary">{user?.name ?? "未登录"}</p>
-              <p className="mt-1 truncate text-xs text-text-secondary">{user?.email ?? "—"}</p>
-              {user && <span className="mt-1 inline-block bg-accent/10 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-accent">{roleText(user.role)}</span>}
+            <div className="min-w-0 flex-1 pt-0.5">
+              <div className="flex items-center gap-2">
+                <span className="text-[9px] font-black uppercase tracking-[0.32em] text-accent">Account</span>
+                {user && <span className="h-1.5 w-1.5 bg-accent" />}
+              </div>
+              <p className="mt-2 truncate text-lg font-black leading-none text-text-primary">{user?.name ?? "未登录"}</p>
+              <p className="mt-2 truncate text-xs text-text-secondary">{user?.email ?? "—"}</p>
             </div>
           </div>
 
-          <div className="border-b border-hairline px-4 py-3">
-            <div className="flex gap-3 text-sm">
-              <span className="w-16 shrink-0 text-text-secondary">公司</span>
-              <span className="min-w-0 flex-1 text-text-primary">{user?.company || "—"}</span>
+          {user && (
+            <div className="relative border-b border-hairline px-4 py-4">
+              <div className="flex items-start gap-4">
+                <span className="mt-0.5 shrink-0 text-[9px] font-black uppercase tracking-[0.28em] text-accent">BIO</span>
+                <span className="min-w-0 flex-1 whitespace-pre-wrap break-words text-sm leading-relaxed text-text-primary">{user.introduce || "暂无个人介绍。"}</span>
+              </div>
             </div>
-            <div className="mt-3 flex gap-3 text-sm">
-              <span className="w-16 shrink-0 text-text-secondary">介绍</span>
-              <span className="min-w-0 flex-1 whitespace-pre-wrap break-words text-text-primary">{user?.introduce || "—"}</span>
-            </div>
-          </div>
+          )}
 
-          <div className="space-y-2 p-2">
+          <div className="flex flex-col gap-2 p-3">
             {editDisabled ? null : (
-              <button
-                type="button"
-                onClick={openEdit}
-                className="flex w-full items-center justify-center rounded-none bg-surface-soft px-4 py-2.5 text-sm font-black uppercase tracking-wider text-text-primary transition-colors hover:bg-surface hover:text-accent"
-              >
-                编辑个人信息
+              <button type="button" onClick={openEdit} className={cn(ACTION_BUTTON_CLASS, "border-accent bg-accent text-ink! hover:bg-accent-yellow hover:text-ink!")}>
+                <span>编辑个人信息</span>
+                <span aria-hidden="true" className="text-base transition-transform group-hover:translate-x-1">
+                  →
+                </span>
               </button>
             )}
 
             {user ? (
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="flex w-full items-center justify-center rounded-none bg-surface-soft px-4 py-2.5 text-sm font-black uppercase tracking-wider text-text-primary transition-colors hover:bg-surface hover:text-accent"
-              >
+              <button type="button" onClick={handleLogout} className={OUTLINE_ACTION_BUTTON_CLASS}>
                 退出登录
               </button>
             ) : (
-              <button
-                type="button"
-                onClick={handleLogin}
-                className="flex w-full items-center justify-center rounded-none bg-accent px-4 py-2.5 text-sm font-black uppercase tracking-wider text-ink transition-[filter] hover:brightness-90"
-              >
+              <button type="button" onClick={handleLogin} className={OUTLINE_ACTION_BUTTON_CLASS}>
                 登录
               </button>
             )}

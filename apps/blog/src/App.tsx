@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router'
 
-import RootLayout from './layouts/RootLayout'
+import HomeLayout from './layouts/HomeLayout'
+import PageLayout from './layouts/PageLayout'
 import Home from './pages/Home'
 import Knowledge from './pages/Knowledge'
 import CourseDetail from './pages/CourseDetail'
@@ -17,8 +18,11 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<RootLayout />}>
+        <Route element={<HomeLayout />}>
           <Route index element={<Home />} />
+        </Route>
+
+        <Route element={<PageLayout />}>
           <Route path="knowledge" element={<Knowledge />} />
           <Route path="knowledge/:id" element={<CourseDetail />} />
           <Route path="albums" element={<Albums />} />
@@ -27,9 +31,10 @@ export default function App() {
           <Route path="posts" element={<ArticleList />} />
           <Route path="posts/:id" element={<PostDetail />} />
           <Route path="search" element={<Search />} />
-          <Route path="login" element={<Login />} />
-          <Route path="register" element={<Register />} />
         </Route>
+
+        <Route path="login" element={<Login />} />
+        <Route path="register" element={<Register />} />
       </Routes>
     </BrowserRouter>
   )

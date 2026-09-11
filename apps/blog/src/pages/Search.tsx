@@ -81,7 +81,7 @@ export default function Search() {
       {loading ? (
         <Loader />
       ) : empty ? (
-        <EmptyState code="SEARCH" title="输入关键词" description="在顶部搜索框输入关键词开始搜索。" />
+        <EmptyState code="SEARCH" title="输入关键词" description="当前未提供搜索关键词。" />
       ) : noResults ? (
         <EmptyState code="SEARCH" title="无结果" description={`没有找到与“${q}”相关的内容。`} />
       ) : (
