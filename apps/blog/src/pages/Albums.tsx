@@ -4,7 +4,7 @@ import { EmptyState } from '@repo/shared'
 
 import type { Album } from '../types'
 import { listAlbums } from '../apis/album'
-import AlbumCard from '../components/AlbumCard'
+import AlbumWall from '../components/AlbumWall'
 import SectionHeader from '../components/SectionHeader'
 import Loader from '../components/Loader'
 import { useAuth } from '../auth/AuthContext'
@@ -53,21 +53,23 @@ export default function Albums() {
     )
   }
 
-  return (
-    <div className="space-y-8">
-      <SectionHeader code="ALBUM" title="个人相册集" desc="浏览与整理你的相集。" />
-
-      {loading ? (
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <SectionHeader code="ALBUM" title="个人相册集" desc="浏览与整理你的相集。" />
         <Loader />
-      ) : albums.length === 0 ? (
+      </div>
+    )
+  }
+
+  if (albums.length === 0) {
+    return (
+      <div className="space-y-8">
+        <SectionHeader code="ALBUM" title="个人相册集" desc="浏览与整理你的相集。" />
         <EmptyState code="ALBUM" title="暂无相集" description="还没有创建任何相集。" />
-      ) : (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {albums.map((album) => (
-            <AlbumCard key={album.id} album={album} />
-          ))}
-        </div>
-      )}
-    </div>
-  )
+      </div>
+    )
+  }
+
+  return <AlbumWall albums={albums} />
 }
