@@ -2,7 +2,6 @@ import { Outlet, useLocation } from "react-router";
 
 import solarSystem from "../assets/solar-system.svg";
 import Starfield from "../components/Starfield";
-import PageNav from "../components/PageNav";
 import { cn } from "../lib/cn";
 
 /** 独立内容页基础画布：默认使用深色星空，知识库使用旧报纸纸张背景。 */
@@ -12,7 +11,6 @@ export default function PageLayout() {
 
   return (
     <div className={cn("relative min-h-screen bg-canvas text-text-primary", isKnowledgePage && "knowledge-paper-canvas")}>
-      {!isKnowledgePage && <PageNav />}
       {isKnowledgePage && <img src={solarSystem} alt="" aria-hidden="true" className="knowledge-line-art" />}
       {!isKnowledgePage && (
         <Starfield count={700} speedRange={[0.45, 1]} alphaRange={[0.25, 0.85]} sizeRange={[0.6, 1.6]} minScale={0.18} minAlpha={0.06} glowColor="#cfe0ff" dotColor="#fff6e8" />
