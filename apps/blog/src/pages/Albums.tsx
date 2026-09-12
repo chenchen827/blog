@@ -130,16 +130,20 @@ export default function Albums() {
       );
     }
     return (
-      <div className="fixed inset-0 z-20 overflow-hidden bg-transparent">
-        <InfiniteMenu
-          items={items}
-          scale={1}
-          itemScale={0.3}
-          backgroundColor="transparent"
-          onItemClick={(item: { id?: number }) => {
-            if (item?.id) navigate(`${collectionBasePath}/${item.id}`);
-          }}
-        />
+      <div className="flex min-h-[calc(100vh-4rem)] flex-col gap-6">
+        <div className="shrink-0 rounded-2xl border border-white/10 bg-white/6 p-5 backdrop-blur-xl">
+          <SectionHeader code="ALBUM" title="个人相册集" desc="浏览与整理你的相集。" />
+        </div>
+        <div className="min-h-130 flex-1 overflow-hidden bg-transparent">
+          <InfiniteMenu
+            items={items}
+            scale={2.1}
+            itemScale={0.3}
+            onItemClick={(item: { id?: number }) => {
+              if (item?.id) navigate(`${collectionBasePath}/${item.id}`);
+            }}
+          />
+        </div>
       </div>
     );
   }

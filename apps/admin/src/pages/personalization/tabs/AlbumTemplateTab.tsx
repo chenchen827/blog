@@ -117,9 +117,8 @@ export default function AlbumTemplateTab({ personalization, onSaved }: AlbumTemp
       return (
         <InfiniteMenu
           items={infiniteMenuItems}
-          scale={1}
+          scale={2}
           itemScale={0.3}
-          backgroundColor="transparent"
           onItemClick={(item: { id?: number }) => {
             if (item?.id) openAlbumPage(item.id);
           }}

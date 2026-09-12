@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
+import { Image } from "antd";
 import { DomeGallery, DriftWall, EmptyState, Masonry, PhotoWall } from "@repo/shared";
 
 import type { Album, Photo } from "../types";
@@ -22,6 +23,7 @@ export default function AlbumDetail() {
   const [album, setAlbum] = useState<Album | null>(null);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [detailPhoto, setDetailPhoto] = useState<Photo | null>(null);
 
   useEffect(() => {
     if (!id || (!user && !accessCode)) return;
@@ -92,23 +94,48 @@ export default function AlbumDetail() {
     id: String(photo.id),
     image: photo.imageUrl,
     title: photo.description || `Frame ${photo.id}`,
+    description: photo.description,
   }));
   const domeImages = imagePhotos.map((photo) => ({
     src: photo.imageUrl,
     alt: photo.description || `Frame ${photo.id}`,
   }));
 
+  const toDetailPhoto = (item: { id?: string | number; img?: string; image?: string; url?: string; title?: string; description?: string | null }): Photo => {
+    const id = Number(item.id ?? 0);
+    const existing = imagePhotos.find((photo) => photo.id === id);
+    if (existing) return existing;
+    return {
+      id,
+      imageUrl: item.img ?? item.image ?? item.url,
+      description: item.description ?? item.title ?? null,
+    };
+  };
+
   function renderPhotoTemplate() {
     if (albumTemplate !== "Default" && imagePhotos.length === 0) {
-      return <EmptyState code="PHOTO" title="暂无相片" description="该相集暂无可用相片。" />;
+      return <EmptyState code="PHOTO" title="暂无相片" description="该相集暂无可用相片。" className="h-full min-h-0!" />;
     }
 
     if (albumTemplate === "Masonry") {
-      return <Masonry items={masonryItems} />;
+      return (
+        <Masonry
+          items={masonryItems}
+          animateFrom="bottom"
+          onItemClick={(item: { id?: string | number; img?: string; url?: string; description?: string | null }) => setDetailPhoto(toDetailPhoto(item))}
+        />
+      );
     }
 
     if (albumTemplate === "DriftWall") {
-      return <DriftWall items={driftItems} columns={5} overlayColor="transparent" />;
+      return (
+        <DriftWall
+          items={driftItems}
+          columns={5}
+          overlayColor="transparent"
+          onItemClick={(item: { id?: string | number; image?: string; title?: string; description?: string | null }) => setDetailPhoto(toDetailPhoto(item))}
+        />
+      );
     }
 
     if (albumTemplate === "DomeGallery") {
@@ -119,15 +146,39 @@ export default function AlbumDetail() {
   }
 
   if (albumTemplate !== "Default") {
+    const masonryLayout = albumTemplate === "Masonry";
+    const driftWallLayout = albumTemplate === "DriftWall";
+    const glassLayout = masonryLayout || driftWallLayout;
+    const panelClass = masonryLayout
+      ? "relative h-full w-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] p-4 backdrop-blur-xl md:p-6"
+      : driftWallLayout
+        ? "relative h-full w-full overflow-hidden bg-white/[0.06] backdrop-blur-xl"
+        : "h-full w-full";
     return (
-      <div className="fixed inset-0 z-20 overflow-hidden bg-transparent">
-        <Link
-          to={albumBasePath}
-          className="absolute left-4 top-4 z-30 inline-flex min-h-11 items-center gap-2 border border-white/20 bg-black/20 px-4 text-[10px] font-black uppercase tracking-[0.24em] text-text-primary backdrop-blur-sm transition-colors hover:border-accent hover:text-accent md:left-7 md:top-6"
-        >
-          ← 返回相册集
-        </Link>
-        {renderPhotoTemplate()}
+      <div className={`fixed inset-0 z-20 overflow-hidden ${glassLayout ? (masonryLayout ? "p-4 md:p-6" : "") : "bg-transparent"}`}>
+        <div className={panelClass}>
+          <Link
+            to={albumBasePath}
+            className="absolute left-4 top-14 z-30 inline-flex min-h-11 items-center gap-2 border border-white/20 bg-black/20 px-4 text-[10px] font-black uppercase tracking-[0.24em] text-text-primary backdrop-blur-sm transition-colors hover:border-accent hover:text-accent md:left-7 md:top-16"
+          >
+            ← 返回相册集
+          </Link>
+          {renderPhotoTemplate()}
+        </div>
+
+        {detailPhoto ? (
+          <Image
+            src={detailPhoto.imageUrl}
+            alt={detailPhoto.description || "相片"}
+            style={{ display: "none" }}
+            preview={{
+              open: true,
+              onOpenChange: (open) => {
+                if (!open) setDetailPhoto(null);
+              },
+            }}
+          />
+        ) : null}
       </div>
     );
   }

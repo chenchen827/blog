@@ -227,7 +227,7 @@
 .news-home-link {
   position: fixed;
   top: 1rem;
-  left: 1rem;
+  right: 1rem;
   z-index: 45;
   display: inline-flex;
   min-height: 2.75rem;
@@ -246,7 +246,7 @@
 .news-home-link:focus-visible {
   color: var(--news-red);
   outline: none;
-  transform: translateX(-2px);
+  transform: translateX(2px);
 }
 
 .news-home-link-mark {
@@ -258,7 +258,7 @@
 
 .news-home-link:hover .news-home-link-mark,
 .news-home-link:focus-visible .news-home-link-mark {
-  transform: translateX(-3px);
+  transform: translateX(3px);
 }
 
 .news-home-link-copy {

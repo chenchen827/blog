@@ -593,14 +593,14 @@ class InfiniteGridMenu {
   nearestVertexIndex = null;
   smoothRotationVelocity = 0;
   scaleFactor = 1.0;
-  itemScale = 0.2;
+  itemScale = 0.3;
   movementActive = false;
 
-  constructor(canvas, items, onActiveItemChange, onMovementChange, onInit = null, scale = 1.0, itemScale = 0.2) {
+  constructor(canvas, items, onActiveItemChange, onMovementChange, onInit = null, scale = 2.0, itemScale = 0.3) {
     this.canvas = canvas;
     this.items = items || [];
-    this.onActiveItemChange = onActiveItemChange || (() => {});
-    this.onMovementChange = onMovementChange || (() => {});
+    this.onActiveItemChange = onActiveItemChange || (() => { });
+    this.onMovementChange = onMovementChange || (() => { });
     this.scaleFactor = scale;
     this.itemScale = itemScale;
     this.camera.position[2] = 3 * scale;
@@ -912,7 +912,7 @@ const defaultItems = [
   }
 ];
 
-export default function InfiniteMenu({ items = [], scale = 1.0, itemScale = 0.2, backgroundColor = '#000000', onItemClick }) {
+export default function InfiniteMenu({ items = [], scale = 2.0, itemScale = 0.3, backgroundColor = 'rgba(255, 255, 255, 0.06)', onItemClick }) {
   const canvasRef = useRef(null);
   const [activeItem, setActiveItem] = useState(null);
   const [isMoving, setIsMoving] = useState(false);
@@ -967,6 +967,7 @@ export default function InfiniteMenu({ items = [], scale = 1.0, itemScale = 0.2,
 
   return (
     <div
+      className="infinite-menu"
       style={{
         position: 'relative',
         width: '100%',
