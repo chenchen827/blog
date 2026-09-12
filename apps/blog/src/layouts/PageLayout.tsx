@@ -1,7 +1,7 @@
 import { Outlet, useLocation } from "react-router";
 
 import solarSystem from "../assets/solar-system.svg";
-import Starfield from "../components/Starfield";
+import { Starfield } from "@repo/shared";
 import { cn } from "../lib/cn";
 
 /** 独立内容页基础画布：默认使用深色星空，知识库使用旧报纸纸张背景。 */

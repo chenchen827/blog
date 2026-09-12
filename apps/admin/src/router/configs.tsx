@@ -26,6 +26,11 @@ import PersonalizationPage from "../pages/personalization";
 export const configs: AppRouteObject[] = [
   { index: true, element: <HomePage />, meta: { label: "Home" } },
   {
+    path: "personalization",
+    element: <PersonalizationPage />,
+    meta: { label: "个性化配置" },
+  },
+  {
     path: "articles",
     element: <ModuleLayout />,
     meta: { label: "文章管理" },
@@ -110,11 +115,6 @@ export const configs: AppRouteObject[] = [
       { index: true, element: <Navigate to="list" replace /> },
       { path: "list", element: <AttachmentListPage />, meta: { label: "附件列表" } },
     ],
-  },
-  {
-    path: "personalization",
-    element: <PersonalizationPage />,
-    meta: { label: "个性化配置" },
   },
   {
     path: "settings",

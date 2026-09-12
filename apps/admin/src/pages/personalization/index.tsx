@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Alert, App, Button, Spin, Tabs } from "antd";
+import { Alert, App, Button, Spin } from "antd";
 import { EmptyState } from "@repo/shared";
 
 import { createPersonalization, getPersonalization } from "../../apis/personalization";
@@ -7,20 +7,46 @@ import type { Personalization } from "../../apis/personalization";
 import AlbumTemplateTab from "./tabs/AlbumTemplateTab";
 import HomeTab from "./tabs/HomeTab";
 import PhotoWallTemplateTab from "./tabs/PhotoWallTemplateTab";
-import "./personalization.css";
 
 const TAB_ITEMS = [
-  { key: "home", label: "首页", children: <HomeTab /> },
-  { key: "album-template", label: "相集模板", children: <AlbumTemplateTab /> },
-  { key: "photo-wall-template", label: "相片墙模板", children: <PhotoWallTemplateTab /> },
-];
+  { key: "home", label: "首页" },
+  { key: "album-template", label: "相集模板" },
+  { key: "photo-wall-template", label: "相片墙模板" },
+] as const;
 
-function PageHeader() {
+type TabKey = (typeof TAB_ITEMS)[number]["key"];
+
+interface PageHeaderProps {
+  activeTab: TabKey;
+  onTabChange: (tab: TabKey) => void;
+}
+
+function PageHeader({ activeTab, onTabChange }: PageHeaderProps) {
   return (
-    <div>
-      <p className="text-[10px] font-black uppercase tracking-[0.4em] text-accent">Personalization</p>
-      <h1 className="mt-2 text-[24px] font-extrabold uppercase leading-tight tracking-[-0.01em] text-text-primary">个性化配置</h1>
-      <p className="mt-2 text-sm text-text-secondary">配置个人首页、相集模板与相片墙模板。</p>
+    <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+      <div className="shrink-0">
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-accent">Personalization</p>
+        <h1 className="mt-2 text-[24px] font-extrabold uppercase leading-tight tracking-[-0.01em] text-text-primary">个性化配置</h1>
+        <p className="mt-2 text-sm text-text-secondary">配置个人首页、相集模板与相片墙模板。</p>
+      </div>
+
+      <nav aria-label="个性化配置栏目" className="flex flex-wrap items-center gap-6 lg:justify-end">
+        {TAB_ITEMS.map((item) => {
+          const active = activeTab === item.key;
+          return (
+            <button
+              key={item.key}
+              type="button"
+              onClick={() => onTabChange(item.key)}
+              className={`min-h-11 border-b-2 px-1 text-sm font-black tracking-[0.12em] transition-colors ${
+                active ? "border-accent text-accent" : "border-transparent text-text-secondary hover:text-text-primary"
+              }`}
+            >
+              {item.label}
+            </button>
+          );
+        })}
+      </nav>
     </div>
   );
 }
@@ -32,6 +58,7 @@ export default function PersonalizationPage() {
   const [creating, setCreating] = useState(false);
   const [loadError, setLoadError] = useState("");
   const [createError, setCreateError] = useState("");
+  const [activeTab, setActiveTab] = useState<TabKey>("home");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -67,9 +94,13 @@ export default function PersonalizationPage() {
     }
   };
 
+  const handleSaved = useCallback((next: Personalization) => {
+    setPersonalization(next);
+  }, []);
+
   return (
     <section className="space-y-6">
-      <PageHeader />
+      <PageHeader activeTab={activeTab} onTabChange={setActiveTab} />
 
       {loading ? (
         <div className="flex min-h-80 items-center justify-center">
@@ -87,7 +118,11 @@ export default function PersonalizationPage() {
         <>
           {createError && <Alert type="error" showIcon message={createError} closable onClose={() => setCreateError("")} />}
           {personalization ? (
-            <Tabs defaultActiveKey="home" items={TAB_ITEMS} className="personalization-tabs" />
+            <>
+              {activeTab === "home" && <HomeTab personalization={personalization} onSaved={handleSaved} />}
+              {activeTab === "album-template" && <AlbumTemplateTab personalization={personalization} onSaved={handleSaved} />}
+              {activeTab === "photo-wall-template" && <PhotoWallTemplateTab personalization={personalization} onSaved={handleSaved} />}
+            </>
           ) : (
             <EmptyState
               code="PERSONAL"

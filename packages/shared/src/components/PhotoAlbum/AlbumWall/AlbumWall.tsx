@@ -2,14 +2,27 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent } from "react";
 import { Link } from "react-router";
 
-import type { Album } from "../types";
-import { cn } from "../lib/cn";
+import { cn } from "../../../lib/utils";
+import "./AlbumWall.css";
+
+/** 相册墙所需的相集最小数据结构 */
+export interface Album {
+  id: number;
+  name: string;
+  description?: string | null;
+  coverUrl?: string | null;
+  photosCount?: number;
+}
 
 const DISC_OFFSETS = [0, 12, -8, 18, -4, 8];
 const RIGHT_COLUMN_PHASE = 0.46;
 
 interface AlbumWallProps {
   albums: Album[];
+  /** 在卡片区域内内嵌展示，而不是铺满整个视口 */
+  embedded?: boolean;
+  /** 相集详情链接前缀，默认 /albums */
+  basePath?: string;
 }
 
 type TrackSide = "left" | "right";
@@ -102,6 +115,7 @@ const AlbumDisc = memo(function AlbumDisc({
   active,
   track,
   onActivate,
+  basePath,
 }: {
   album: Album;
   albumIndex: number;
@@ -109,6 +123,7 @@ const AlbumDisc = memo(function AlbumDisc({
   active: boolean;
   track: TrackSide;
   onActivate: (albumId: number, copyIndex: number, track: TrackSide) => void;
+  basePath: string;
 }) {
   const offset = DISC_OFFSETS[albumIndex % DISC_OFFSETS.length];
   const dimension = "var(--album-size)";
@@ -206,7 +221,7 @@ const AlbumDisc = memo(function AlbumDisc({
       >
         <Link
           ref={discRef}
-          to={`/albums/${album.id}`}
+          to={`${basePath}/${album.id}`}
           tabIndex={copyIndex === 0 ? 0 : -1}
           aria-current={active ? "true" : undefined}
           aria-label={`${album.name},${album.photosCount ?? 0} 张相片`}
@@ -244,7 +259,7 @@ const AlbumDisc = memo(function AlbumDisc({
 });
 
 /** 双列无限相册墙：滚轮 / 触摸拖动移动,hover 同步当前相册信息。 */
-export default function AlbumWall({ albums }: AlbumWallProps) {
+export default function AlbumWall({ albums, embedded = false, basePath = "/albums" }: AlbumWallProps) {
   const [activeSelection, setActiveSelection] = useState<ActiveSelection>({ albumId: albums[0]?.id ?? 0, copyIndex: 0, track: "left" });
   const [repeatCount, setRepeatCount] = useState(3);
 
@@ -434,6 +449,7 @@ export default function AlbumWall({ albums }: AlbumWallProps) {
           track={track}
           active={slot.album.id === activeSelection.albumId && copyIndex === activeSelection.copyIndex && track === activeSelection.track}
           onActivate={activateDisc}
+          basePath={basePath}
         />
       ))}
     </div>
@@ -442,7 +458,11 @@ export default function AlbumWall({ albums }: AlbumWallProps) {
     <section
       ref={containerRef}
       aria-label="相册墙"
-      className="album-wall fixed inset-0 h-[100dvh] w-screen cursor-grab touch-none select-none overflow-hidden active:cursor-grabbing"
+      className={
+        embedded
+          ? "album-wall relative h-[560px] w-full cursor-grab touch-none select-none overflow-hidden active:cursor-grabbing"
+          : "album-wall fixed inset-0 h-[100dvh] w-screen cursor-grab touch-none select-none overflow-hidden active:cursor-grabbing"
+      }
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={finishPointerDrag}

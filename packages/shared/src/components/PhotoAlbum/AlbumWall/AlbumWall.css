@@ -1,0 +1,154 @@
+.album-wall {
+  --album-size: clamp(5.5rem, 23vw, 12rem);
+  --album-gap: clamp(2rem, 6vw, 4rem);
+  background-color: color-mix(in srgb, var(--color-canvas) 50%, transparent);
+  background-image:
+    linear-gradient(115deg, transparent 0 16%, rgba(245, 245, 245, 0.13) 16.1% 16.25%, transparent 16.35% 62%, rgba(245, 245, 245, 0.13) 62.1% 62.25%, transparent 62.35%),
+    linear-gradient(25deg, transparent 0 22%, rgba(245, 245, 245, 0.1) 22.1% 22.22%, transparent 22.32% 78%, rgba(245, 245, 245, 0.1) 78.1% 78.22%, transparent 78.32%);
+  background-size:
+    720px 720px,
+    680px 680px;
+}
+
+.album-disc-scene {
+  --album-metal: #4a4a4a;
+  --album-metal-glow: rgba(220, 220, 220, 0.16);
+  perspective: 760px;
+}
+
+.album-disc {
+  --disc-rotate-x: 0deg;
+  --disc-rotate-y: 0deg;
+  border-color: #555555;
+  background: #565656;
+  transform: translate3d(0, 0, 0) rotateX(var(--disc-rotate-x)) rotateY(var(--disc-rotate-y));
+  transform-origin: center;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  transition:
+    transform 420ms cubic-bezier(0.2, 0.75, 0.25, 1),
+    box-shadow 420ms ease,
+    border-color 220ms ease,
+    filter 220ms ease;
+  will-change: auto;
+}
+
+.album-disc:hover,
+.album-disc-active {
+  transition-duration: 90ms;
+  transform: translate3d(0, 0, 0) rotateX(var(--disc-rotate-x)) rotateY(var(--disc-rotate-y));
+}
+
+.album-disc-active:not(:hover) {
+  transition-duration: 420ms;
+}
+
+.album-cover-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.album-disc-well {
+  contain: paint;
+  transform: translateZ(0);
+  border-color: #707070;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5),
+    inset 0 0 18px rgba(30, 30, 30, 0.18);
+  transition: box-shadow 500ms ease;
+}
+
+.album-disc:hover .album-disc-well,
+.album-disc-active .album-disc-well {
+  box-shadow:
+    inset 0 6px 12px rgba(0, 0, 0, 0.48),
+    inset 0 -2px 4px rgba(255, 255, 255, 0.14);
+}
+
+.album-focus-spin {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: album-ring-spin 8s linear infinite;
+}
+
+.album-focus-line {
+  fill: none;
+  stroke: #d7d7d7;
+  vector-effect: non-scaling-stroke;
+}
+
+.album-focus-line-1 {
+  stroke-width: 6;
+}
+
+.album-focus-line-2 {
+  stroke-width: 4.5;
+}
+
+.album-focus-line-3 {
+  stroke-width: 3;
+}
+
+.album-focus-segment {
+  fill: none;
+  stroke: #d7d7d7;
+  stroke-linecap: butt;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: album-ring-draw 1100ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes album-ring-draw {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes album-ring-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes album-copy-enter {
+  from {
+    opacity: 0.25;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (min-width: 768px) {
+  .album-info-panel {
+    width: max(7rem, calc(50% - 212px - var(--album-size) / 2 - 1.25rem));
+    max-width: 26rem;
+  }
+
+  .album-wall {
+    --album-size: clamp(8rem, 18vw, 14rem);
+    --album-gap: clamp(2.5rem, 5vw, 4.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .album-copy-enter,
+  .album-focus-spin,
+  .album-focus-segment {
+    animation: none;
+  }
+
+  .album-focus-segment {
+    stroke-dashoffset: 0;
+  }
+}

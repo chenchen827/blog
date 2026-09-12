@@ -27,6 +27,8 @@ export default function App() {
           <Route path="knowledge/:id" element={<CourseDetail />} />
           <Route path="albums" element={<Albums />} />
           <Route path="albums/:id" element={<AlbumDetail />} />
+          <Route path="personalizations/:accessCode" element={<Albums />} />
+          <Route path="personalizations/:accessCode/albums/:id" element={<AlbumDetail />} />
           <Route path="portfolio" element={<Portfolio />} />
           <Route path="posts" element={<ArticleList />} />
           <Route path="posts/:id" element={<PostDetail />} />

@@ -6,7 +6,7 @@ import type { SiteSetting } from "../types";
 import { getSetting } from "../apis/settings";
 import { useAuth } from "../auth/AuthContext";
 import HomeLink from "../components/HomeLink";
-import Starfield from "../components/Starfield";
+import { Starfield } from "@repo/shared";
 import { cn } from "../lib/cn";
 import { toMenuUser } from "../lib/userMenu";
 import { getCachedSiteSetting, setCachedSiteSetting, subscribeSiteSetting } from "../lib/siteSettingCache";

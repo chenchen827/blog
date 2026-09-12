@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 
-import starfieldUrl from "../assets/starfield.png";
+import starfieldUrl from "./starfield.png";
 
 /** 星屑可配置项 */
 export interface StarfieldProps {
@@ -20,6 +20,10 @@ export interface StarfieldProps {
   glowColor?: string;
   /** 内芯星屑颜色（默认 '#ffffff'） */
   dotColor?: string;
+  /** 由外层容器控制尺寸，而非铺满视口 */
+  contained?: boolean;
+  /** 追加到 canvas 上的类名 */
+  className?: string;
 }
 
 interface StarSpec {
@@ -148,6 +152,7 @@ export default function Starfield(props: StarfieldProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const config = useMemo<ResolvedConfig>(() => resolveConfig(props), [props]);
   const configKey = JSON.stringify(config);
+  const { contained = false, className = "" } = props;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -163,8 +168,14 @@ export default function Starfield(props: StarfieldProps) {
     let raf = 0;
 
     const resize = () => {
-      width = window.innerWidth;
-      height = window.innerHeight;
+      if (contained) {
+        const parent = canvas.parentElement;
+        width = parent?.clientWidth || canvas.clientWidth || window.innerWidth;
+        height = parent?.clientHeight || canvas.clientHeight || window.innerHeight;
+      } else {
+        width = window.innerWidth;
+        height = window.innerHeight;
+      }
       canvas.width = Math.floor(width * dpr);
       canvas.height = Math.floor(height * dpr);
       canvas.style.width = `${width}px`;
@@ -228,7 +239,17 @@ export default function Starfield(props: StarfieldProps) {
       window.removeEventListener("resize", onResize);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [configKey]);
+  }, [configKey, contained]);
 
-  return <canvas ref={canvasRef} aria-hidden="true" className="pointer-events-none fixed inset-0 z-0" />;
+  return (
+    <canvas
+      ref={canvasRef}
+      aria-hidden="true"
+      className={
+        contained
+          ? `pointer-events-none absolute inset-0 h-full w-full ${className}`.trim()
+          : `pointer-events-none fixed inset-0 z-0 ${className}`.trim()
+      }
+    />
+  );
 }

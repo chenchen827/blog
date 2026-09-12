@@ -2,7 +2,7 @@ import type { ApiResponse } from "./types";
 import { request } from "./request";
 
 export type AlbumTemplate = "Default" | "Masonry" | "DriftWall" | "DomeGallery";
-export type CollectionTemplate = "Record" | "DepthCarousel" | "CircularGallery";
+export type CollectionTemplate = "Record" | "DepthCarousel" | "CircularGallery" | "InfiniteMenu";
 export type HomeBackgroundTemplate = "GhostFibers" | "Starry" | "GradientWaves";
 
 /** 首页、相集与相片墙等页面的个性化配置 */
@@ -63,6 +63,15 @@ export function getPersonalization(): Promise<ApiResponse<PersonalizationData>> 
 export function createPersonalization(payload: PersonalizationUpsertRequest = {}): Promise<ApiResponse<PersonalizationData>> {
   return request<PersonalizationData>("/personalization", {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
+/** 更新当前登录用户的个性化配置 */
+export function updatePersonalization(payload: PersonalizationUpsertRequest = {}): Promise<ApiResponse<PersonalizationData>> {
+  return request<PersonalizationData>("/personalization", {
+    method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
