@@ -9,6 +9,7 @@ import HomeLink from "../components/HomeLink";
 import Starfield from "../components/Starfield";
 import { cn } from "../lib/cn";
 import { toMenuUser } from "../lib/userMenu";
+import { getCachedSiteSetting, setCachedSiteSetting, subscribeSiteSetting } from "../lib/siteSettingCache";
 
 const NAV = [
   { to: "/knowledge", label: "知识库" },
@@ -19,20 +20,29 @@ const NAV = [
 
 export default function HomeLayout() {
   const { user, logout, updateProfile } = useAuth();
-  const [setting, setSetting] = useState<SiteSetting | null>(null);
+  const [setting, setSetting] = useState<SiteSetting | null>(() => getCachedSiteSetting());
   const navigate = useNavigate();
 
   useEffect(() => {
     let active = true;
+    const syncFromCache = () => {
+      if (active) setSetting(getCachedSiteSetting());
+    };
+    const unsubscribe = subscribeSiteSetting(syncFromCache);
+
     getSetting()
       .then((res) => {
-        if (active) setSetting(res.data.setting);
+        if (!active || !res.data.setting) return;
+        setCachedSiteSetting(res.data.setting);
+        setSetting(res.data.setting);
       })
       .catch(() => {
-        if (active) setSetting(null);
+        if (active) setSetting(getCachedSiteSetting());
       });
+
     return () => {
       active = false;
+      unsubscribe();
     };
   }, []);
 

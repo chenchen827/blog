@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { UserMenu } from "@repo/shared";
 
@@ -6,12 +6,20 @@ import { useAuth } from "../auth/AuthContext";
 import HomeLink from "./HomeLink";
 import { cn } from "../lib/cn";
 import { toMenuUser } from "../lib/userMenu";
+import { getCachedSiteSetting, subscribeSiteSetting } from "../lib/siteSettingCache";
 
 /** 内容页顶部导航：鼠标进入页头区域时滑出，离开后自动收起。 */
 export default function PageNav() {
   const [open, setOpen] = useState(false);
+  const [siteName, setSiteName] = useState(() => getCachedSiteSetting()?.name || "首页");
   const { user, logout, updateProfile } = useAuth();
   const navigate = useNavigate();
+  useEffect(() => {
+    const syncSiteName = () => setSiteName(getCachedSiteSetting()?.name || "首页");
+    syncSiteName();
+    return subscribeSiteSetting(syncSiteName);
+  }, []);
+
   const menuUser = toMenuUser(user);
 
   return (
@@ -41,7 +49,7 @@ export default function PageNav() {
         />
 
         <div className="relative z-10 flex w-full items-center gap-x-6 px-4 py-4">
-          <HomeLink label="首页" />
+          <HomeLink label={siteName} />
 
           <div className="ml-auto shrink-0">
             <UserMenu user={menuUser} onLogout={logout} onLogin={() => navigate("/login")} onUpdateProfile={updateProfile} />

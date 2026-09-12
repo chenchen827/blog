@@ -4,7 +4,7 @@ import { Link } from "react-router";
 import type { Article, Course } from "../types";
 import { getHome } from "../apis/home";
 import { listArticles } from "../apis/article";
-import { getSetting } from "../apis/settings";
+import { getCachedSiteSetting, subscribeSiteSetting } from "../lib/siteSettingCache";
 import CourseCard from "../components/CourseCard";
 import ArticleCard from "../components/ArticleCard";
 import SectionHeader from "../components/SectionHeader";
@@ -16,19 +16,24 @@ export default function Home() {
   const [recommended, setRecommended] = useState<Course[]>([]);
   const [introductory, setIntroductory] = useState<Course[]>([]);
   const [articles, setArticles] = useState<Article[]>([]);
-  const [siteName, setSiteName] = useState("My Blog");
+  const [siteName, setSiteName] = useState(() => getCachedSiteSetting()?.name || "My Blog");
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const syncSiteName = () => setSiteName(getCachedSiteSetting()?.name || "My Blog");
+    syncSiteName();
+    return subscribeSiteSetting(syncSiteName);
+  }, []);
 
   useEffect(() => {
     let active = true;
     setLoading(true);
-    Promise.all([getHome(), listArticles({ pageSize: 6 }), getSetting()])
-      .then(([home, articleRes, settingRes]) => {
+    Promise.all([getHome(), listArticles({ pageSize: 6 })])
+      .then(([home, articleRes]) => {
         if (!active) return;
         setRecommended(home.data.recommendedCourses ?? []);
         setIntroductory(home.data.introductoryCourses ?? []);
         setArticles(articleRes.data.articles ?? []);
-        setSiteName(settingRes.data.setting?.name || "My Blog");
       })
       .catch(() => {
         if (active) {
