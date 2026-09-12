@@ -21,6 +21,7 @@ import UserMemberPage from "../pages/users/member";
 import MembershipListPage from "../pages/memberships/list";
 import AlbumListPage from "../pages/albums/list";
 import PhotoListPage from "../pages/photos/list";
+import PersonalizationPage from "../pages/personalization";
 
 export const configs: AppRouteObject[] = [
   { index: true, element: <HomePage />, meta: { label: "Home" } },
@@ -109,6 +110,11 @@ export const configs: AppRouteObject[] = [
       { index: true, element: <Navigate to="list" replace /> },
       { path: "list", element: <AttachmentListPage />, meta: { label: "附件列表" } },
     ],
+  },
+  {
+    path: "personalization",
+    element: <PersonalizationPage />,
+    meta: { label: "个性化配置" },
   },
   {
     path: "settings",

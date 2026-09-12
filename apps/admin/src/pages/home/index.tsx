@@ -19,6 +19,7 @@ const MODULES = [
   { to: "/memberships/list", label: "会员商品", code: "SHOP" },
   { to: "/courses/list", label: "课程管理", code: "COURSE" },
   { to: "/albums/list", label: "相集管理", code: "ALBUM" },
+  { to: "/personalization", label: "个性化配置", code: "PERS" },
   { to: "/settings", label: "系统设置", code: "SYST" },
 ];
 
