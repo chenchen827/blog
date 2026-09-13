@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router";
+import { useParams } from "react-router";
 
 import type { Article } from "../types";
 import { getArticle } from "../apis/article";

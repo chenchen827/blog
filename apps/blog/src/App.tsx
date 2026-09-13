@@ -13,6 +13,7 @@ import PostDetail from "./pages/PostDetail";
 import Search from "./pages/Search";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import NotFound from "./pages/NotFound";
 
 export default function App() {
   return (
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="posts" element={<ArticleList />} />
           <Route path="posts/:id" element={<PostDetail />} />
           <Route path="search" element={<Search />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
 
         <Route path="login" element={<Login />} />

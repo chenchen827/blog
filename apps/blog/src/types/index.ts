@@ -1,3 +1,5 @@
+import type { Personalization } from "../apis/personalization";
+
 /** 接口返回的状态码：真实接口为 boolean,示例文档可能为数字（200） */
 export type ApiStatus = boolean | number;
 
@@ -181,6 +183,9 @@ export interface SiteSetting {
 
 /** 首页推荐数据 */
 export interface HomeData {
+  personalization?: Personalization | null;
+  albums?: Album[];
+  articles?: Article[];
   recommendedCourses?: Course[];
   likesCourses?: Course[];
   introductoryCourses?: Course[];

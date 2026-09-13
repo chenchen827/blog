@@ -899,6 +899,7 @@
   min-height: 2.75rem;
   align-items: center;
   justify-content: center;
+  gap: 0.45rem;
   border: 1px solid var(--news-ink);
   padding: 0 0.9rem;
   background: transparent;
@@ -933,6 +934,11 @@
 .news-action:disabled {
   cursor: wait;
   opacity: 0.55;
+}
+
+.news-action .anticon {
+  font-size: 0.72rem;
+  line-height: 1;
 }
 
 .news-reader-meta {

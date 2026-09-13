@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { CloudOutlined } from "@ant-design/icons";
 
 import type { FeishuDocumentListData, FeishuListItem, FeishuPagination } from "../apis/feishu";
 import { getDocumentMarkdown, getDocuments, getFolders } from "../apis/feishu";
@@ -448,7 +449,8 @@ export default function Knowledge() {
                     </button>
                     {selectedDocument.url && (
                       <a href={selectedDocument.url} target="_blank" rel="noreferrer" className="news-action is-primary">
-                        Feishu Source
+                        <CloudOutlined aria-hidden="true" />
+                        <span>Feishu Source</span>
                       </a>
                     )}
                   </div>

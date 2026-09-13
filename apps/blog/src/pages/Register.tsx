@@ -65,56 +65,58 @@ export default function Register() {
   };
 
   return (
-    <AuthBackdrop code="02" label="Register">
-      <div className="w-full max-w-xl space-y-6">
-        <AuthPanel>
+    <AuthBackdrop code="02" label="Register" className="h-dvh min-h-0!" contentClassName="h-full min-h-0! items-stretch py-5 sm:py-6">
+      <div className="flex h-full min-h-0 w-full max-w-xl flex-col gap-6">
+        <AuthPanel className="flex min-h-0 flex-1 flex-col overflow-hidden">
           <AuthPanelHeader eyebrow="User Enrollment" title="User Register" description="创建博客账号,用于收藏内容并访问专属空间。" index="02" />
 
-          <Form<RegisterValues> form={form} layout="vertical" requiredMark={false} onFinish={onFinish} initialValues={{ sex: 2 }} className="pt-6">
-            <Form.Item label="邮箱" name="email" rules={[{ required: true, type: "email", message: "请输入正确的邮箱" }]}>
-              <Input size="large" placeholder="example@qq.com" autoComplete="email" />
-            </Form.Item>
+          <Form<RegisterValues> form={form} layout="vertical" requiredMark={false} onFinish={onFinish} initialValues={{ sex: 2 }} className="flex min-h-0 flex-1 flex-col pt-6">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-2 scrollbar-gutter-stable">
+              <Form.Item label="邮箱" name="email" rules={[{ required: true, type: "email", message: "请输入正确的邮箱" }]}>
+                <Input size="large" placeholder="example@qq.com" autoComplete="email" />
+              </Form.Item>
 
-            <Form.Item label="邮箱验证码" required>
-              <div className="flex gap-2">
-                <Form.Item name="captchaText" noStyle rules={[{ required: true, message: "请输入邮箱验证码" }]}>
-                  <Input size="large" placeholder="邮箱验证码" autoComplete="one-time-code" />
-                </Form.Item>
-                <button
-                  type="button"
-                  onClick={handleSendCode}
-                  disabled={sending}
-                  className="shrink-0 bg-accent px-4 text-sm font-black uppercase tracking-wider text-ink! transition-[filter] hover:brightness-90 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {sending ? "发送中…" : "获取验证码"}
-                </button>
-              </div>
-            </Form.Item>
+              <Form.Item label="邮箱验证码" required>
+                <div className="flex gap-2">
+                  <Form.Item name="captchaText" noStyle rules={[{ required: true, message: "请输入邮箱验证码" }]}>
+                    <Input size="large" placeholder="邮箱验证码" autoComplete="one-time-code" />
+                  </Form.Item>
+                  <button
+                    type="button"
+                    onClick={handleSendCode}
+                    disabled={sending}
+                    className="shrink-0 bg-accent px-4 text-sm font-black uppercase tracking-wider text-ink! transition-[filter] hover:brightness-90 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {sending ? "发送中…" : "获取验证码"}
+                  </button>
+                </div>
+              </Form.Item>
 
-            <Form.Item label="用户名" name="username" rules={[{ required: true, whitespace: true, message: "请输入用户名" }]}>
-              <Input size="large" placeholder="用户名" autoComplete="username" />
-            </Form.Item>
+              <Form.Item label="用户名" name="username" rules={[{ required: true, whitespace: true, message: "请输入用户名" }]}>
+                <Input size="large" placeholder="用户名" autoComplete="username" />
+              </Form.Item>
 
-            <Form.Item label="昵称" name="nickname" rules={[{ required: true, whitespace: true, message: "请输入昵称" }]}>
-              <Input size="large" placeholder="昵称" />
-            </Form.Item>
+              <Form.Item label="昵称" name="nickname" rules={[{ required: true, whitespace: true, message: "请输入昵称" }]}>
+                <Input size="large" placeholder="昵称" />
+              </Form.Item>
 
-            <Form.Item label="密码" name="password" rules={[{ required: true, min: 6, message: "密码至少 6 位" }]}>
-              <Input.Password size="large" placeholder="密码" autoComplete="new-password" />
-            </Form.Item>
+              <Form.Item label="密码" name="password" rules={[{ required: true, min: 6, message: "密码至少 6 位" }]}>
+                <Input.Password size="large" placeholder="密码" autoComplete="new-password" />
+              </Form.Item>
 
-            <Form.Item label="性别" name="sex">
-              <Select
-                size="large"
-                options={[
-                  { label: "保密", value: 2 },
-                  { label: "男", value: 0 },
-                  { label: "女", value: 1 },
-                ]}
-              />
-            </Form.Item>
+              <Form.Item label="性别" name="sex">
+                <Select
+                  size="large"
+                  options={[
+                    { label: "保密", value: 2 },
+                    { label: "男", value: 0 },
+                    { label: "女", value: 1 },
+                  ]}
+                />
+              </Form.Item>
+            </div>
 
-            <Form.Item className="mb-0">
+            <Form.Item className="mb-0 shrink-0 pt-6">
               <button
                 type="submit"
                 disabled={loading}
@@ -130,7 +132,7 @@ export default function Register() {
           </Form>
         </AuthPanel>
 
-        <p className="text-center text-sm text-text-secondary">
+        <p className="shrink-0 text-center text-sm text-text-secondary">
           已有账号？
           <Link to="/login" className="ml-1 font-bold text-accent transition-colors hover:text-accent-yellow">
             去登录

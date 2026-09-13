@@ -7,12 +7,13 @@ export interface AuthBackdropProps {
   code: string;
   label: string;
   className?: string;
+  contentClassName?: string;
 }
 
 /** 博客认证页背景：工业网格、荧光定位线和机械编号,不干扰表单可读性。 */
-export default function AuthBackdrop({ children, code, label, className }: AuthBackdropProps) {
+export default function AuthBackdrop({ children, code, label, className, contentClassName }: AuthBackdropProps) {
   return (
-    <section className={cn("relative isolate min-h-screen overflow-hidden border-y border-hairline bg-primary/55", className)}>
+    <section className={cn("relative isolate min-h-screen overflow-hidden border-y border-hairline bg-canvas", className)}>
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div
           className="absolute inset-0 opacity-80"
@@ -49,7 +50,7 @@ export default function AuthBackdrop({ children, code, label, className }: AuthB
         </div>
       </div>
 
-      <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-10 sm:px-8 lg:px-12">{children}</div>
+      <div className={cn("relative z-10 flex min-h-screen items-center justify-center px-4 py-10 sm:px-8 lg:px-12", contentClassName)}>{children}</div>
     </section>
   );
 }

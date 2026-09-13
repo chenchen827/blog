@@ -5,6 +5,7 @@ import { request } from "./request";
  * 首页个性化数据
  * GET /
  */
-export function getHome(accessCode: string): Promise<ApiResponse<HomeData>> {
-  return request<HomeData>(`?accessCode=${accessCode}`);
+export function getHome(accessCode?: string): Promise<ApiResponse<HomeData>> {
+  const query = accessCode ? `?accessCode=${encodeURIComponent(accessCode)}` : "";
+  return request<HomeData>(`/${query}`);
 }
