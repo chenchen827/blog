@@ -7,7 +7,7 @@ import './index.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <AntdProvider>
+    <AntdProvider glassModal>
       <App />
     </AntdProvider>
   </StrictMode>,

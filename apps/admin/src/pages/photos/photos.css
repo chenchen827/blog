@@ -192,130 +192,33 @@
 .photo-item:hover .photo-edit {
   opacity: 1;
 }
-
-/* ============================================================
-   删除相片确认弹窗：暗色毛玻璃 + 工业档案视觉
-   仅作用于 photo-delete-modal，不影响其他确认框
-   ============================================================ */
-.photo-delete-modal .ant-modal-mask {
-  background: rgba(2, 2, 2, 0.58) !important;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+/* 批量新增相片：固定文件列表高度，超出后在列表内部滚动 */
+.batch-photo-upload,
+.batch-photo-upload .ant-upload {
+  width: 100%;
 }
 
-.photo-delete-modal .ant-modal-content {
-  position: relative;
+.batch-photo-upload .ant-upload-list {
+  max-height: min(240px, 38vh);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding-right: 6px;
+}
+
+.batch-photo-upload .ant-upload-list:empty {
+  max-height: 0;
   overflow: hidden;
-  padding: 28px;
-  border: 1px solid rgba(217, 255, 0, 0.24);
-  border-radius: 8px;
-  background:
-    linear-gradient(135deg, rgba(24, 24, 24, 0.9) 0%, rgba(10, 10, 10, 0.74) 56%, rgba(5, 5, 5, 0.9) 100%);
-  box-shadow:
-    0 32px 100px rgba(0, 0, 0, 0.78),
-    0 0 0 1px rgba(255, 255, 255, 0.035),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(24px) saturate(150%);
-  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  padding-right: 0;
 }
 
-.photo-delete-modal .ant-modal-content::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(110deg, transparent 0 62%, rgba(217, 255, 0, 0.07) 62.2% 62.5%, transparent 62.7%),
-    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 4px);
-  opacity: 0.7;
-  mix-blend-mode: screen;
-}
-
-.photo-delete-modal .ant-modal-content::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 132px;
-  height: 2px;
-  background: linear-gradient(90deg, #d9ff00, rgba(217, 255, 0, 0));
-  box-shadow: 0 0 20px rgba(217, 255, 0, 0.5);
-}
-
-.photo-delete-modal .ant-modal-confirm-body,
-.photo-delete-modal .ant-modal-confirm-btns {
-  position: relative;
-  z-index: 1;
-}
-
-.photo-delete-modal .ant-modal-confirm-body {
-  align-items: flex-start;
-  gap: 14px;
-}
-
-.photo-delete-modal .ant-modal-confirm-body > .anticon {
-  margin-inline-end: 0;
-  color: #ff8a00;
-  font-size: 24px;
-  filter: drop-shadow(0 0 12px rgba(255, 138, 0, 0.36));
-}
-
-.photo-delete-modal .ant-modal-confirm-title {
-  color: #f5f5f5;
-  font-size: 18px;
-  font-weight: 900;
-  letter-spacing: 0.12em;
-}
-
-.photo-delete-modal .ant-modal-confirm-content {
-  margin-top: 8px;
-  color: #b8b8b8;
-  line-height: 1.75;
-}
-
-.photo-delete-modal .ant-modal-confirm-btns {
-  margin-top: 24px;
-}
-
-.photo-delete-modal .ant-modal-confirm-btns .ant-btn {
-  min-height: 44px;
-  border-radius: 6px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-}
-
-.photo-delete-modal .ant-modal-confirm-btns .ant-btn-default {
-  border-color: #4a4a4a;
-  background: rgba(255, 255, 255, 0.04);
-  color: #f5f5f5;
-}
-
-.photo-delete-modal .ant-modal-confirm-btns .ant-btn-default:hover {
-  border-color: #d9ff00;
-  color: #d9ff00;
-}
-
-.photo-delete-modal .ant-modal-confirm-btns .ant-btn-dangerous,
-.photo-delete-modal .ant-modal-confirm-btns .ant-btn-color-dangerous.ant-btn-variant-solid {
-  border-color: #ff3b30 !important;
-  background: #ff3b30 !important;
-  color: #ffffff !important;
-  box-shadow: 0 0 22px rgba(255, 59, 48, 0.28);
-}
-
-.photo-delete-modal .ant-modal-confirm-btns .ant-btn-dangerous:hover,
-.photo-delete-modal .ant-modal-confirm-btns .ant-btn-color-dangerous.ant-btn-variant-solid:hover {
-  border-color: #ff6259 !important;
-  background: #ff6259 !important;
-  color: #ffffff !important;
+.batch-photo-upload .ant-upload-list-item {
+  margin-top: 6px;
 }
 
 @media (max-width: 640px) {
-  .photo-delete-modal .ant-modal-content {
-    padding: 22px;
-  }
-
-  .photo-delete-modal .ant-modal-confirm-title {
-    letter-spacing: 0.08em;
+  .batch-photo-upload .ant-upload-list {
+    max-height: min(180px, 34vh);
   }
 }

@@ -151,13 +151,17 @@ export default function PhotoListPage() {
   };
 
   const closeModal = () => {
-    if (saving) return;
+    if (saving || uploading) return;
     setModalOpen(false);
     form.resetFields();
   };
 
   const handleSave = async (values: PhotoFormValues) => {
-    if (!albumId) return;
+    if (!albumId || saving) return;
+    if (uploading) {
+      message.warning("图片上传中，请稍候");
+      return;
+    }
     setSaving(true);
     try {
       const payload = {
@@ -200,7 +204,6 @@ export default function PhotoListPage() {
       cancelText: "取消",
       okButtonProps: { danger: true },
       centered: true,
-      rootClassName: "photo-delete-modal",
       width: 440,
       onOk: () => handleDelete(photo.id),
     });
@@ -401,7 +404,7 @@ export default function PhotoListPage() {
       >
         <div className="mt-4 space-y-4">
           <p className="text-sm text-text-secondary">可一次选择多张图片，系统会逐张上传到当前相集；批量新增无需填写相片描述。</p>
-          <Upload
+          <Upload className="batch-photo-upload"
             multiple
             accept="image/*"
             disabled={batchSaving}
@@ -433,9 +436,14 @@ export default function PhotoListPage() {
         open={modalOpen}
         onCancel={closeModal}
         onOk={() => form.submit()}
-        confirmLoading={saving}
+        confirmLoading={saving || uploading}
         okText="保存"
         cancelText="取消"
+        closable={!saving && !uploading}
+        maskClosable={!saving && !uploading}
+        keyboard={!saving && !uploading}
+        okButtonProps={{ disabled: saving || uploading }}
+        cancelButtonProps={{ disabled: saving || uploading }}
         destroyOnHidden
       >
         <Form<PhotoFormValues> form={form} layout="vertical" requiredMark={false} onFinish={handleSave} className="mt-4">

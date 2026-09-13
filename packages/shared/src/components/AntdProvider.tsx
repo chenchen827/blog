@@ -4,6 +4,7 @@ import zhCN from "antd/locale/zh_CN";
 
 export interface AntdProviderProps {
   children: ReactNode;
+  glassModal?: boolean;
 }
 
 /**
@@ -12,7 +13,7 @@ export interface AntdProviderProps {
  * - 深色主题,主色 / 表面色 / 边框色 / 圆角对齐根目录 design.md（黑色杂志化 + 荧光黄）
  * - 将 design.md 的 Token 通过 ConfigProvider 映射到 antd 组件,避免各页面各自写散落的样式覆盖
  */
-export function AntdProvider({ children }: AntdProviderProps) {
+export function AntdProvider({ children, glassModal = false }: AntdProviderProps) {
   return (
     <ConfigProvider
       locale={zhCN}
@@ -36,6 +37,7 @@ export function AntdProvider({ children }: AntdProviderProps) {
           borderRadius: 8,
           controlHeight: 44,
           fontFamily: "Inter, system-ui, -apple-system, sans-serif",
+          ...(glassModal ? { colorBgMask: "rgba(2, 2, 2, 0.58)" } : {}),
         },
         components: {
           Button: {
@@ -61,14 +63,9 @@ export function AntdProvider({ children }: AntdProviderProps) {
           },
           Table: {
             colorBgContainer: "#323232",
-            // colorText: "#f5f5f5",
-            // colorTextHeading: "#f5f5f5",
             headerBg: "#1a1a1a",
-            // headerColor: "#f5f5f5",
-            // headerSplitColor: "#292929",
             rowSelectedBg: "#181818",
             rowSelectedHoverBg: "#181818",
-            // rowHoverBg: "#181818",
             borderColor: "#292929",
             cellPaddingBlock: 14,
             cellPaddingInline: 16,
@@ -87,6 +84,16 @@ export function AntdProvider({ children }: AntdProviderProps) {
             colorBorder: "#767678",
             colorBgContainer: "#0000005c",
           },
+          ...(glassModal
+            ? {
+                Modal: {
+                  contentBg: "rgba(10, 10, 10, 0.42)",
+                  headerBg: "transparent",
+                  footerBg: "transparent",
+                  titleColor: "#f5f5f5",
+                },
+              }
+            : {}),
         },
       }}
     >
