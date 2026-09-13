@@ -5,6 +5,7 @@ import type { Article } from "../types";
 import { getArticle } from "../apis/article";
 import Loader from "../components/Loader";
 
+
 export default function PostDetail() {
   const { id } = useParams();
   const [article, setArticle] = useState<Article | null>(null);

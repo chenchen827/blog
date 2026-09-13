@@ -1440,3 +1440,9 @@
     transform: scaleX(1);
   }
 }
+
+/* 文章详情：保留编辑器产生的空段落/空行 */
+.article-content p:empty,
+.article-content p:has(> br:only-child) {
+  min-height: 1.625em;
+}

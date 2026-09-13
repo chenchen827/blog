@@ -169,6 +169,7 @@ export interface Photo {
 /** 相片列表响应中的 data 结构 */
 export interface PhotoListData {
   photos?: Photo[];
+  pagination?: Pagination;
 }
 
 /** 网站信息实体 */

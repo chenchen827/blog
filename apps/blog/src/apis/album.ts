@@ -62,13 +62,25 @@ export function deleteAlbum(id: string | number): Promise<ApiResponse<unknown>> 
   return request<unknown>(`/albums/${id}`, { method: 'DELETE' })
 }
 
+export interface ListPhotoParams {
+  currentPage?: number
+  pageSize?: number
+}
+
 /**
  * 查询当前用户相集下的图片列表
- * GET /photos?albumId=...
+ * GET /photos?albumId=...&currentPage=...&pageSize=...
  */
-export function listPhotos(albumId?: string | number): Promise<ApiResponse<PhotoListData | Photo[]>> {
-  const query = albumId !== undefined ? `?albumId=${encodeURIComponent(String(albumId))}` : ''
-  return request<PhotoListData | Photo[]>(`/photos${query}`)
+export function listPhotos(
+  albumId?: string | number,
+  params: ListPhotoParams = {},
+): Promise<ApiResponse<PhotoListData | Photo[]>> {
+  const search = new URLSearchParams()
+  if (albumId !== undefined) search.set('albumId', String(albumId))
+  if (params.currentPage !== undefined) search.set('currentPage', String(params.currentPage))
+  if (params.pageSize !== undefined) search.set('pageSize', String(params.pageSize))
+  const query = search.toString()
+  return request<PhotoListData | Photo[]>(`/photos${query ? `?${query}` : ''}`)
 }
 
 /**

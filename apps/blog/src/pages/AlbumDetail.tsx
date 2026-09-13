@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router";
-import { Image } from "antd";
+import { Image, Spin } from "antd";
 import { DomeGallery, DriftWall, EmptyState, Masonry, PhotoWall } from "@repo/shared";
 
 import type { Album, Photo } from "../types";
@@ -9,10 +9,39 @@ import Loader from "../components/Loader";
 import { useAuth } from "../auth/AuthContext";
 import { usePersonalization } from "../hooks/usePersonalization";
 
-function normalizePhotos(data: unknown): Photo[] {
-  if (Array.isArray(data)) return data as Photo[];
-  const maybe = data as { photos?: Photo[] };
-  return maybe.photos ?? [];
+const PHOTO_PAGE_SIZE = 12;
+
+interface PhotoPage {
+  photos: Photo[];
+  total: number;
+  currentPage: number;
+  pageSize: number;
+}
+
+function normalizePhotoPage(data: unknown, fallbackPage = 1): PhotoPage {
+  if (Array.isArray(data)) {
+    const photos = data as Photo[];
+    return {
+      photos,
+      total: photos.length,
+      currentPage: fallbackPage,
+      pageSize: photos.length || PHOTO_PAGE_SIZE,
+    };
+  }
+
+  const maybe = data as {
+    photos?: Photo[];
+    pagination?: { total?: number; currentPage?: number; pageSize?: number };
+  };
+  const photos = maybe.photos ?? [];
+  const pagination = maybe.pagination;
+
+  return {
+    photos,
+    total: pagination?.total ?? photos.length,
+    currentPage: pagination?.currentPage ?? fallbackPage,
+    pageSize: pagination?.pageSize ?? PHOTO_PAGE_SIZE,
+  };
 }
 
 export default function AlbumDetail() {
@@ -22,32 +51,94 @@ export default function AlbumDetail() {
 
   const [album, setAlbum] = useState<Album | null>(null);
   const [photos, setPhotos] = useState<Photo[]>([]);
+  const [photoTotal, setPhotoTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMorePhotos, setHasMorePhotos] = useState(false);
+  const [nextPhotoPage, setNextPhotoPage] = useState(2);
   const [detailPhoto, setDetailPhoto] = useState<Photo | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const loadingMoreRef = useRef(false);
 
   useEffect(() => {
     if (!id || (!user && !accessCode)) return;
     let active = true;
+
     setLoading(true);
-    Promise.all([getAlbum(id), listPhotos(id)])
+    setLoadingMore(false);
+    setHasMorePhotos(false);
+    setPhotoTotal(0);
+    setPhotos([]);
+    loadingMoreRef.current = false;
+
+    Promise.all([getAlbum(id), listPhotos(id, { currentPage: 1, pageSize: PHOTO_PAGE_SIZE })])
       .then(([albumRes, photoRes]) => {
         if (!active) return;
+        const page = normalizePhotoPage(photoRes.data, 1);
         setAlbum(albumRes.data.album);
-        setPhotos(normalizePhotos(photoRes.data));
+        setPhotos(page.photos);
+        setPhotoTotal(page.total);
+        setNextPhotoPage(page.currentPage + 1);
+        setHasMorePhotos(page.currentPage * page.pageSize < page.total && page.photos.length > 0);
       })
       .catch(() => {
         if (active) {
           setAlbum(null);
           setPhotos([]);
+          setPhotoTotal(0);
+          setHasMorePhotos(false);
         }
       })
       .finally(() => {
         if (active) setLoading(false);
       });
+
     return () => {
       active = false;
     };
   }, [accessCode, id, user]);
+
+  const loadNextPhotoPage = useCallback(async () => {
+    if (!id || loadingMoreRef.current || !hasMorePhotos) return;
+
+    loadingMoreRef.current = true;
+    setLoadingMore(true);
+
+    try {
+      const response = await listPhotos(id, { currentPage: nextPhotoPage, pageSize: PHOTO_PAGE_SIZE });
+      const page = normalizePhotoPage(response.data, nextPhotoPage);
+
+      setPhotos((current) => {
+        const existingIds = new Set(current.map((photo) => photo.id));
+        return [...current, ...page.photos.filter((photo) => !existingIds.has(photo.id))];
+      });
+      setPhotoTotal(page.total);
+      setNextPhotoPage(page.currentPage + 1);
+      setHasMorePhotos(page.currentPage * page.pageSize < page.total && page.photos.length > 0);
+    } catch {
+      setHasMorePhotos(false);
+    } finally {
+      loadingMoreRef.current = false;
+      setLoadingMore(false);
+    }
+  }, [hasMorePhotos, id, nextPhotoPage]);
+
+  useEffect(() => {
+    const target = loadMoreRef.current;
+    if (!target || !hasMorePhotos || loading) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          void loadNextPhotoPage();
+        }
+      },
+      { rootMargin: "0px 0px", threshold: 0.01 },
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [hasMorePhotos, loadNextPhotoPage, loading]);
 
   if (authLoading) return <Loader />;
 
@@ -232,7 +323,7 @@ export default function AlbumDetail() {
           <div className="flex shrink-0 gap-2">
             <div className="border border-hairline bg-canvas/55 px-5 py-4 backdrop-blur-sm">
               <span className="block text-[9px] font-black uppercase tracking-[0.3em] text-text-secondary">Photos</span>
-              <strong className="mt-2 block text-3xl font-black leading-none text-accent">{String(photos.length).padStart(2, "0")}</strong>
+              <strong className="mt-2 block text-3xl font-black leading-none text-accent">{String(photoTotal).padStart(2, "0")}</strong>
             </div>
             <div className="border border-hairline bg-canvas/55 px-5 py-4 backdrop-blur-sm">
               <span className="block text-[9px] font-black uppercase tracking-[0.3em] text-text-secondary">Index</span>
@@ -247,11 +338,21 @@ export default function AlbumDetail() {
           <span className="text-[9px] font-black uppercase tracking-[0.38em] text-accent">Image Index</span>
           <h2 className="mt-2 text-2xl font-black uppercase tracking-[-0.02em] text-text-primary md:text-3xl">相片档案</h2>
         </div>
-        <span className="text-[10px] font-black uppercase tracking-[0.28em] text-text-secondary">{String(photos.length).padStart(3, "0")} Frames Stored</span>
+        <span className="text-[10px] font-black uppercase tracking-[0.28em] text-text-secondary">{String(photoTotal).padStart(3, "0")} Frames Stored</span>
       </div>
 
       <div>
         {renderPhotoTemplate()}
+
+        {hasMorePhotos || loadingMore ? (
+          <div ref={loadMoreRef} className="flex min-h-28 items-center justify-center py-8" aria-live="polite" aria-label="加载更多相片">
+            {loadingMore ? (
+              <Spin size="large" />
+            ) : (
+              <span className="text-[10px] font-black uppercase tracking-[0.34em] text-text-secondary">Loading / Next frames</span>
+            )}
+          </div>
+        ) : null}
       </div>
     </div>
   );
