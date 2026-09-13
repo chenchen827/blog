@@ -6,7 +6,7 @@ import { listAlbums } from "../../../apis/albums";
 import type { Album } from "../../../apis/albums";
 import { listArticles } from "../../../apis/articles";
 import type { Article } from "../../../apis/types";
-import { updatePersonalization } from "../../../apis/personalization";
+import { isAccessCodeAvailable, updatePersonalization } from "../../../apis/personalization";
 import type { HomeBackgroundTemplate, Personalization } from "../../../apis/personalization";
 import { uploadImageToAliyun } from "../../../apis/upload";
 import { getCurrentUser } from "../../../apis/users";
@@ -18,6 +18,7 @@ interface HomeTabProps {
 }
 
 interface HomeFormValues {
+  accessCode: string;
   introduction?: string;
   portraitUrl?: string;
   contactEmail?: string;
@@ -31,6 +32,35 @@ const BACKGROUND_OPTIONS: Array<{ label: string; value: HomeBackgroundTemplate }
   { label: "Starry", value: "Starry" },
   { label: "Gradient Waves", value: "GradientWaves" },
 ];
+
+const BLOG_BASE_URL = (import.meta.env.VITE_BLOG_BASE_URL ?? "http://localhost:5173").replace(/\/$/, "");
+
+type AccessCodeFeedbackStatus = "idle" | "checking" | "available" | "unavailable" | "error";
+
+interface AccessCodeFeedback {
+  status: AccessCodeFeedbackStatus;
+  message: string;
+}
+
+const INITIAL_ACCESS_CODE_FEEDBACK: AccessCodeFeedback = { status: "idle", message: "" };
+
+async function copyText(text: string) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  const copied = document.execCommand("copy");
+  textarea.remove();
+  if (!copied) throw new Error("浏览器不支持自动复制，请手动复制访问链接");
+}
 
 function BackgroundStage({ template }: { template: HomeBackgroundTemplate }) {
   if (template === "Starry") return <Starfield contained />;
@@ -52,13 +82,28 @@ export default function HomeTab({ personalization, onSaved }: HomeTabProps) {
   const [optionsError, setOptionsError] = useState("");
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [verifyingAccessCode, setVerifyingAccessCode] = useState(false);
+  const [accessCodeFeedback, setAccessCodeFeedback] = useState<AccessCodeFeedback>(INITIAL_ACCESS_CODE_FEEDBACK);
 
   const background = Form.useWatch("homeBackgroundTemplate", form) ?? personalization.homeBackgroundTemplate;
   const portraitUrl = Form.useWatch("portraitUrl", form) ?? personalization.portraitUrl ?? "";
+  const accessCode = Form.useWatch("accessCode", form) ?? personalization.accessCode;
   const nickname = personalization.user?.nickname || currentUser?.nickname || "未设置昵称";
+
+  const accessCodeValidateStatus =
+    accessCodeFeedback.status === "available"
+      ? "success"
+      : accessCodeFeedback.status === "unavailable"
+        ? "error"
+        : accessCodeFeedback.status === "error"
+          ? "warning"
+          : accessCodeFeedback.status === "checking"
+            ? "validating"
+            : undefined;
 
   useEffect(() => {
     form.setFieldsValue({
+      accessCode: personalization.accessCode,
       introduction: personalization.introduction ?? "",
       portraitUrl: personalization.portraitUrl ?? "",
       contactEmail: personalization.contactEmail ?? "",
@@ -107,10 +152,65 @@ export default function HomeTab({ personalization, onSaved }: HomeTabProps) {
     }
   };
 
+  const handleAccessCodeChange = () => {
+    if (accessCodeFeedback.status !== "idle") setAccessCodeFeedback(INITIAL_ACCESS_CODE_FEEDBACK);
+  };
+
+  const handleVerifyAccessCode = async () => {
+    try {
+      await form.validateFields(["accessCode"]);
+    } catch {
+      return;
+    }
+
+    const nextAccessCode = String(form.getFieldValue("accessCode") ?? "").trim();
+    if (!nextAccessCode) return;
+
+    setVerifyingAccessCode(true);
+    setAccessCodeFeedback({ status: "checking", message: "正在验证访问编码…" });
+    try {
+      if (nextAccessCode === personalization.accessCode) {
+        setAccessCodeFeedback({ status: "available", message: "当前访问编码有效，可继续使用。" });
+        return;
+      }
+
+      const available = await isAccessCodeAvailable(nextAccessCode);
+      if (available) {
+        setAccessCodeFeedback({ status: "available", message: "访问编码可用，保存首页配置后生效。" });
+      } else {
+        setAccessCodeFeedback({ status: "unavailable", message: "该访问编码已被使用，请更换后重试。" });
+      }
+    } catch (err) {
+      setAccessCodeFeedback({
+        status: "error",
+        message: err instanceof Error ? `验证失败：${err.message}` : "访问编码验证失败，请稍后重试。",
+      });
+    } finally {
+      setVerifyingAccessCode(false);
+    }
+  };
+
+  const handleCopyAccessLink = async () => {
+    const nextAccessCode = String(accessCode ?? "").trim();
+    if (!nextAccessCode) {
+      message.warning("请先填写访问编码");
+      return;
+    }
+
+    const url = `${BLOG_BASE_URL}/personalizations/${encodeURIComponent(nextAccessCode)}`;
+    try {
+      await copyText(url);
+      message.success(nextAccessCode === personalization.accessCode ? "访问链接已复制" : "访问链接已复制，保存后该编码才会生效");
+    } catch (err) {
+      message.error(err instanceof Error ? err.message : "复制访问链接失败");
+    }
+  };
+
   const handleSave = async (values: HomeFormValues) => {
     setSaving(true);
     try {
       const res = await updatePersonalization({
+        accessCode: values.accessCode.trim(),
         introduction: values.introduction?.trim() || "",
         portraitUrl: values.portraitUrl?.trim() || null,
         contactEmail: values.contactEmail?.trim() || null,
@@ -119,6 +219,7 @@ export default function HomeTab({ personalization, onSaved }: HomeTabProps) {
         homeBackgroundTemplate: values.homeBackgroundTemplate,
       });
       onSaved(res.data.personalization ?? personalization);
+      setAccessCodeFeedback({ status: "available", message: "访问编码已保存并生效。" });
       message.success("首页配置已保存");
     } catch (err) {
       message.error(err instanceof Error ? err.message : "保存首页配置失败");
@@ -149,11 +250,55 @@ export default function HomeTab({ personalization, onSaved }: HomeTabProps) {
           </div>
         </aside>
 
-        <div className="border border-hairline bg-canvas/75 p-5 backdrop-blur-sm">
+        <div className="border border-hairline bg-transparent p-5">
           {optionsError && <Alert className="mb-5" type="error" showIcon message={optionsError} closable onClose={() => setOptionsError("")} />}
 
           <Form<HomeFormValues> form={form} layout="vertical" requiredMark={false} onFinish={handleSave}>
             <div className="grid gap-x-6 md:grid-cols-2">
+              <Form.Item
+                name="accessCode"
+                label="访问编码"
+                className="md:col-span-2"
+                validateStatus={accessCodeValidateStatus}
+                help={
+                  <span
+                    className={
+                      accessCodeFeedback.status === "available" || accessCodeFeedback.status === "checking"
+                        ? "text-[#4da3ff]"
+                        : accessCodeFeedback.status === "unavailable" || accessCodeFeedback.status === "error"
+                          ? "text-[#ff4d4f]"
+                          : "text-text-secondary"
+                    }
+                  >
+                    {accessCodeFeedback.message || "用于生成个性化页面的公开访问链接。"}
+                  </span>
+                }
+                rules={[{ required: true, whitespace: true, message: "请输入访问编码" }]}
+              >
+                <Input
+                  size="large"
+                  className="min-h-11"
+                  placeholder="输入访问编码"
+                  onChange={handleAccessCodeChange}
+                  onPressEnter={(event) => {
+                    event.preventDefault();
+                    void handleVerifyAccessCode();
+                  }}
+                  addonAfter={
+                    <Button
+                      type="primary"
+                      htmlType="button"
+                      size="large"
+                      className="min-h-11 rounded-none!"
+                      loading={verifyingAccessCode}
+                      onClick={() => void handleVerifyAccessCode()}
+                    >
+                      验证编码
+                    </Button>
+                  }
+                />
+              </Form.Item>
+
               <Form.Item name="introduction" label="自我介绍" className="md:col-span-2">
                 <Input.TextArea rows={4} maxLength={3000} showCount placeholder="记录生活，也记录每一次出发。" />
               </Form.Item>
@@ -202,8 +347,16 @@ export default function HomeTab({ personalization, onSaved }: HomeTabProps) {
               </Form.Item>
             </div>
 
-            <div className="mt-2 flex justify-end">
-              <Button type="primary" size="large" className="rounded-none!" htmlType="submit" loading={saving}>
+            <div className="mt-2 flex flex-wrap justify-end gap-3">
+              <Button
+                size="large"
+                className="min-h-11 rounded-none! border-[#bbdc03]! bg-black! text-[#bbdc03]! hover:border-text-secondary! hover:bg-white! hover:text-ink!"
+                disabled={!String(accessCode ?? "").trim()}
+                onClick={() => void handleCopyAccessLink()}
+              >
+                复制访问链接
+              </Button>
+              <Button type="primary" size="large" className="min-h-11 rounded-none!" htmlType="submit" loading={saving}>
                 保存首页配置
               </Button>
             </div>

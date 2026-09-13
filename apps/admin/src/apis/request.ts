@@ -4,6 +4,17 @@ import { getToken } from "../utils/auth";
 /** 接口基址：通过 Vite 环境变量配置,未配置时回退到同源相对路径 */
 const API_BASE: string = import.meta.env.VITE_API_BASE_URL ?? "";
 
+/** 带 HTTP 状态码的接口异常，便于调用方区分业务失败与资源不存在 */
+export class ApiRequestError extends Error {
+  readonly status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiRequestError";
+    this.status = status;
+  }
+}
+
 /** 判定业务状态是否成功：兼容 boolean 与数字 200 两种返回 */
 export function isSuccess(status: ApiStatus): boolean {
   return status === true || status === 200;
@@ -55,11 +66,11 @@ export async function requestWithToken<T>(path: string, init: RequestInit | unde
   }
 
   if (!response.ok) {
-    throw new Error(getErrorMessage(body as ApiResponse<unknown>));
+    throw new ApiRequestError(getErrorMessage(body as ApiResponse<unknown>), response.status);
   }
 
   if (!isSuccess(body.status)) {
-    throw new Error(getErrorMessage(body as ApiResponse<unknown>));
+    throw new ApiRequestError(getErrorMessage(body as ApiResponse<unknown>), response.status);
   }
 
   return body;

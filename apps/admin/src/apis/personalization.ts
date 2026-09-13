@@ -1,5 +1,5 @@
 import type { ApiResponse } from "./types";
-import { request } from "./request";
+import { ApiRequestError, request } from "./request";
 
 export type AlbumTemplate = "Default" | "Masonry" | "DriftWall" | "DomeGallery";
 export type CollectionTemplate = "Record" | "DepthCarousel" | "CircularGallery" | "InfiniteMenu";
@@ -75,4 +75,15 @@ export function updatePersonalization(payload: PersonalizationUpsertRequest = {}
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
+}
+
+/** 通过公开查询接口判断访问编码是否尚未被占用 */
+export async function isAccessCodeAvailable(accessCode: string): Promise<boolean> {
+  try {
+    const res = await request<PersonalizationData>(`/personalization/${encodeURIComponent(accessCode)}`);
+    return res.data.personalization === null;
+  } catch (error) {
+    if (error instanceof ApiRequestError && error.status === 404) return true;
+    throw error;
+  }
 }
