@@ -1,10 +1,10 @@
-import type { ApiResponse, HomeData } from '../types'
-import { request } from './request'
+import type { ApiResponse, HomeData } from "../types";
+import { request } from "./request";
 
 /**
- * 首页推荐数据（推荐课程 / 收藏课程 / 入门课程）
+ * 首页个性化数据
  * GET /
  */
 export function getHome(): Promise<ApiResponse<HomeData>> {
-  return request<HomeData>('/')
+  return request<HomeData>("/");
 }

@@ -12,10 +12,10 @@ import { toMenuUser } from "../lib/userMenu";
 import { getCachedSiteSetting, setCachedSiteSetting, subscribeSiteSetting } from "../lib/siteSettingCache";
 
 const NAV = [
+  { to: "/posts", label: "我的文章" },
   { to: "/knowledge", label: "知识库" },
   { to: "/albums", label: "相册集" },
   { to: "/portfolio", label: "作品集" },
-  { to: "/posts", label: "文章" },
 ];
 
 export default function HomeLayout() {
