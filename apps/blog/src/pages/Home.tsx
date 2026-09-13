@@ -745,7 +745,7 @@ export default function Home() {
                         to={`/posts/${article.id}`}
                         target={ARTICLE_WINDOW_NAME}
                         rel="noopener noreferrer"
-                        onClick={(event) => openArticleInWindow(event, `/posts/${article.id}`)}
+                        onClick={openArticleInWindow}
                         style={{ backgroundColor: "rgba(255,255,255,0.06)", color: "#f5f5f5" }}
                         className="group grid min-h-36 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-5 overflow-hidden border border-white/12 bg-white/[0.06] px-5 py-6 text-text-primary backdrop-blur-xl backdrop-saturate-150 transition-[background-color,border-color] hover:border-accent/70 hover:bg-white/[0.1] sm:px-7"
                       >

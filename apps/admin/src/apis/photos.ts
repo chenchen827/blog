@@ -14,6 +14,11 @@ export interface Photo {
 /** 相片列表响应中的 data 结构 */
 export interface PhotoListData {
   photos?: Photo[]
+  pagination?: {
+    total?: number
+    currentPage?: number
+    pageSize?: number
+  }
 }
 
 /** 创建相片表单负载 */
@@ -29,10 +34,51 @@ export interface UpdatePhotoPayload {
   description?: string
 }
 
-/** 查询相片列表 */
-export function listPhotos(albumId?: string | number): Promise<ApiResponse<PhotoListData | Photo[]>> {
-  const query = albumId !== undefined ? `?albumId=${encodeURIComponent(String(albumId))}` : ''
-  return request<PhotoListData | Photo[]>(`/admin/photos${query}`)
+const PHOTO_PAGE_SIZE = 100
+
+function buildPhotoListQuery(albumId: string | number | undefined, currentPage: number): string {
+  const search = new URLSearchParams()
+  if (albumId !== undefined) search.set('albumId', String(albumId))
+  search.set('currentPage', String(currentPage))
+  search.set('pageSize', String(PHOTO_PAGE_SIZE))
+  return search.toString()
+}
+
+/** 查询相片列表：自动拉取全部页码，避免超过单页限制后照片展示不全 */
+export async function listPhotos(albumId?: string | number): Promise<ApiResponse<PhotoListData | Photo[]>> {
+  const firstResponse = await request<PhotoListData | Photo[]>(`/admin/photos?${buildPhotoListQuery(albumId, 1)}`)
+
+  if (Array.isArray(firstResponse.data)) {
+    return firstResponse
+  }
+
+  const photos = [...(firstResponse.data.photos ?? [])]
+  const total = firstResponse.data.pagination?.total ?? photos.length
+  let currentPage = 2
+
+  while (photos.length < total) {
+    const response = await request<PhotoListData | Photo[]>(`/admin/photos?${buildPhotoListQuery(albumId, currentPage)}`)
+    const pagePhotos = Array.isArray(response.data) ? response.data : (response.data.photos ?? [])
+
+    if (pagePhotos.length === 0) break
+    photos.push(...pagePhotos)
+    if (pagePhotos.length < PHOTO_PAGE_SIZE) break
+    currentPage += 1
+  }
+
+  return {
+    ...firstResponse,
+    data: {
+      ...firstResponse.data,
+      photos,
+      pagination: {
+        ...firstResponse.data.pagination,
+        total,
+        currentPage: 1,
+        pageSize: photos.length,
+      },
+    },
+  }
 }
 
 /** 查询相片详情 */

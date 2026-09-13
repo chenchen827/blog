@@ -40,7 +40,7 @@ export default function PostDetail() {
   }
 
   return (
-    <article className="mx-auto max-w-3xl space-y-8">
+    <article className="relative mx-auto h-[calc(100dvh-4rem)] max-w-3xl space-y-8 overflow-x-hidden overflow-y-auto overscroll-contain scrollbar-gutter-stable rounded-lg border border-hairline bg-primary/55 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.42)] backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-primary/35 sm:p-8 md:p-10">
       <header className="space-y-3">
         <span className="text-[10px] font-black uppercase tracking-[0.5em] text-accent">Article · {String(article.id).padStart(3, "0")}</span>
         <h1 className="text-3xl font-black uppercase leading-tight tracking-[-0.01em] text-text-primary md:text-4xl">{article.title}</h1>

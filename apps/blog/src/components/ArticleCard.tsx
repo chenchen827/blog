@@ -17,7 +17,7 @@ export default function ArticleCard({ article, basePath = "/posts" }: ArticleCar
       to={href}
       target={ARTICLE_WINDOW_NAME}
       rel="noopener noreferrer"
-      onClick={(event) => openArticleInWindow(event, href)}
+      onClick={openArticleInWindow}
       className={`group flex items-center justify-between gap-4 rounded-lg border border-hairline px-5 py-4 backdrop-blur-xl transition-colors hover:border-accent/60 hover:bg-primary/40!`}
     >
       <div className="min-w-0">

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Alert, App, Button, Form, Input, Modal, Popconfirm, Select, Spin } from "antd";
+import { Alert, App, Button, Form, Input, Modal, Select, Spin, Upload } from "antd";
+import type { UploadFile } from "antd";
 import { useNavigate, useSearchParams } from "react-router";
 
 import { listAlbums } from "../../apis/albums";
@@ -13,6 +14,11 @@ import "./photos.css";
 interface PhotoFormValues {
   imageUrl: string;
   description?: string;
+}
+
+interface BatchProgress {
+  current: number;
+  total: number;
 }
 
 interface PreviewInfo {
@@ -38,7 +44,7 @@ function detectFormat(url?: string): string {
 }
 
 export default function PhotoListPage() {
-  const { message } = App.useApp();
+  const { message, modal } = App.useApp();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [form] = Form.useForm<PhotoFormValues>();
@@ -54,6 +60,10 @@ export default function PhotoListPage() {
   const [editing, setEditing] = useState<Photo | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [batchModalOpen, setBatchModalOpen] = useState(false);
+  const [batchFiles, setBatchFiles] = useState<UploadFile[]>([]);
+  const [batchSaving, setBatchSaving] = useState(false);
+  const [batchProgress, setBatchProgress] = useState<BatchProgress>({ current: 0, total: 0 });
   const [previewPhoto, setPreviewPhoto] = useState<Photo | null>(null);
   const [previewInfo, setPreviewInfo] = useState<PreviewInfo | null>(null);
 
@@ -182,6 +192,20 @@ export default function PhotoListPage() {
     }
   };
 
+  const confirmDelete = (photo: Photo) => {
+    modal.confirm({
+      title: "删除相片",
+      content: "确定删除该相片？删除后无法恢复。",
+      okText: "删除",
+      cancelText: "取消",
+      okButtonProps: { danger: true },
+      centered: true,
+      rootClassName: "photo-delete-modal",
+      width: 440,
+      onOk: () => handleDelete(photo.id),
+    });
+  };
+
   const handleImageFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     event.target.value = "";
@@ -198,6 +222,81 @@ export default function PhotoListPage() {
     }
   };
 
+  const openBatchAdd = () => {
+    if (!albumId) {
+      message.warning("请先选择相集");
+      return;
+    }
+    setBatchFiles([]);
+    setBatchProgress({ current: 0, total: 0 });
+    setBatchModalOpen(true);
+  };
+
+  const closeBatchModal = () => {
+    if (batchSaving) return;
+    setBatchModalOpen(false);
+    setBatchFiles([]);
+    setBatchProgress({ current: 0, total: 0 });
+  };
+
+  const handleBatchSave = async () => {
+    if (!albumId) {
+      message.warning("请先选择相集");
+      return;
+    }
+    if (batchFiles.length === 0) {
+      message.warning("请先选择图片");
+      return;
+    }
+
+    const filesToProcess = batchFiles;
+    const failedFiles: UploadFile[] = [];
+    let successCount = 0;
+
+    setBatchSaving(true);
+    setBatchProgress({ current: 0, total: filesToProcess.length });
+
+    try {
+      for (let index = 0; index < filesToProcess.length; index += 1) {
+        const item = filesToProcess[index];
+        setBatchProgress({ current: index + 1, total: filesToProcess.length });
+
+        const file = item.originFileObj;
+        if (!file) {
+          failedFiles.push(item);
+          continue;
+        }
+
+        try {
+          const imageUrl = await uploadImageToAliyun(file);
+          await createPhoto({ albumId, imageUrl });
+          successCount += 1;
+        } catch {
+          failedFiles.push(item);
+        }
+      }
+
+      if (successCount > 0) {
+        await loadPhotos(albumId);
+      }
+
+      if (failedFiles.length === 0) {
+        message.success(`已新增 ${successCount} 张相片`);
+        setBatchModalOpen(false);
+        setBatchFiles([]);
+      } else {
+        setBatchFiles(failedFiles);
+        message.warning(
+          successCount > 0
+            ? `成功新增 ${successCount} 张，${failedFiles.length} 张失败，可重试`
+            : `批量新增失败，共 ${failedFiles.length} 张`,
+        );
+      }
+    } finally {
+      setBatchSaving(false);
+      setBatchProgress({ current: 0, total: 0 });
+    }
+  };
   if (loading && photos.length === 0) {
     return (
       <div className="flex min-h-80 items-center justify-center">
@@ -218,9 +317,14 @@ export default function PhotoListPage() {
           </div>
           <p className="mt-2 text-sm text-text-secondary">选择相集后以瀑布流查看相片,双击相片可查看原图,悬停可编辑。</p>
         </div>
-        <Button type="primary" disabled={!albumId} onClick={openAdd}>
-          新增相片
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button type="primary" disabled={!albumId} onClick={openAdd}>
+            新增相片
+          </Button>
+          <Button disabled={!albumId} onClick={openBatchAdd}>
+            批量新增
+          </Button>
+        </div>
       </div>
 
       {error && <Alert type="error" showIcon message={error} closable onClose={() => setError("")} />}
@@ -264,9 +368,7 @@ export default function PhotoListPage() {
                   </div>
                 </button>
                 <div className="photo-delete">
-                  <Popconfirm title="确定删除该相片？" onConfirm={() => handleDelete(photo.id)}>
-                    <Button size="small">删除</Button>
-                  </Popconfirm>
+                  <Button size="small" onClick={() => confirmDelete(photo)}>删除</Button>
                 </div>
                 <div className="photo-edit">
                   <Button type="primary" size="small" onClick={() => openEdit(photo)}>
@@ -283,6 +385,49 @@ export default function PhotoListPage() {
         </div>
       )}
 
+      <Modal
+        title="批量新增相片"
+        open={batchModalOpen}
+        onCancel={closeBatchModal}
+        onOk={handleBatchSave}
+        confirmLoading={batchSaving}
+        okText="开始上传"
+        cancelText="取消"
+        okButtonProps={{ disabled: batchFiles.length === 0 }}
+        cancelButtonProps={{ disabled: batchSaving }}
+        maskClosable={!batchSaving}
+        keyboard={!batchSaving}
+        destroyOnHidden
+      >
+        <div className="mt-4 space-y-4">
+          <p className="text-sm text-text-secondary">可一次选择多张图片，系统会逐张上传到当前相集；批量新增无需填写相片描述。</p>
+          <Upload
+            multiple
+            accept="image/*"
+            disabled={batchSaving}
+            beforeUpload={(file) => {
+              if (!file.type.startsWith("image/")) {
+                message.error(`${file.name} 不是图片文件`);
+                return Upload.LIST_IGNORE;
+              }
+              return false;
+            }}
+            fileList={batchFiles}
+            onChange={({ fileList }) => setBatchFiles(fileList)}
+            onRemove={() => !batchSaving}
+          >
+            <Button disabled={batchSaving}>选择图片</Button>
+          </Upload>
+          <div className="text-sm text-text-secondary">
+            {batchFiles.length > 0 ? `已选择 ${batchFiles.length} 张图片` : "尚未选择图片"}
+          </div>
+          {batchSaving && batchProgress.total > 0 ? (
+            <div className="text-sm font-bold text-accent">
+              正在处理 {batchProgress.current} / {batchProgress.total}
+            </div>
+          ) : null}
+        </div>
+      </Modal>
       <Modal
         title={editing ? "编辑相片" : "新增相片"}
         open={modalOpen}
