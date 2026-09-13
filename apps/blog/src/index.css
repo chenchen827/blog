@@ -2,6 +2,16 @@
 @source "../../../packages/shared/src";
 @import "../../../packages/shared/src/styles/design-tokens.css";
 
+/* 可滚动但隐藏原生滚动条 */
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 .album-wall {
   --album-size: clamp(5.5rem, 23vw, 12rem);
   --album-gap: clamp(2rem, 6vw, 4rem);

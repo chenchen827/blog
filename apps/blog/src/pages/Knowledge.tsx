@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router";
 
 import type { FeishuDocumentListData, FeishuListItem, FeishuPagination } from "../apis/feishu";
 import { getDocumentMarkdown, getDocuments, getFolders } from "../apis/feishu";
@@ -260,13 +259,6 @@ export default function Knowledge() {
 
   return (
     <div className="knowledge-page-shell">
-      <Link to="/" className="news-home-link" aria-label="返回首页">
-        <span aria-hidden="true" className="news-home-link-mark">←</span>
-        <span className="news-home-link-copy">
-          <strong>返回首页</strong>
-          <small>Return to Home</small>
-        </span>
-      </Link>
       <div className="knowledge-newspaper">
         <header className="news-masthead">
         <div className="news-masthead-meta">
