@@ -116,7 +116,7 @@ void main() {
   col *= uBrightness;
   col = clamp(col, 0.0, 1.0);
 
-  float alpha = clamp(t, 0.0, 1.0) * uOpacity;
+  float alpha = clamp(t * 1.4, 0.0, 1.0) * uOpacity;
   if (uGrain > 0.5) {
     float g = hash21(gl_FragCoord.xy + mod(iTime, 64.0) * 11.0);
     alpha += (g - 0.5) * uGrainIntensity;
@@ -129,9 +129,9 @@ void main() {
 const ctxMap = new WeakMap();
 
 const GradientWaves = ({
-  horizonColor = '#5227FF',
-  waveColor = '#FF9FFC',
-  crestColor = '#FFFFFF',
+  horizonColor = '#5F8F00',
+  waveColor = '#E8FF00',
+  crestColor = '#FF9D00',
   speed = 0.4,
   amplitude = 2.5,
   waveScale = 0.6,

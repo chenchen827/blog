@@ -21,4 +21,6 @@ const routers: AppRouteObject[] = [
   },
 ];
 
-export const router = createBrowserRouter(routers);
+const basename = import.meta.env.BASE_URL === "/" ? "/" : import.meta.env.BASE_URL.replace(/\/$/, "");
+
+export const router = createBrowserRouter(routers, { basename });

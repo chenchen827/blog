@@ -35,7 +35,7 @@ const BACKGROUND_OPTIONS: Array<{ label: string; value: HomeBackgroundTemplate }
 function BackgroundStage({ template }: { template: HomeBackgroundTemplate }) {
   if (template === "Starry") return <Starfield contained />;
   if (template === "GradientWaves") {
-    return <GradientWaves horizonColor="#050505" waveColor="#d9ff00" crestColor="#ffffff" brightness={1.1} />;
+    return <GradientWaves horizonColor="#5F8F00" waveColor="#E8FF00" crestColor="#FF9D00" brightness={1.45} fogDepth={22} />;
   }
   return <GhostFibers lineColor="#d9ff00" glowColor="#5f6b00" brightness={1.4} />;
 }

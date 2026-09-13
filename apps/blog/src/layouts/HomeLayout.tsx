@@ -6,10 +6,11 @@ import type { SiteSetting } from "../types";
 import { getSetting } from "../apis/settings";
 import { useAuth } from "../auth/AuthContext";
 import HomeLink from "../components/HomeLink";
-import { Starfield } from "@repo/shared";
 import { cn } from "../lib/cn";
 import { toMenuUser } from "../lib/userMenu";
 import { getCachedSiteSetting, setCachedSiteSetting, subscribeSiteSetting } from "../lib/siteSettingCache";
+
+const ADMIN_URL = import.meta.env.VITE_ADMIN_URL || (import.meta.env.DEV ? "http://localhost:5174/" : "/admin/");
 
 const NAV = [
   { to: "/posts", label: "我的文章" },
@@ -51,7 +52,6 @@ export default function HomeLayout() {
 
   return (
     <div className="relative min-h-screen bg-canvas text-text-primary">
-      <Starfield count={1200} speedRange={[0.5, 1.2]} alphaRange={[0.3, 1]} sizeRange={[0.6, 1.8]} minScale={0.2} minAlpha={0.08} glowColor="#cfe0ff" dotColor="#fff6e8" />
       <header className="sticky top-0 z-30 isolate border border-white/5 bg-slate-900/40 shadow-xl backdrop-blur-xl backdrop-saturate-150">
         <nav className="relative z-10 mx-auto flex max-w-7xl items-center gap-x-6 px-4 py-4">
           <HomeLink label={siteName} className="max-w-[52vw] shrink md:max-w-64" />
@@ -71,7 +71,7 @@ export default function HomeLayout() {
           </div>
 
           <div className="ml-auto flex shrink-0 items-center gap-2">
-            <UserMenu user={menuUser} onLogout={logout} onLogin={() => navigate("/login")} onUpdateProfile={updateProfile} />
+            <UserMenu user={menuUser} onLogout={logout} onLogin={() => navigate("/login")} onUpdateProfile={updateProfile} adminUrl={ADMIN_URL} />
           </div>
         </nav>
 

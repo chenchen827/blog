@@ -35,14 +35,16 @@ export interface UserMenuProps {
   onUpdateProfile?: (values: UserProfileValues) => Promise<void> | void;
   /** 提交个人信息的 loading 状态 */
   updatingProfile?: boolean;
+  /** 已登录用户前往管理后台的地址 */
+  adminUrl?: string;
   className?: string;
 }
 
 const OUTLINE_ACTION_BUTTON_CLASS =
-  "flex min-h-11 w-full items-center justify-center rounded-[5px] border-[3px] border-text-secondary bg-primary px-4 text-sm font-black uppercase tracking-wider text-text-primary transition-all duration-150 hover:border-ink hover:bg-accent-yellow hover:text-ink! focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary focus-visible:ring-offset-2 focus-visible:ring-offset-primary active:translate-y-px";
+  "flex min-h-11 w-full items-center justify-center rounded-[5px] border-[3px] border-text-secondary bg-primary px-4 text-sm font-black uppercase tracking-wider text-text-primary transition-all duration-150 hover:border-ink! hover:bg-accent-yellow! hover:text-ink! focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary focus-visible:ring-offset-2 focus-visible:ring-offset-primary active:translate-y-px";
 
 /** 顶部导航栏用户头像下拉菜单（公共组件） */
-export function UserMenu({ user, onLogout, loginUrl, onLogin, onUpdateProfile, updatingProfile, className }: UserMenuProps) {
+export function UserMenu({ user, onLogout, loginUrl, onLogin, onUpdateProfile, updatingProfile, adminUrl, className }: UserMenuProps) {
   const [open, setOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [form] = Form.useForm<UserProfileValues>();
@@ -153,6 +155,18 @@ export function UserMenu({ user, onLogout, loginUrl, onLogin, onUpdateProfile, u
           )}
 
           <div className="flex flex-col gap-2 p-3">
+            {user && adminUrl ? (
+              <a
+                href={adminUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setOpen(false)}
+                className={cn(OUTLINE_ACTION_BUTTON_CLASS, "no-underline")}
+              >
+                前往管理后台
+              </a>
+            ) : null}
+
             {editDisabled ? null : (
               <button type="button" onClick={openEdit} className={cn(OUTLINE_ACTION_BUTTON_CLASS)}>
                 <span>编辑个人信息</span>

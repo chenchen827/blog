@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 
+import { ARTICLE_WINDOW_NAME, openArticleInWindow } from "../lib/articleWindow";
 import type { Article } from "../types";
 
 interface ArticleCardProps {
@@ -9,11 +10,14 @@ interface ArticleCardProps {
 
 /** 文章卡片：编号 + 标题 + 日期 */
 export default function ArticleCard({ article, basePath = "/posts" }: ArticleCardProps) {
+  const href = `${basePath}/${article.id}`;
+
   return (
     <Link
-      to={`${basePath}/${article.id}`}
-      target="_blank"
+      to={href}
+      target={ARTICLE_WINDOW_NAME}
       rel="noopener noreferrer"
+      onClick={(event) => openArticleInWindow(event, href)}
       className={`group flex items-center justify-between gap-4 rounded-lg border border-hairline px-5 py-4 backdrop-blur-xl transition-colors hover:border-accent/60 hover:bg-primary/40!`}
     >
       <div className="min-w-0">

@@ -1,3 +1,5 @@
+export { default as AccordionGallery } from './components/AccordionGallery';
+export type { AccordionGalleryItem, AccordionGalleryProps } from './components/AccordionGallery';
 export * from './components/AntdProvider'
 export * from './components/Backgrounds'
 export * from './components/Book'

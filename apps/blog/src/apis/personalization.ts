@@ -1,4 +1,4 @@
-import type { ApiResponse } from "../types";
+import type { Album, ApiResponse, Photo } from "../types";
 import { request } from "./request";
 
 export type CollectionTemplate = "Record" | "DepthCarousel" | "CircularGallery" | "InfiniteMenu";
@@ -26,6 +26,16 @@ export interface Personalization {
 
 export function getPersonalization(): Promise<ApiResponse<{ personalization: Personalization | null }>> {
   return request<{ personalization: Personalization | null }>("/personalization");
+}
+
+export interface PersonalizationAlbumPhotosData {
+  album: Album;
+  photos: Photo[];
+}
+
+/** 通过访问编码公开查询生活相册图片 */
+export function getPersonalizationAlbumPhotos(accessCode: string, albumId: number): Promise<ApiResponse<PersonalizationAlbumPhotosData>> {
+  return request<PersonalizationAlbumPhotosData>(`/personalization/${encodeURIComponent(accessCode)}/albums/${encodeURIComponent(String(albumId))}/photos`);
 }
 
 /** 通过访问编码公开查询个性化配置 */
