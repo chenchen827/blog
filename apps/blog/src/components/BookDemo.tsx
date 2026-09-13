@@ -47,7 +47,7 @@ function CoverFront({ index, title }: { index: number; title: string }) {
 function CoverBack({ index, title }: { index: number; title: string }) {
   const no = String(index + 1).padStart(2, "0");
   return (
-    <div className="relative flex h-full w-full flex-col justify-between overflow-hidden bg-gradient-to-b from-[#141414] to-[#0c0c0c] p-5">
+    <div className="relative flex h-full w-full flex-col justify-between overflow-hidden bg-linear-to-b from-[#141414] to-[#0c0c0c] p-5">
       <div className="flex items-start justify-between text-[9px] font-black uppercase tracking-[0.4em] text-text-secondary">
         <span>Issue · {no}</span>
         <span aria-hidden="true" className="text-accent">

@@ -52,15 +52,7 @@ export default function HomeLayout() {
   return (
     <div className="relative min-h-screen bg-canvas text-text-primary">
       <Starfield count={1200} speedRange={[0.5, 1.2]} alphaRange={[0.3, 1]} sizeRange={[0.6, 1.8]} minScale={0.2} minAlpha={0.08} glowColor="#cfe0ff" dotColor="#fff6e8" />
-      <header className="sticky top-0 z-30 isolate border-b border-hairline bg-canvas/60 backdrop-blur-[2px]">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 opacity-[0.05]"
-          style={{
-            backgroundImage: "linear-gradient(rgba(255,255,255,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.8) 1px, transparent 1px)",
-            backgroundSize: "34px 34px",
-          }}
-        />
+      <header className="sticky top-0 z-30 isolate border border-white/5 bg-slate-900/40 shadow-xl backdrop-blur-xl backdrop-saturate-150">
         <nav className="relative z-10 mx-auto flex max-w-7xl items-center gap-x-6 px-4 py-4">
           <HomeLink label={siteName} className="max-w-[52vw] shrink md:max-w-64" />
 
