@@ -8,3 +8,5 @@ dist-ssr
 .vite
 *.tsbuildinfo
 .DS_Store
+.deploy/
+frontend-*.tgz

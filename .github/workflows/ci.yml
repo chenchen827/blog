@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  VITE_API_BASE_URL: https://api.chenchen.fun
+  VITE_ADMIN_URL: https://admin.chenchen.fun/
+  VITE_BLOG_BASE_URL: https://www.chenchen.fun
+
+jobs:
+  verify:
+    name: Typecheck and build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build production bundles
+        run: pnpm build
+
+      - name: Verify root asset paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in apps/blog/dist/index.html apps/admin/dist/index.html; do
+            test -f "$file"
+            grep -Eq '(src|href)="/assets/' "$file"
+            if grep -Eq '(src|href)="/(blog|admin)/' "$file"; then
+              echo "Unexpected subpath asset in $file" >&2
+              exit 1
+            fi
+          done
