@@ -21,3 +21,7 @@ Install deps: pnpm install
 - pnpm dev:admin: run admin only
 - pnpm build: build all apps
 - pnpm typecheck: typecheck all packages
+
+## Deployment
+
+CI/CD and production operations are documented in [docs/deployment.md](./docs/deployment.md).

@@ -1,0 +1,194 @@
+name: Deploy production
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Operation to perform
+        required: true
+        default: deploy
+        type: choice
+        options:
+          - deploy
+          - rollback
+      release_sha:
+        description: Full Git SHA to roll back to (rollback mode only)
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+env:
+  VITE_API_BASE_URL: https://api.chenchen.fun
+  VITE_ADMIN_URL: https://admin.chenchen.fun/
+  VITE_BLOG_BASE_URL: https://www.chenchen.fun
+
+jobs:
+  guard:
+    name: Require master
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check source ref
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF}" != "refs/heads/master" ]]; then
+            echo "Production operations are only allowed from master." >&2
+            exit 1
+          fi
+
+  build:
+    name: Build release archive
+    needs: guard
+    if: inputs.mode == 'deploy'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build production bundles
+        run: pnpm build
+
+      - name: Verify root asset paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in apps/blog/dist/index.html apps/admin/dist/index.html; do
+            test -f "$file"
+            grep -Eq '(src|href)="/assets/' "$file"
+            if grep -Eq '(src|href)="/(blog|admin)/' "$file"; then
+              echo "Unexpected subpath asset in $file" >&2
+              exit 1
+            fi
+          done
+
+      - name: Package release
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .deploy
+          mkdir -p .deploy/blog .deploy/admin
+          cp -a apps/blog/dist/. .deploy/blog/
+          cp -a apps/admin/dist/. .deploy/admin/
+          tar -C .deploy -czf "frontend-${GITHUB_SHA}.tgz" blog admin
+
+      - name: Upload release archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-${{ github.sha }}
+          path: frontend-${{ github.sha }}.tgz
+          retention-days: 1
+
+  release:
+    name: Release or roll back
+    needs:
+      - guard
+      - build
+    if: always() && needs.guard.result == 'success' && (inputs.mode == 'rollback' || needs.build.result == 'success')
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+      DEPLOY_PORT: ${{ vars.DEPLOY_PORT }}
+      DEPLOY_USER: ${{ vars.DEPLOY_USER }}
+      DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+      DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+      DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download release archive
+        if: inputs.mode == 'deploy'
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-${{ github.sha }}
+
+      - name: Validate deployment configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in DEPLOY_HOST DEPLOY_PORT DEPLOY_USER DEPLOY_PATH DEPLOY_SSH_KEY DEPLOY_KNOWN_HOSTS; do
+            if [[ -z "${!name:-}" ]]; then
+              echo "Missing required configuration: $name" >&2
+              exit 1
+            fi
+          done
+          [[ "$DEPLOY_HOST" =~ ^[A-Za-z0-9.-]+$ ]]
+          [[ "$DEPLOY_PORT" =~ ^[0-9]+$ ]]
+          [[ "$DEPLOY_USER" =~ ^[a-z_][a-z0-9_-]*$ ]]
+          [[ "$DEPLOY_PATH" =~ ^/www/wwwroot/[A-Za-z0-9._/-]+$ ]]
+
+      - name: Configure SSH
+        shell: bash
+        run: |
+          set -euo pipefail
+          install -m 700 -d "$HOME/.ssh"
+          printf '%s\n' "$DEPLOY_SSH_KEY" > "$HOME/.ssh/chenchen-blog-deploy"
+          chmod 600 "$HOME/.ssh/chenchen-blog-deploy"
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
+
+      - name: Deploy release
+        if: inputs.mode == 'deploy'
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHA="${GITHUB_SHA}"
+          ARCHIVE="frontend-${SHA}.tgz"
+          REMOTE_ARCHIVE="${DEPLOY_PATH}/incoming/frontend-${SHA}.tgz"
+          REMOTE_SCRIPT="${DEPLOY_PATH}/incoming/remote-deploy-${SHA}.sh"
+          SSH_OPTS=(-i "$HOME/.ssh/chenchen-blog-deploy" -p "$DEPLOY_PORT" -o IdentitiesOnly=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts")
+
+          ssh "${SSH_OPTS[@]}" "${DEPLOY_USER}@${DEPLOY_HOST}" "mkdir -p '${DEPLOY_PATH}/incoming'"
+          scp -i "$HOME/.ssh/chenchen-blog-deploy" -P "$DEPLOY_PORT" -o IdentitiesOnly=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" "$ARCHIVE" "${DEPLOY_USER}@${DEPLOY_HOST}:${REMOTE_ARCHIVE}.tmp"
+          scp -i "$HOME/.ssh/chenchen-blog-deploy" -P "$DEPLOY_PORT" -o IdentitiesOnly=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" scripts/remote-deploy.sh "${DEPLOY_USER}@${DEPLOY_HOST}:${REMOTE_SCRIPT}.tmp"
+          ssh "${SSH_OPTS[@]}" "${DEPLOY_USER}@${DEPLOY_HOST}" "mv '${REMOTE_ARCHIVE}.tmp' '${REMOTE_ARCHIVE}' && mv '${REMOTE_SCRIPT}.tmp' '${REMOTE_SCRIPT}' && bash '${REMOTE_SCRIPT}' '${DEPLOY_PATH}' deploy '${SHA}' '${REMOTE_ARCHIVE}' 5"
+
+      - name: Roll back release
+        if: inputs.mode == 'rollback'
+        shell: bash
+        env:
+          RELEASE_SHA: ${{ inputs.release_sha }}
+        run: |
+          set -euo pipefail
+          SHA="$RELEASE_SHA"
+          if [[ ! "$SHA" =~ ^[0-9a-fA-F]{7,40}$ ]]; then
+            echo "release_sha must be a full or abbreviated Git SHA." >&2
+            exit 1
+          fi
+          SSH_OPTS=(-i "$HOME/.ssh/chenchen-blog-deploy" -p "$DEPLOY_PORT" -o IdentitiesOnly=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts")
+          ssh "${SSH_OPTS[@]}" "${DEPLOY_USER}@${DEPLOY_HOST}" "bash -s -- '${DEPLOY_PATH}' rollback '${SHA}' '' 5" < scripts/remote-deploy.sh
+
+      - name: Summary
+        shell: bash
+        run: |
+          {
+            echo "## Production ${{ inputs.mode }}"
+            echo
+            echo "- Mode: `${{ inputs.mode }}`"
+            echo "- Commit: `${{ github.sha }}`"
+            echo "- Blog: https://www.chenchen.fun/"
+            echo "- Admin: https://admin.chenchen.fun/"
+          } >> "$GITHUB_STEP_SUMMARY"
