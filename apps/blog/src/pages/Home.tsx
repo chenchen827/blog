@@ -249,6 +249,21 @@ function useWelcomeSplit() {
 
   return progress;
 }
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsMobile(mediaQuery.matches);
+    update();
+    mediaQuery.addEventListener("change", update);
+    return () => mediaQuery.removeEventListener("change", update);
+  }, []);
+
+  return isMobile;
+}
+
 function HomeBackground({ template }: { template?: string | null }) {
   const resolvedTemplate = template || "Starry";
   const isGradientWaves = resolvedTemplate === "GradientWaves";
@@ -331,6 +346,7 @@ export default function Home() {
   const portraitSectionRef = useRef<HTMLElement | null>(null);
   const laserProgress = usePortraitLaser(portraitSectionRef);
   const welcomeSplit = useWelcomeSplit();
+  const isMobile = useIsMobile();
   const contactSectionRef = useRef<HTMLElement | null>(null);
   const contactPhase = useContactReveal(contactSectionRef);
 
@@ -492,93 +508,113 @@ export default function Home() {
 
   const displayName = personalization.user?.nickname || personalization.user?.username || "个人档案";
   const albumReveal = Math.min(1, Math.max(0, (welcomeSplit - 0.28) / 0.72));
+  const albumContent = albumLoading ? (
+    <Loader />
+  ) : album && albumItems.length > 0 ? (
+    <AccordionGallery
+      items={albumItems}
+      defaultIndex={0}
+      accentColor="#d9ff00"
+      overlayColor="#050505"
+      textColor="#f5f5f5"
+      fill
+      radius={16}
+      grayscale
+      className="h-full max-h-full"
+    />
+  ) : (
+    <EmptyState code="ALBUM" title="生活相册暂无相片" description={albumError || "当前 lifeAlbumId 尚未配置可用图片。"} className="min-h-0!" />
+  );
 
   return (
     <div className="relative isolate space-y-24 pb-12">
       <HomeBackground template={personalization.homeBackgroundTemplate} />
 
       <div className="relative z-10 space-y-24">
-        <section id="welcome" className="relative h-[190vh]">
-          <div className="sticky top-20 h-[calc(100dvh-7rem)] overflow-hidden border border-hairline [clip-path:polygon(0_0,100%_0,100%_calc(100%-32px),calc(100%-32px)_100%,0_100%)]">
-            <div
-              aria-hidden="true"
-              className="absolute inset-0"
-              style={{
-                clipPath: SPLIT_LEFT_CLIP,
-                transform: `translate3d(-${welcomeSplit * 72}%, ${welcomeSplit * 2}%, 0) rotate(${-welcomeSplit * 2}deg) scale(${1 + welcomeSplit * 0.03})`,
-                opacity: 1 - welcomeSplit,
-                filter: `blur(${welcomeSplit * 2.5}px)`,
-                pointerEvents: welcomeSplit > 0.05 ? "none" : "auto",
-                willChange: "transform, opacity, filter",
-              }}
-            >
+        {isMobile && (
+          <section id="welcome" className="relative">
+            <div className="relative h-[calc(100dvh-10rem)] min-h-[620px] overflow-hidden border border-hairline [clip-path:polygon(0_0,100%_0,100%_calc(100%-32px),calc(100%-32px)_100%,0_100%)]">
               <WelcomeHeroContent displayName={displayName} archiveId={String(personalization.id).padStart(3, "0")} />
-            </div>
-            <div
-              aria-hidden="true"
-              className="absolute inset-0"
-              style={{
-                clipPath: SPLIT_RIGHT_CLIP,
-                transform: `translate3d(${welcomeSplit * 72}%, ${-welcomeSplit * 2}%, 0) rotate(${welcomeSplit * 2}deg) scale(${1 + welcomeSplit * 0.03})`,
-                opacity: 1 - welcomeSplit,
-                filter: `blur(${welcomeSplit * 2.5}px)`,
-                pointerEvents: "none",
-                willChange: "transform, opacity, filter",
-              }}
-            >
-              <WelcomeHeroContent displayName={displayName} archiveId={String(personalization.id).padStart(3, "0")} />
-            </div>
-            <div className="sr-only">
-              <h1>Be Curious! Create! And Cool!</h1>
-              <p>欢迎来到「{displayName}」的数字档案。这里收录生活片段、个人近况与近期文章。</p>
-              <a href="#contact">Contact</a>
             </div>
 
-            {albumReveal > 0.02 && (
+            <div className="mt-8 overflow-hidden border border-hairline bg-primary/65 p-4 [clip-path:polygon(0_0,100%_0,100%_calc(100%-24px),calc(100%-24px)_100%,0_100%)] sm:p-6">
+              <div className="flex items-end justify-between gap-4 border-b border-hairline pb-4">
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-[0.42em] text-accent">Life Album</span>
+                  <h2 className="mt-2 text-2xl font-black uppercase tracking-[-0.04em] text-text-primary">生活相册</h2>
+                </div>
+                <span className="shrink-0 text-[10px] font-black uppercase tracking-[0.24em] text-text-secondary">{String(albumItems.length).padStart(2, "0")} Frames</span>
+              </div>
+              <div className="mt-5 h-[min(68dvh,640px)] min-h-[480px] [&>div]:h-full">{albumContent}</div>
+            </div>
+          </section>
+        )}
+
+        {!isMobile && (
+          <section id="welcome" className="relative h-[190vh]">
+            <div className="sticky top-20 h-[calc(100dvh-7rem)] overflow-hidden border border-hairline [clip-path:polygon(0_0,100%_0,100%_calc(100%-32px),calc(100%-32px)_100%,0_100%)]">
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 z-10 bg-[linear-gradient(135deg,rgba(24,24,24,0.42),rgba(5,5,5,0.18))]"
+                className="absolute inset-0"
                 style={{
-                  opacity: albumReveal,
-                  backdropFilter: `blur(${albumReveal * 18}px) saturate(${1 + albumReveal * 0.35})`,
-                  WebkitBackdropFilter: `blur(${albumReveal * 18}px) saturate(${1 + albumReveal * 0.35})`,
-                }}
-              />
-            )}
-            {albumReveal > 0.02 && (
-              <div
-                className="absolute inset-0 z-20 flex items-center justify-center p-4 sm:p-6"
-                style={{
-                  opacity: albumReveal,
-                  transform: `translate3d(0, ${(1 - albumReveal) * 16}%, 0) scale(${0.94 + albumReveal * 0.06})`,
-                  filter: `blur(${(1 - albumReveal) * 6}px)`,
-                  pointerEvents: albumReveal > 0.88 ? "auto" : "none",
+                  clipPath: SPLIT_LEFT_CLIP,
+                  transform: `translate3d(-${welcomeSplit * 72}%, ${welcomeSplit * 2}%, 0) rotate(${-welcomeSplit * 2}deg) scale(${1 + welcomeSplit * 0.03})`,
+                  opacity: 1 - welcomeSplit,
+                  filter: `blur(${welcomeSplit * 2.5}px)`,
+                  pointerEvents: welcomeSplit > 0.05 ? "none" : "auto",
                   willChange: "transform, opacity, filter",
                 }}
               >
-                <div className="h-full max-h-full w-full">
-                  {albumLoading ? (
-                    <Loader />
-                  ) : album && albumItems.length > 0 ? (
-                    <AccordionGallery
-                      items={albumItems}
-                      defaultIndex={0}
-                      accentColor="#d9ff00"
-                      overlayColor="#050505"
-                      textColor="#f5f5f5"
-                      fill
-                      radius={16}
-                      grayscale
-                      className="h-full max-h-full"
-                    />
-                  ) : (
-                    <EmptyState code="ALBUM" title="生活相册暂无相片" description={albumError || "当前 lifeAlbumId 尚未配置可用图片。"} className="min-h-0!" />
-                  )}
-                </div>
+                <WelcomeHeroContent displayName={displayName} archiveId={String(personalization.id).padStart(3, "0")} />
               </div>
-            )}
-          </div>
-        </section>
+              <div
+                aria-hidden="true"
+                className="absolute inset-0"
+                style={{
+                  clipPath: SPLIT_RIGHT_CLIP,
+                  transform: `translate3d(${welcomeSplit * 72}%, ${-welcomeSplit * 2}%, 0) rotate(${welcomeSplit * 2}deg) scale(${1 + welcomeSplit * 0.03})`,
+                  opacity: 1 - welcomeSplit,
+                  filter: `blur(${welcomeSplit * 2.5}px)`,
+                  pointerEvents: "none",
+                  willChange: "transform, opacity, filter",
+                }}
+              >
+                <WelcomeHeroContent displayName={displayName} archiveId={String(personalization.id).padStart(3, "0")} />
+              </div>
+              <div className="sr-only">
+                <h1>Be Curious! Create! And Cool!</h1>
+                <p>欢迎来到「{displayName}」的数字档案。这里收录生活片段、个人近况与近期文章。</p>
+                <a href="#contact">Contact</a>
+              </div>
+
+              {albumReveal > 0.02 && (
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 z-10 bg-[linear-gradient(135deg,rgba(24,24,24,0.42),rgba(5,5,5,0.18))]"
+                  style={{
+                    opacity: albumReveal,
+                    backdropFilter: `blur(${albumReveal * 18}px) saturate(${1 + albumReveal * 0.35})`,
+                    WebkitBackdropFilter: `blur(${albumReveal * 18}px) saturate(${1 + albumReveal * 0.35})`,
+                  }}
+                />
+              )}
+              {albumReveal > 0.02 && (
+                <div
+                  className="absolute inset-0 z-20 flex items-center justify-center p-4 sm:p-6"
+                  style={{
+                    opacity: albumReveal,
+                    transform: `translate3d(0, ${(1 - albumReveal) * 16}%, 0) scale(${0.94 + albumReveal * 0.06})`,
+                    filter: `blur(${(1 - albumReveal) * 6}px)`,
+                    pointerEvents: albumReveal > 0.88 ? "auto" : "none",
+                    willChange: "transform, opacity, filter",
+                  }}
+                >
+                  <div className="h-full max-h-full w-full">{albumContent}</div>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
         <section id="contact" ref={contactSectionRef} className="relative grid scroll-mt-20 lg:grid-cols-2">
           <div
             className="relative border border-hairline bg-accent p-6 text-ink sm:p-10 lg:border-r-0 lg:p-14"
@@ -640,6 +676,20 @@ export default function Home() {
               <div className="inline-flex h-28 w-36 items-center justify-center border-2 border-text-primary/80">
                 <MailOutlined aria-hidden="true" className="text-5xl text-accent" />
               </div>
+
+              <Link
+                to="/knowledge"
+                className="group mt-10 inline-flex min-h-16 w-full max-w-md items-center justify-between gap-6 border border-accent bg-accent px-5 py-4 text-ink transition-[filter] hover:brightness-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
+              >
+                <span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.32em] text-ink/60">Knowledge Base</span>
+                  <span className="truncate text-lg font-black uppercase tracking-[0.2em]">前往知识库</span>
+                </span>
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center border border-ink/20 bg-ink text-accent">
+                  <ArrowRightOutlined aria-hidden="true" className="transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </Link>
+
               <div className="mt-16 border-t border-hairline pt-6">
                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-text-secondary">Open Channel</p>
                 <p className="mt-3 max-w-sm text-sm leading-relaxed text-text-secondary">合作、交流或只是想打个招呼，都可以通过邮箱联系。</p>
@@ -655,12 +705,11 @@ export default function Home() {
           ref={portraitSectionRef}
           className="relative overflow-hidden border border-hairline bg-primary/65 [clip-path:polygon(0_0,100%_0,100%_calc(100%-32px),calc(100%-32px)_100%,0_100%)]"
         >
-          <div className="grid min-h-[620px] lg:grid-cols-[minmax(220px,0.34fr)_minmax(0,1fr)]">
+          <div className="grid min-h-155 lg:grid-cols-[minmax(220px,0.34fr)_minmax(0,1fr)]">
             <div className="relative flex flex-col justify-between border-b border-hairline p-6 sm:p-9 lg:border-b-0 lg:border-r">
               <div>
                 <span className="text-[10px] font-black uppercase tracking-[0.42em] text-accent">Portrait</span>
                 <h2 className="mt-4 text-4xl font-black uppercase leading-[0.9] tracking-[-0.04em] text-text-primary sm:text-5xl">个人人像</h2>
-                <p className="mt-5 max-w-xs text-sm leading-relaxed text-text-secondary">向下滚动，镭射扫描线会掠过人像；线上为镭射滤镜，线下保持原色。</p>
               </div>
               <div>
                 <div className="mb-3 h-1.5 w-full bg-hairline">
@@ -673,7 +722,7 @@ export default function Home() {
             </div>
 
             <div className="relative flex items-center justify-center p-4 sm:p-8 lg:p-12">
-              <figure className="relative aspect-[16/9] w-full max-w-5xl overflow-hidden border border-hairline bg-surface-soft">
+              <figure className="relative aspect-video w-full max-w-5xl overflow-hidden border border-hairline bg-surface-soft">
                 {personalization.portraitUrl ? (
                   <>
                     <img src={personalization.portraitUrl} alt={`${displayName}的人像`} className="h-full w-full object-cover" />
@@ -700,7 +749,7 @@ export default function Home() {
                     />
                   </>
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-[#d8d8d8] via-[#8a8a8a] to-[#3a3a3a]">
+                  <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-[#d8d8d8] via-text-secondary to-[#3a3a3a]">
                     <UserOutlined aria-hidden="true" className="text-[7rem] text-white/45" />
                   </div>
                 )}
@@ -729,7 +778,6 @@ export default function Home() {
             <div>
               <span className="text-[10px] font-black uppercase tracking-[0.42em] text-accent">Journal</span>
               <h2 className="mt-3 text-4xl font-black uppercase leading-none tracking-[-0.04em] text-text-primary sm:text-5xl">文章列表</h2>
-              <p className="mt-4 max-w-2xl text-sm leading-relaxed text-text-secondary">由 recommendedArticleIds 指定的近期文章。</p>
             </div>
             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary">{String(articles.length).padStart(2, "0")} Entries</span>
           </div>
@@ -741,34 +789,30 @@ export default function Home() {
               {articles.map((article, index) => {
                 return (
                   <li key={article.id}>
-                      <Link
-                        to={`/posts/${article.id}`}
-                        target={ARTICLE_WINDOW_NAME}
-                        rel="noopener noreferrer"
-                        onClick={openArticleInWindow}
-                        style={{ backgroundColor: "rgba(255,255,255,0.06)", color: "#f5f5f5" }}
-                        className="group grid min-h-36 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-5 overflow-hidden border border-white/12 bg-white/[0.06] px-5 py-6 text-text-primary backdrop-blur-xl backdrop-saturate-150 transition-[background-color,border-color] hover:border-accent/70 hover:bg-white/[0.1] sm:px-7"
-                      >
-                        <span className="text-[clamp(3rem,7vw,6.5rem)] font-black leading-none tracking-[-0.07em] text-accent">
-                          {String(index + 1).padStart(2, "0")}
-                        </span>
-                        <span className="min-w-0">
-                          <strong className="block truncate text-xl font-black uppercase tracking-tight sm:text-3xl">{article.title}</strong>
-                          <small className="mt-3 block text-[10px] font-black uppercase tracking-[0.28em] text-text-secondary">
-                            Article / {String(article.id).padStart(3, "0")}
-                          </small>
-                        </span>
-                        <span className="flex items-center gap-4">
-                          <time className="hidden text-xs font-bold text-text-secondary sm:block">{article.createdAt || "—"}</time>
-                          <ArrowRightOutlined aria-hidden="true" className="text-lg transition-transform group-hover:translate-x-1" />
-                        </span>
-                      </Link>
+                    <Link
+                      to={`/posts/${article.id}`}
+                      target={ARTICLE_WINDOW_NAME}
+                      rel="noopener noreferrer"
+                      onClick={openArticleInWindow}
+                      style={{ backgroundColor: "rgba(255,255,255,0.06)", color: "#f5f5f5" }}
+                      className="group grid min-h-36 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-5 overflow-hidden border border-white/12 bg-white/[0.06] px-5 py-6 text-text-primary backdrop-blur-xl backdrop-saturate-150 transition-[background-color,border-color] hover:border-accent/70 hover:bg-white/[0.1] sm:px-7"
+                    >
+                      <span className="text-[clamp(3rem,7vw,6.5rem)] font-black leading-none tracking-[-0.07em] text-accent">{String(index + 1).padStart(2, "0")}</span>
+                      <span className="min-w-0">
+                        <strong className="block truncate text-xl font-black uppercase tracking-tight sm:text-3xl">{article.title}</strong>
+                        <small className="mt-3 block text-[10px] font-black uppercase tracking-[0.28em] text-text-secondary">Article / {String(article.id).padStart(3, "0")}</small>
+                      </span>
+                      <span className="flex items-center gap-4">
+                        <time className="hidden text-xs font-bold text-text-secondary sm:block">{article.createdAt || "—"}</time>
+                        <ArrowRightOutlined aria-hidden="true" className="text-lg transition-transform group-hover:translate-x-1" />
+                      </span>
+                    </Link>
                   </li>
                 );
               })}
             </ol>
           ) : (
-            <EmptyState code="ARTICLE" title="暂无推荐文章" description="当前没有可访问的 recommendedArticleIds。" className="min-h-0!" />
+            <EmptyState code="ARTICLE" title="暂无推荐文章" description="当前没有可访问的推荐文章。" className="min-h-0!" />
           )}
         </section>
       </div>

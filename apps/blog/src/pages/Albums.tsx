@@ -50,7 +50,7 @@ export default function Albums() {
           action={
             <Link
               to="/login"
-              className="inline-flex items-center justify-center rounded-none bg-accent px-8 py-3 text-sm font-black uppercase tracking-wide text-ink transition-[filter] hover:brightness-90"
+              className="inline-flex items-center justify-center rounded-none bg-accent px-8 py-3 text-sm font-black uppercase tracking-wide text-ink transition-[filter] hover:brightness-90 cursor-pointer"
             >
               去登录
             </Link>

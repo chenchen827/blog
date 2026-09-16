@@ -28,7 +28,7 @@ export function EmptyState({ title = "这里还没有内容", description = "从
     >
       <div
         aria-hidden="true"
-        className="absolute inset-0 opacity-[0.04]"
+        className="pointer-events-none absolute inset-0 opacity-[0.04]"
         style={{
           backgroundImage: "linear-gradient(rgba(255,255,255,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.8) 1px, transparent 1px)",
           backgroundSize: "32px 32px",
@@ -54,7 +54,7 @@ export function EmptyState({ title = "这里还没有内容", description = "从
       <h3 className="mt-3 text-xl font-black uppercase leading-none tracking-[-0.02em] text-text-primary">{title}</h3>
       <p className="mt-3 max-w-sm text-sm leading-relaxed text-text-secondary">{description}</p>
 
-      {action ? <div className="mt-5">{action}</div> : null}
+      {action ? <div className="relative z-10 mt-5">{action}</div> : null}
     </div>
   );
 }
